@@ -1,5 +1,21 @@
 {
-  "projects": {},
+  "projects": {
+    "proj-0001": {
+      "project_id": "proj-0001",
+      "name": "Create optimization microservice for transport",
+      "domain": "transport",
+      "status": "active",
+      "created_at": "2026-02-17T20:16:53.229440+00:00",
+      "updated_at": "2026-02-17T20:16:53.229440+00:00",
+      "assigned_agents": [
+        "scout",
+        "builder",
+        "chief"
+      ],
+      "milestones": [],
+      "success_metrics": {}
+    }
+  },
   "agent_memories": {
     "scout": {
       "agent_id": "scout",
@@ -153,12 +169,616 @@
             "opportunity_value": 0.68
           },
           "timestamp": "2026-02-17T09:20:11.952527+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in manufacturing",
+          "context": {
+            "domain": "manufacturing",
+            "problem": "Predictive maintenance false positive rate at 35%",
+            "severity": "high",
+            "opportunity_value": 0.8
+          },
+          "timestamp": "2026-02-17T20:09:50.304095+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in insurance",
+          "context": {
+            "domain": "insurance",
+            "problem": "Claims processing takes 14 days average",
+            "severity": "medium",
+            "opportunity_value": 0.75
+          },
+          "timestamp": "2026-02-17T20:09:58.819332+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in fintech",
+          "context": {
+            "domain": "fintech",
+            "problem": "KYC onboarding takes 3+ days average",
+            "severity": "high",
+            "opportunity_value": 0.88
+          },
+          "timestamp": "2026-02-17T20:10:08.178945+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in logistics",
+          "context": {
+            "domain": "logistics",
+            "problem": "Last-mile delivery cost optimization needed",
+            "severity": "high",
+            "opportunity_value": 0.9
+          },
+          "timestamp": "2026-02-17T20:10:16.474710+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in energy",
+          "context": {
+            "domain": "energy",
+            "problem": "Solar panel output prediction accuracy is 68%",
+            "severity": "high",
+            "opportunity_value": 0.82
+          },
+          "timestamp": "2026-02-17T20:10:25.364670+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in healthcare",
+          "context": {
+            "domain": "healthcare",
+            "problem": "Patient wait-time tracking is manual",
+            "severity": "medium",
+            "opportunity_value": 0.7
+          },
+          "timestamp": "2026-02-17T20:10:33.897375+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in education",
+          "context": {
+            "domain": "education",
+            "problem": "Student engagement drops after 15 min in online lectures",
+            "severity": "medium",
+            "opportunity_value": 0.65
+          },
+          "timestamp": "2026-02-17T20:10:42.889251+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in energy",
+          "context": {
+            "domain": "energy",
+            "problem": "Solar panel output prediction accuracy is 68%",
+            "severity": "high",
+            "opportunity_value": 0.82
+          },
+          "timestamp": "2026-02-17T20:10:49.800536+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in manufacturing",
+          "context": {
+            "domain": "manufacturing",
+            "problem": "Predictive maintenance false positive rate at 35%",
+            "severity": "high",
+            "opportunity_value": 0.8
+          },
+          "timestamp": "2026-02-17T20:10:59.171580+00:00"
+        },
+        {
+          "lesson": "Found low severity issue in real-estate",
+          "context": {
+            "domain": "real-estate",
+            "problem": "Property valuation models are outdated by 6 months",
+            "severity": "low",
+            "opportunity_value": 0.5
+          },
+          "timestamp": "2026-02-17T20:11:07.497625+00:00"
+        },
+        {
+          "lesson": "Found low severity issue in real-estate",
+          "context": {
+            "domain": "real-estate",
+            "problem": "Property valuation models are outdated by 6 months",
+            "severity": "low",
+            "opportunity_value": 0.5
+          },
+          "timestamp": "2026-02-17T20:11:13.007661+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in insurance",
+          "context": {
+            "domain": "insurance",
+            "problem": "Claims processing takes 14 days average",
+            "severity": "medium",
+            "opportunity_value": 0.75
+          },
+          "timestamp": "2026-02-17T20:11:20.308139+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in fintech",
+          "context": {
+            "domain": "fintech",
+            "problem": "KYC onboarding takes 3+ days average",
+            "severity": "high",
+            "opportunity_value": 0.88
+          },
+          "timestamp": "2026-02-17T20:11:28.472650+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in insurance",
+          "context": {
+            "domain": "insurance",
+            "problem": "Claims processing takes 14 days average",
+            "severity": "medium",
+            "opportunity_value": 0.75
+          },
+          "timestamp": "2026-02-17T20:11:37.248166+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in insurance",
+          "context": {
+            "domain": "insurance",
+            "problem": "Claims processing takes 14 days average",
+            "severity": "medium",
+            "opportunity_value": 0.75
+          },
+          "timestamp": "2026-02-17T20:11:43.505607+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in retail",
+          "context": {
+            "domain": "retail",
+            "problem": "Inventory forecasting error rate at 23%",
+            "severity": "medium",
+            "opportunity_value": 0.68
+          },
+          "timestamp": "2026-02-17T20:11:49.070466+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in retail",
+          "context": {
+            "domain": "retail",
+            "problem": "Inventory forecasting error rate at 23%",
+            "severity": "medium",
+            "opportunity_value": 0.68
+          },
+          "timestamp": "2026-02-17T20:11:55.739646+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in agriculture",
+          "context": {
+            "domain": "agriculture",
+            "problem": "Crop disease detection relies on visual inspection",
+            "severity": "medium",
+            "opportunity_value": 0.72
+          },
+          "timestamp": "2026-02-17T20:12:02.785535+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in e-commerce",
+          "context": {
+            "domain": "e-commerce",
+            "problem": "Cart abandonment rate at 72%",
+            "severity": "high",
+            "opportunity_value": 0.85
+          },
+          "timestamp": "2026-02-17T20:12:08.867475+00:00"
+        },
+        {
+          "lesson": "Found low severity issue in real-estate",
+          "context": {
+            "domain": "real-estate",
+            "problem": "Property valuation models are outdated by 6 months",
+            "severity": "low",
+            "opportunity_value": 0.5
+          },
+          "timestamp": "2026-02-17T20:12:14.980021+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in fintech",
+          "context": {
+            "domain": "fintech",
+            "problem": "KYC onboarding takes 3+ days average",
+            "severity": "high",
+            "opportunity_value": 0.88
+          },
+          "timestamp": "2026-02-17T20:12:22.116907+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in manufacturing",
+          "context": {
+            "domain": "manufacturing",
+            "problem": "Predictive maintenance false positive rate at 35%",
+            "severity": "high",
+            "opportunity_value": 0.8
+          },
+          "timestamp": "2026-02-17T20:12:29.976763+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in agriculture",
+          "context": {
+            "domain": "agriculture",
+            "problem": "Crop disease detection relies on visual inspection",
+            "severity": "medium",
+            "opportunity_value": 0.72
+          },
+          "timestamp": "2026-02-17T20:12:37.905837+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in transport",
+          "context": {
+            "domain": "transport",
+            "problem": "Fleet route optimization saves only 8% fuel",
+            "severity": "high",
+            "opportunity_value": 0.78
+          },
+          "timestamp": "2026-02-17T20:12:47.421538+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in e-commerce",
+          "context": {
+            "domain": "e-commerce",
+            "problem": "Cart abandonment rate at 72%",
+            "severity": "high",
+            "opportunity_value": 0.85
+          },
+          "timestamp": "2026-02-17T20:12:55.395125+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in education",
+          "context": {
+            "domain": "education",
+            "problem": "Student engagement drops after 15 min in online lectures",
+            "severity": "medium",
+            "opportunity_value": 0.65
+          },
+          "timestamp": "2026-02-17T20:13:04.648751+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in retail",
+          "context": {
+            "domain": "retail",
+            "problem": "Inventory forecasting error rate at 23%",
+            "severity": "medium",
+            "opportunity_value": 0.68
+          },
+          "timestamp": "2026-02-17T20:13:12.110877+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in education",
+          "context": {
+            "domain": "education",
+            "problem": "Student engagement drops after 15 min in online lectures",
+            "severity": "medium",
+            "opportunity_value": 0.65
+          },
+          "timestamp": "2026-02-17T20:13:19.733718+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in education",
+          "context": {
+            "domain": "education",
+            "problem": "Student engagement drops after 15 min in online lectures",
+            "severity": "medium",
+            "opportunity_value": 0.65
+          },
+          "timestamp": "2026-02-17T20:13:25.997617+00:00"
+        },
+        {
+          "lesson": "Found low severity issue in real-estate",
+          "context": {
+            "domain": "real-estate",
+            "problem": "Property valuation models are outdated by 6 months",
+            "severity": "low",
+            "opportunity_value": 0.5
+          },
+          "timestamp": "2026-02-17T20:13:32.276660+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in agriculture",
+          "context": {
+            "domain": "agriculture",
+            "problem": "Crop disease detection relies on visual inspection",
+            "severity": "medium",
+            "opportunity_value": 0.72
+          },
+          "timestamp": "2026-02-17T20:13:41.607146+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in agriculture",
+          "context": {
+            "domain": "agriculture",
+            "problem": "Crop disease detection relies on visual inspection",
+            "severity": "medium",
+            "opportunity_value": 0.72
+          },
+          "timestamp": "2026-02-17T20:13:49.287728+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in energy",
+          "context": {
+            "domain": "energy",
+            "problem": "Solar panel output prediction accuracy is 68%",
+            "severity": "high",
+            "opportunity_value": 0.82
+          },
+          "timestamp": "2026-02-17T20:13:56.911485+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in energy",
+          "context": {
+            "domain": "energy",
+            "problem": "Solar panel output prediction accuracy is 68%",
+            "severity": "high",
+            "opportunity_value": 0.82
+          },
+          "timestamp": "2026-02-17T20:14:03.779808+00:00"
+        },
+        {
+          "lesson": "Found low severity issue in real-estate",
+          "context": {
+            "domain": "real-estate",
+            "problem": "Property valuation models are outdated by 6 months",
+            "severity": "low",
+            "opportunity_value": 0.5
+          },
+          "timestamp": "2026-02-17T20:14:10.471526+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in insurance",
+          "context": {
+            "domain": "insurance",
+            "problem": "Claims processing takes 14 days average",
+            "severity": "medium",
+            "opportunity_value": 0.75
+          },
+          "timestamp": "2026-02-17T20:14:19.298985+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in fintech",
+          "context": {
+            "domain": "fintech",
+            "problem": "KYC onboarding takes 3+ days average",
+            "severity": "high",
+            "opportunity_value": 0.88
+          },
+          "timestamp": "2026-02-17T20:14:25.292647+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in logistics",
+          "context": {
+            "domain": "logistics",
+            "problem": "Last-mile delivery cost optimization needed",
+            "severity": "high",
+            "opportunity_value": 0.9
+          },
+          "timestamp": "2026-02-17T20:14:33.113686+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in insurance",
+          "context": {
+            "domain": "insurance",
+            "problem": "Claims processing takes 14 days average",
+            "severity": "medium",
+            "opportunity_value": 0.75
+          },
+          "timestamp": "2026-02-17T20:14:39.360758+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in e-commerce",
+          "context": {
+            "domain": "e-commerce",
+            "problem": "Cart abandonment rate at 72%",
+            "severity": "high",
+            "opportunity_value": 0.85
+          },
+          "timestamp": "2026-02-17T20:14:47.902786+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in e-commerce",
+          "context": {
+            "domain": "e-commerce",
+            "problem": "Cart abandonment rate at 72%",
+            "severity": "high",
+            "opportunity_value": 0.85
+          },
+          "timestamp": "2026-02-17T20:14:53.871085+00:00"
+        },
+        {
+          "lesson": "Found low severity issue in real-estate",
+          "context": {
+            "domain": "real-estate",
+            "problem": "Property valuation models are outdated by 6 months",
+            "severity": "low",
+            "opportunity_value": 0.5
+          },
+          "timestamp": "2026-02-17T20:15:02.638085+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in manufacturing",
+          "context": {
+            "domain": "manufacturing",
+            "problem": "Predictive maintenance false positive rate at 35%",
+            "severity": "high",
+            "opportunity_value": 0.8
+          },
+          "timestamp": "2026-02-17T20:15:08.426860+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in manufacturing",
+          "context": {
+            "domain": "manufacturing",
+            "problem": "Predictive maintenance false positive rate at 35%",
+            "severity": "high",
+            "opportunity_value": 0.8
+          },
+          "timestamp": "2026-02-17T20:15:16.053291+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in agriculture",
+          "context": {
+            "domain": "agriculture",
+            "problem": "Crop disease detection relies on visual inspection",
+            "severity": "medium",
+            "opportunity_value": 0.72
+          },
+          "timestamp": "2026-02-17T20:15:25.235385+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in e-commerce",
+          "context": {
+            "domain": "e-commerce",
+            "problem": "Cart abandonment rate at 72%",
+            "severity": "high",
+            "opportunity_value": 0.85
+          },
+          "timestamp": "2026-02-17T20:15:32.325635+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in manufacturing",
+          "context": {
+            "domain": "manufacturing",
+            "problem": "Predictive maintenance false positive rate at 35%",
+            "severity": "high",
+            "opportunity_value": 0.8
+          },
+          "timestamp": "2026-02-17T20:15:39.643499+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in healthcare",
+          "context": {
+            "domain": "healthcare",
+            "problem": "Patient wait-time tracking is manual",
+            "severity": "medium",
+            "opportunity_value": 0.7
+          },
+          "timestamp": "2026-02-17T20:15:47.049533+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in healthcare",
+          "context": {
+            "domain": "healthcare",
+            "problem": "Patient wait-time tracking is manual",
+            "severity": "medium",
+            "opportunity_value": 0.7
+          },
+          "timestamp": "2026-02-17T20:15:55.361747+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in e-commerce",
+          "context": {
+            "domain": "e-commerce",
+            "problem": "Cart abandonment rate at 72%",
+            "severity": "high",
+            "opportunity_value": 0.85
+          },
+          "timestamp": "2026-02-17T20:16:02.999211+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in fintech",
+          "context": {
+            "domain": "fintech",
+            "problem": "KYC onboarding takes 3+ days average",
+            "severity": "high",
+            "opportunity_value": 0.88
+          },
+          "timestamp": "2026-02-17T20:16:10.942631+00:00"
+        },
+        {
+          "lesson": "Found low severity issue in real-estate",
+          "context": {
+            "domain": "real-estate",
+            "problem": "Property valuation models are outdated by 6 months",
+            "severity": "low",
+            "opportunity_value": 0.5
+          },
+          "timestamp": "2026-02-17T20:16:17.822466+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in energy",
+          "context": {
+            "domain": "energy",
+            "problem": "Solar panel output prediction accuracy is 68%",
+            "severity": "high",
+            "opportunity_value": 0.82
+          },
+          "timestamp": "2026-02-17T20:16:24.909193+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in transport",
+          "context": {
+            "domain": "transport",
+            "problem": "Fleet route optimization saves only 8% fuel",
+            "severity": "high",
+            "opportunity_value": 0.78
+          },
+          "timestamp": "2026-02-17T20:16:33.034450+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in education",
+          "context": {
+            "domain": "education",
+            "problem": "Student engagement drops after 15 min in online lectures",
+            "severity": "medium",
+            "opportunity_value": 0.65
+          },
+          "timestamp": "2026-02-17T20:16:39.227417+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in healthcare",
+          "context": {
+            "domain": "healthcare",
+            "problem": "Patient wait-time tracking is manual",
+            "severity": "medium",
+            "opportunity_value": 0.7
+          },
+          "timestamp": "2026-02-17T20:16:48.268813+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in insurance",
+          "context": {
+            "domain": "insurance",
+            "problem": "Claims processing takes 14 days average",
+            "severity": "medium",
+            "opportunity_value": 0.75
+          },
+          "timestamp": "2026-02-17T20:16:54.646481+00:00"
+        },
+        {
+          "lesson": "Found medium severity issue in education",
+          "context": {
+            "domain": "education",
+            "problem": "Student engagement drops after 15 min in online lectures",
+            "severity": "medium",
+            "opportunity_value": 0.65
+          },
+          "timestamp": "2026-02-17T20:17:03.164980+00:00"
+        },
+        {
+          "lesson": "Found high severity issue in e-commerce",
+          "context": {
+            "domain": "e-commerce",
+            "problem": "Cart abandonment rate at 72%",
+            "severity": "high",
+            "opportunity_value": 0.85
+          },
+          "timestamp": "2026-02-17T20:17:10.657174+00:00"
         }
       ],
-      "collaboration_history": [],
+      "collaboration_history": [
+        {
+          "partner": "builder",
+          "outcome": "water_cooler",
+          "quality": 0.8,
+          "timestamp": "2026-02-17T20:13:09.358215+00:00"
+        },
+        {
+          "partner": "builder",
+          "outcome": "water_cooler",
+          "quality": 0.8,
+          "timestamp": "2026-02-17T20:16:17.586524+00:00"
+        }
+      ],
       "confidence_score": 0.5,
       "skills": {
-        "problem_discovery": 0.15
+        "problem_discovery": 0.7400000000000004,
+        "nlp": 0.11482085996081194
       },
       "task_success_count": 0,
       "task_failure_count": 0,
@@ -169,108 +789,179 @@
     "builder": {
       "agent_id": "builder",
       "lessons_learned": [],
-      "collaboration_history": [],
-      "confidence_score": 0.48,
+      "collaboration_history": [
+        {
+          "partner": "chief",
+          "outcome": "water_cooler",
+          "quality": 0.8,
+          "timestamp": "2026-02-17T20:11:55.123426+00:00"
+        },
+        {
+          "partner": "scout",
+          "outcome": "water_cooler",
+          "quality": 0.8,
+          "timestamp": "2026-02-17T20:13:09.358215+00:00"
+        },
+        {
+          "partner": "chief",
+          "outcome": "water_cooler",
+          "quality": 0.8,
+          "timestamp": "2026-02-17T20:15:02.968728+00:00"
+        },
+        {
+          "partner": "scout",
+          "outcome": "water_cooler",
+          "quality": 0.8,
+          "timestamp": "2026-02-17T20:16:17.586524+00:00"
+        }
+      ],
+      "confidence_score": 0.55,
       "skills": {
-        "solution_design": 0.09,
-        "machine_learning": 0.005,
-        "analytics": 0.015,
-        "api_development": 0.01,
-        "nlp": 0.01,
-        "data_engineering": 0.005
+        "solution_design": 0.47000000000000025,
+        "machine_learning": 0.030000000000000002,
+        "analytics": 0.035,
+        "api_development": 0.025,
+        "nlp": 0.12967281765627056,
+        "data_engineering": 0.035,
+        "computer_vision": 0.025,
+        "system_architecture": 0.025,
+        "frontend_design": 0.01,
+        "optimization": 0.015
       },
-      "task_success_count": 0,
-      "task_failure_count": 2,
+      "task_success_count": 4,
+      "task_failure_count": 3,
       "autonomy_level": 0.3,
-      "evolution_index": 0.0,
+      "evolution_index": 0.04,
       "working_memory": []
     },
     "chief": {
       "agent_id": "chief",
       "lessons_learned": [],
-      "collaboration_history": [],
-      "confidence_score": 0.54,
-      "skills": {},
-      "task_success_count": 2,
+      "collaboration_history": [
+        {
+          "partner": "builder",
+          "outcome": "water_cooler",
+          "quality": 0.8,
+          "timestamp": "2026-02-17T20:11:55.123426+00:00"
+        },
+        {
+          "partner": "builder",
+          "outcome": "water_cooler",
+          "quality": 0.8,
+          "timestamp": "2026-02-17T20:15:02.968728+00:00"
+        }
+      ],
+      "confidence_score": 0.7000000000000002,
+      "skills": {
+        "nlp": 0.08329009629265184
+      },
+      "task_success_count": 10,
       "task_failure_count": 0,
       "autonomy_level": 0.3,
-      "evolution_index": 0.02,
+      "evolution_index": 0.09999999999999999,
       "working_memory": []
     }
   },
-  "relationships": {},
+  "relationships": {
+    "builder:chief": {
+      "agent_a": "chief",
+      "agent_b": "builder",
+      "trust_score": 0.7000000000000002,
+      "collaboration_count": 4,
+      "last_interaction": "2026-02-17T20:15:02.968728+00:00"
+    },
+    "builder:scout": {
+      "agent_a": "builder",
+      "agent_b": "scout",
+      "trust_score": 0.7000000000000002,
+      "collaboration_count": 4,
+      "last_interaction": "2026-02-17T20:16:17.586524+00:00"
+    }
+  },
   "known_domains": {
     "insurance": {
       "first_seen": "2026-02-17T09:18:24.116776+00:00",
-      "encounters": 1,
-      "last_scanned": "2026-02-17T09:18:24.116776+00:00",
+      "encounters": 8,
+      "last_scanned": "2026-02-17T20:16:53.526376+00:00",
       "problems_found": 1
     },
     "manufacturing": {
       "first_seen": "2026-02-17T09:18:30.367705+00:00",
-      "encounters": 2,
-      "last_scanned": "2026-02-17T09:19:22.199672+00:00",
+      "encounters": 8,
+      "last_scanned": "2026-02-17T20:15:37.760405+00:00",
       "problems_found": 1
     },
     "energy": {
       "first_seen": "2026-02-17T09:18:35.460753+00:00",
-      "encounters": 1,
-      "last_scanned": "2026-02-17T09:18:35.460753+00:00",
+      "encounters": 6,
+      "last_scanned": "2026-02-17T20:16:23.487162+00:00",
       "problems_found": 1
     },
     "education": {
       "first_seen": "2026-02-17T09:18:44.716499+00:00",
-      "encounters": 3,
-      "last_scanned": "2026-02-17T09:19:49.706854+00:00",
+      "encounters": 9,
+      "last_scanned": "2026-02-17T20:17:02.109280+00:00",
       "problems_found": 1
     },
     "healthcare": {
       "first_seen": "2026-02-17T09:18:53.277349+00:00",
-      "encounters": 2,
-      "last_scanned": "2026-02-17T09:19:40.783457+00:00",
+      "encounters": 6,
+      "last_scanned": "2026-02-17T20:16:46.662807+00:00",
       "problems_found": 1
     },
     "fintech": {
       "first_seen": "2026-02-17T09:19:02.473269+00:00",
-      "encounters": 1,
-      "last_scanned": "2026-02-17T09:19:02.473269+00:00",
+      "encounters": 6,
+      "last_scanned": "2026-02-17T20:16:09.151856+00:00",
       "problems_found": 1
     },
     "retail": {
       "first_seen": "2026-02-17T09:19:09.654550+00:00",
-      "encounters": 2,
-      "last_scanned": "2026-02-17T09:20:10.866733+00:00",
+      "encounters": 5,
+      "last_scanned": "2026-02-17T20:13:10.775378+00:00",
       "problems_found": 1
     },
     "agriculture": {
       "first_seen": "2026-02-17T09:19:32.108217+00:00",
-      "encounters": 1,
-      "last_scanned": "2026-02-17T09:19:32.108217+00:00",
+      "encounters": 6,
+      "last_scanned": "2026-02-17T20:15:23.895307+00:00",
       "problems_found": 1
     },
     "real-estate": {
       "first_seen": "2026-02-17T09:19:58.479161+00:00",
-      "encounters": 1,
-      "last_scanned": "2026-02-17T09:19:58.479161+00:00",
+      "encounters": 8,
+      "last_scanned": "2026-02-17T20:16:15.857589+00:00",
       "problems_found": 1
     },
     "logistics": {
       "first_seen": "2026-02-17T09:20:04.849557+00:00",
-      "encounters": 1,
-      "last_scanned": "2026-02-17T09:20:04.849557+00:00",
+      "encounters": 3,
+      "last_scanned": "2026-02-17T20:14:31.965914+00:00",
+      "problems_found": 1
+    },
+    "e-commerce": {
+      "first_seen": "2026-02-17T20:12:07.332636+00:00",
+      "encounters": 7,
+      "last_scanned": "2026-02-17T20:17:09.472372+00:00",
+      "problems_found": 1
+    },
+    "transport": {
+      "first_seen": "2026-02-17T20:12:45.762126+00:00",
+      "encounters": 2,
+      "last_scanned": "2026-02-17T20:16:31.081546+00:00",
       "problems_found": 1
     }
   },
   "known_failures": [],
   "global_metrics": {
-    "total_tasks_completed": 2,
-    "total_problems_discovered": 15,
-    "total_proposals_approved": 2,
-    "total_proposals_denied": 0,
-    "water_cooler_exchanges": 0,
-    "boardroom_sessions": 0,
-    "upskills_completed": 0,
-    "launches_completed": 0
+    "total_tasks_completed": 7,
+    "total_problems_discovered": 74,
+    "total_proposals_approved": 7,
+    "total_proposals_denied": 3,
+    "water_cooler_exchanges": 4,
+    "boardroom_sessions": 2,
+    "upskills_completed": 1,
+    "launches_completed": 1
   },
-  "updated_at": "2026-02-17T09:20:16.645804+00:00"
+  "updated_at": "2026-02-17T20:17:11.270608+00:00"
 }
