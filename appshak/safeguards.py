@@ -199,49 +199,29 @@ class SafeguardMonitor:
                 ),
             }
 
-    def _is_whitelisted(self, endpoint: str) -> bool:
-        if not self.endpoint_whitelist:
-            return False
-        return self._normalize_host(endpoint) in self.endpoint_whitelist
+    def _payload(self, event: Any) -> Dict[str, Any]:
+        return event.to_dict().get("payload", {}) if hasattr(event, "to_dict") else event.get("payload", {})
 
-    @staticmethod
-    def _payload(event: Any) -> Dict[str, Any]:
-        if isinstance(event, dict):
-            payload = event.get("payload", {})
-            return payload if isinstance(payload, dict) else {}
-        payload = getattr(event, "payload", {})
-        return payload if isinstance(payload, dict) else {}
+    def _extract_endpoint(self, payload: Dict[str, Any]) -> str:
+        return str(payload.get("endpoint") or payload.get("url") or "")
 
-    @staticmethod
-    def _extract_endpoint(payload: Dict[str, Any]) -> str:
-        endpoint = payload.get("endpoint") or payload.get("url")
-        return str(endpoint).strip() if endpoint else ""
-
-    @staticmethod
-    def _normalize_host(endpoint: str) -> str:
-        raw = str(endpoint).strip().lower()
-        if not raw:
-            return raw
-        parsed = urlparse(raw if "://" in raw else f"https://{raw}")
-        return parsed.netloc or parsed.path
+    def _action_key(self, payload: Dict[str, Any], origin_id: str, endpoint: str) -> str:
+        action = payload.get("action", "default")
+        return f"{origin_id}:{action}:{endpoint}"
 
     def _contains_monetary_operation(self, payload: Dict[str, Any]) -> bool:
-        payload_keys = {str(key).lower() for key in payload.keys()}
-        action_text = str(payload.get("action", "")).lower()
-        joined = f"{action_text} {' '.join(payload_keys)}"
-        return any(keyword in joined for keyword in self._MONETARY_KEYWORDS)
+        text = str(payload).lower()
+        return any(kw in text for kw in self._MONETARY_KEYWORDS)
 
     def _contains_shell_execution(self, payload: Dict[str, Any]) -> bool:
-        for field in self._SHELL_FIELDS:
-            value = payload.get(field)
-            if isinstance(value, str) and value.strip():
-                return True
-        return False
+        return any(k in payload for k in self._SHELL_FIELDS)
 
-    @staticmethod
-    def _action_key(payload: Dict[str, Any], origin_id: str, endpoint: str) -> str:
-        explicit = payload.get("action_id")
-        if explicit:
-            return str(explicit)
-        action = str(payload.get("action", "external_action"))
-        return f"{origin_id}|{action}|{endpoint}"
+    def _normalize_host(self, url: str) -> str:
+        try:
+            return urlparse(url).netloc or url
+        except Exception:
+            return url
+
+    def _is_whitelisted(self, endpoint: str) -> bool:
+        host = self._normalize_host(endpoint)
+        return host in self.endpoint_whitelist

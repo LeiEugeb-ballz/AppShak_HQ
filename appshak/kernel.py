@@ -356,62 +356,32 @@ class AppShakKernel:
                 "recovered_at": self._iso_now(),
                 "heartbeat_error": repr(error),
                 "recovered_kernel_state": recovered_kernel_state,
-                "failure_count": self._heartbeat_failures,
             },
         )
 
-    async def _call_optional(
-        self,
-        target: Any,
-        method_names: Iterable[str],
-        *args: Any,
-        default: Any = None,
-        **kwargs: Any,
-    ) -> Any:
-        for method_name in method_names:
-            method = getattr(target, method_name, None)
-            if method is None:
-                continue
-            result = method(*args, **kwargs)
-            if inspect.isawaitable(result):
-                return await result
-            return result
+    async def _call_optional(self, obj: Any, methods: Iterable[str], *args: Any, default: Any = None) -> Any:
+        for method in methods:
+            func = getattr(obj, method, None)
+            if callable(func):
+                res = func(*args)
+                if inspect.isawaitable(res):
+                    return await res
+                return res
         return default
 
-    def _event_field(self, event: Any, field_name: str) -> Any:
-        if isinstance(event, dict):
-            return event.get(field_name)
-        return getattr(event, field_name, None)
+    def _event_to_dict(self, event: Any) -> Dict[str, Any]:
+        return event.to_dict() if hasattr(event, "to_dict") else dict(event)
 
     def _event_payload(self, event: Any) -> Dict[str, Any]:
-        payload = self._event_field(event, "payload")
-        return payload if isinstance(payload, dict) else {}
-
-    def _event_origin(self, event: Any) -> str:
-        origin = self._event_field(event, "origin_id")
-        if isinstance(origin, str) and origin:
-            return origin
-        fallback = self._event_field(event, "origin")
-        return str(fallback) if fallback is not None else "unknown"
+        return self._event_to_dict(event).get("payload", {})
 
     def _event_type_value(self, event: Any) -> str:
-        raw = self._event_field(event, "type")
-        if isinstance(raw, EventType):
-            return raw.value
-        return str(raw) if raw is not None else ""
+        evt = self._event_to_dict(event)
+        return str(evt.get("type", ""))
 
-    def _event_to_dict(self, event: Any) -> Dict[str, Any]:
-        if hasattr(event, "to_dict"):
-            as_dict = event.to_dict()
-            if isinstance(as_dict, dict):
-                return as_dict
-        return {
-            "type": self._event_type_value(event),
-            "timestamp": self._event_field(event, "timestamp"),
-            "origin_id": self._event_origin(event),
-            "payload": self._event_payload(event),
-        }
+    def _event_origin(self, event: Any) -> str:
+        evt = self._event_to_dict(event)
+        return str(evt.get("origin_id", "unknown"))
 
-    @staticmethod
-    def _iso_now() -> str:
+    def _iso_now(self) -> str:
         return datetime.now(timezone.utc).isoformat()

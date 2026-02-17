@@ -69,26 +69,6 @@ class ChiefAgent(BaseAgent):
 
         approved = bool(action and endpoint and has_justification)
         reason = (
-            "Approved: explicit action/endpoint with Prime Directive justification."
-            if approved
-            else "Denied: missing action, endpoint, or Prime Directive justification."
+            "Approved for execution." if approved else "Denied: Missing action, endpoint, or justification."
         )
-
-        return {
-            "approved": approved,
-            "reason": reason,
-            "reviewed_by": self.agent_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "prime_directive_justification": self.justify_action(
-                "approve_external_action",
-                "preserving centralized authority and safe external governance.",
-            ),
-        }
-
-    @staticmethod
-    def _extract_payload(event: Any) -> Dict[str, Any]:
-        if isinstance(event, dict):
-            payload = event.get("payload", {})
-            return payload if isinstance(payload, dict) else {}
-        payload = getattr(event, "payload", {})
-        return payload if isinstance(payload, dict) else {}
+        return {"approved": approved, "reason": reason}
