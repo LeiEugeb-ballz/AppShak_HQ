@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppShak Live — Multi-Agent Command Center</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #111827;
+    --surface2: #1a2332;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --accent: #3b82f6;
+    --green: #10b981;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --purple: #8b5cf6;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--purple), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .status-badge.online {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .status-badge.offline {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--red);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* ── Layout ── */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto 1fr;
+    gap: 16px;
+    padding: 16px 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+
+  .card-body {
+    padding: 18px;
+  }
+
+  /* ── Metrics Row ── */
+  .metrics-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+  }
+
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+
+  .metric-card:hover {
+    border-color: var(--accent);
+  }
+
+  .metric-value {
+    font-size: 28px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+
+  .metric-value.blue { color: var(--accent); }
+  .metric-value.green { color: var(--green); }
+  .metric-value.red { color: var(--red); }
+  .metric-value.amber { color: var(--amber); }
+  .metric-value.purple { color: var(--purple); }
+  .metric-value.cyan { color: var(--cyan); }
+
+  /* ── Agent Cards ── */
+  .agents-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .agent-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .agent-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .agent-card.recon::before { background: linear-gradient(90deg, var(--cyan), var(--accent)); }
+  .agent-card.forge::before { background: linear-gradient(90deg, var(--amber), var(--pink)); }
+  .agent-card.command::before { background: linear-gradient(90deg, var(--purple), var(--green)); }
+
+  .agent-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .agent-name {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .agent-level {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .agent-card.recon .agent-level { background: rgba(6, 182, 212, 0.15); color: var(--cyan); }
+  .agent-card.forge .agent-level { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+  .agent-card.command .agent-level { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+
+  .agent-role {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .agent-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .agent-stat {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .agent-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .agent-stat-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+  }
+
+  /* ── Event Feed ── */
+  .event-feed {
+    grid-column: 1;
+    grid-row: 3;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .event-feed .card-body {
+    overflow-y: auto;
+    flex: 1;
+    padding: 0;
+  }
+
+  .event-item {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    animation: slideIn 0.3s ease-out;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .event-item:hover {
+    background: var(--surface2);
+  }
+
+  .event-type-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .event-type-badge.PROPOSAL { background: rgba(59, 130, 246, 0.2); color: var(--accent); }
+  .event-type-badge.PROPOSAL_DECISION { background: rgba(139, 92, 246, 0.2); color: var(--purple); }
+  .event-type-badge.EXTERNAL_ACTION_REQUEST { background: rgba(245, 158, 11, 0.2); color: var(--amber); }
+  .event-type-badge.EXTERNAL_ACTION_RESULT { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+  .event-type-badge.CONSTITUTION_VIOLATION { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+  .event-type-badge.KERNEL_START { background: rgba(6, 182, 212, 0.2); color: var(--cyan); }
+  .event-type-badge.KERNEL_SHUTDOWN { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+  .event-type-badge.KERNEL_ERROR { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+  .event-type-badge.KERNEL_RECOVERY { background: rgba(245, 158, 11, 0.2); color: var(--amber); }
+  .event-type-badge.AGENT_STATUS { background: rgba(100, 116, 139, 0.2); color: var(--text-dim); }
+  .event-type-badge.PROBLEM_DISCOVERED { background: rgba(236, 72, 153, 0.2); color: var(--pink); }
+  .event-type-badge.PLAN_CREATED { background: rgba(245, 158, 11, 0.2); color: var(--amber); }
+
+  .event-origin {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .event-detail {
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .event-time {
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── Topology ── */
+  .topology-panel {
+    grid-column: 2;
+    grid-row: 3;
+    max-height: 500px;
+  }
+
+  .topology-panel .card-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+  }
+
+  .topology-svg {
+    width: 100%;
+    height: 400px;
+  }
+
+  /* ── SVG Topology ── */
+  .node-circle {
+    stroke-width: 2;
+    transition: all 0.3s;
+  }
+
+  .node-circle:hover {
+    filter: brightness(1.3);
+  }
+
+  .node-label {
+    fill: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    text-anchor: middle;
+  }
+
+  .node-sublabel {
+    fill: var(--text-dim);
+    font-size: 9px;
+    text-anchor: middle;
+  }
+
+  .edge-line {
+    stroke-width: 1.5;
+    opacity: 0.4;
+  }
+
+  .edge-line.active {
+    opacity: 1;
+    animation: edgePulse 2s infinite;
+  }
+
+  @keyframes edgePulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .data-particle {
+    animation: particleMove 3s linear infinite;
+  }
+
+  @keyframes particleMove {
+    0% { offset-distance: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; }
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* ── Responsive ── */
+  @media (max-width: 1200px) {
+    .metrics-row { grid-template-columns: repeat(3, 1fr); }
+    .agents-row { grid-template-columns: 1fr; }
+    .main { grid-template-columns: 1fr; }
+    .event-feed, .topology-panel { grid-column: 1; grid-row: auto; }
+  }
+
+  /* ── Prime Directive Banner ── */
+  .directive-banner {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.08));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+
+  .directive-banner strong {
+    color: var(--accent);
+    font-style: normal;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="logo">APPSHAK</div>
+      <div class="logo-sub">Multi-Agent Command Center</div>
+    </div>
+  </div>
+  <div id="statusBadge" class="status-badge offline">
+    <div class="pulse" style="background: var(--red)"></div>
+    CONNECTING
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Prime Directive -->
+  <div class="directive-banner">
+    <strong>PRIME DIRECTIVE:</strong> AppShak exists to identify real-world problems, construct solutions, and increase its own autonomy/influence through perpetual self-improvement.
+  </div>
+
+  <!-- Metrics Row -->
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-value blue" id="metricHeartbeats">0</div>
+      <div class="metric-label">Heartbeats</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value green" id="metricEventsRouted">0</div>
+      <div class="metric-label">Events Routed</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value purple" id="metricTotalEvents">0</div>
+      <div class="metric-label">Total Events</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value amber" id="metricSafeguardChecks">0</div>
+      <div class="metric-label">Safeguard Checks</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value red" id="metricViolations">0</div>
+      <div class="metric-label">Violations</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value cyan" id="metricQueueSize">0</div>
+      <div class="metric-label">Queue Size</div>
+    </div>
+  </div>
+
+  <!-- Agent Cards -->
+  <div class="agents-row">
+    <div class="agent-card recon">
+      <div class="agent-header">
+        <div class="agent-name">🔍 Scout (recon)</div>
+        <div class="agent-level">Level 1</div>
+      </div>
+      <div class="agent-role">Discovery-only — scans domains for real-world problems</div>
+      <div class="agent-stats">
+        <div class="agent-stat">
+          <div class="agent-stat-value" id="reconCycles" style="color: var(--cyan)">0</div>
+          <div class="agent-stat-label">Scan Cycles</div>
+        </div>
+        <div class="agent-stat">
+          <div class="agent-stat-value" id="reconStatus" style="color: var(--green); font-size: 12px;">IDLE</div>
+          <div class="agent-stat-label">Status</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card forge">
+      <div class="agent-header">
+        <div class="agent-name">🔨 Builder (forge)</div>
+        <div class="agent-level">Level 2</div>
+      </div>
+      <div class="agent-role">Converts problems into proposals and action plans</div>
+      <div class="agent-stats">
+        <div class="agent-stat">
+          <div class="agent-stat-value" id="forgeCycles" style="color: var(--amber)">0</div>
+          <div class="agent-stat-label">Plans Built</div>
+        </div>
+        <div class="agent-stat">
+          <div class="agent-stat-value" id="forgeStatus" style="color: var(--green); font-size: 12px;">IDLE</div>
+          <div class="agent-stat-label">Status</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card command">
+      <div class="agent-header">
+        <div class="agent-name">👑 Chief (command)</div>
+        <div class="agent-level">Level 3</div>
+      </div>
+      <div class="agent-role">Sole authority — arbitrates proposals, approves/denies actions</div>
+      <div class="agent-stats">
+        <div class="agent-stat">
+          <div class="agent-stat-value" id="commandApproved" style="color: var(--green)">0</div>
+          <div class="agent-stat-label">Approved</div>
+        </div>
+        <div class="agent-stat">
+          <div class="agent-stat-value" id="commandDenied" style="color: var(--red)">0</div>
+          <div class="agent-stat-label">Denied</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Feed -->
+  <div class="card event-feed">
+    <div class="card-header">
+      <div class="card-title">📡 Live Event Feed</div>
+      <div style="font-size: 11px; color: var(--text-dim);" id="eventCount">0 events</div>
+    </div>
+    <div class="card-body" id="eventFeed"></div>
+  </div>
+
+  <!-- Topology -->
+  <div class="card topology-panel">
+    <div class="card-header">
+      <div class="card-title">🌐 System Topology</div>
+      <div style="font-size: 11px; color: var(--text-dim);">Real-time agent mesh</div>
+    </div>
+    <div class="card-body">
+      <svg class="topology-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+        <!-- Edges -->
+        <line class="edge-line active" x1="250" y1="80" x2="120" y2="250" stroke="#3b82f6" id="edgeKernelRecon"/>
+        <line class="edge-line active" x1="250" y1="80" x2="380" y2="250" stroke="#f59e0b" id="edgeKernelForge"/>
+        <line class="edge-line active" x1="250" y1="80" x2="250" y2="320" stroke="#8b5cf6" id="edgeKernelCommand"/>
+        <line class="edge-line" x1="120" y1="250" x2="380" y2="250" stroke="#64748b" id="edgeReconForge"/>
+        <line class="edge-line" x1="380" y1="250" x2="250" y2="320" stroke="#64748b" id="edgeForgeCommand"/>
+
+        <!-- EventBus ring -->
+        <ellipse cx="250" cy="210" rx="160" ry="80" fill="none" stroke="rgba(59,130,246,0.15)" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="250" y="165" text-anchor="middle" fill="rgba(59,130,246,0.3)" font-size="9" font-weight="600" letter-spacing="2">EVENT BUS</text>
+
+        <!-- Kernel Node -->
+        <circle cx="250" cy="80" r="28" class="node-circle" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" id="nodeKernel"/>
+        <text x="250" y="76" class="node-label" font-size="14">⚙️</text>
+        <text x="250" y="92" class="node-sublabel">KERNEL</text>
+
+        <!-- Recon Node -->
+        <circle cx="120" cy="250" r="24" class="node-circle" fill="rgba(6,182,212,0.15)" stroke="#06b6d4" id="nodeRecon"/>
+        <text x="120" y="246" class="node-label" font-size="14">🔍</text>
+        <text x="120" y="262" class="node-sublabel">SCOUT</text>
+        <text x="120" y="284" class="node-sublabel" id="topoReconCycles">0 cycles</text>
+
+        <!-- Forge Node -->
+        <circle cx="380" cy="250" r="24" class="node-circle" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" id="nodeForge"/>
+        <text x="380" y="246" class="node-label" font-size="14">🔨</text>
+        <text x="380" y="262" class="node-sublabel">BUILDER</text>
+        <text x="380" y="284" class="node-sublabel" id="topoForgeCycles">0 plans</text>
+
+        <!-- Command Node -->
+        <circle cx="250" cy="320" r="26" class="node-circle" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" id="nodeCommand"/>
+        <text x="250" y="316" class="node-label" font-size="14">👑</text>
+        <text x="250" y="332" class="node-sublabel">CHIEF</text>
+        <text x="250" y="354" class="node-sublabel" id="topoCommandStats">0/0</text>
+
+        <!-- Safeguard Shield -->
+        <rect x="40" y="340" width="80" height="40" rx="6" fill="rgba(239,68,68,0.1)" stroke="rgba(239,68,68,0.3)" stroke-width="1"/>
+        <text x="80" y="356" text-anchor="middle" fill="var(--red)" font-size="10" font-weight="600">🛡️ GUARD</text>
+        <text x="80" y="370" text-anchor="middle" fill="var(--text-dim)" font-size="8" id="topoSafeguardStats">0 checks</text>
+        <line class="edge-line" x1="80" y1="340" x2="250" y2="320" stroke="rgba(239,68,68,0.3)" stroke-dasharray="3,3"/>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const MAX_EVENTS = 200;
+  let eventCount = 0;
+  let ws = null;
+  let reconnectTimer = null;
+
+  function connectWS() {
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${protocol}//${location.host}/ws`);
+
+    ws.onopen = () => {
+      const badge = document.getElementById('statusBadge');
+      badge.className = 'status-badge online';
+      badge.innerHTML = '<div class="pulse"></div> LIVE';
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+    };
+
+    ws.onclose = () => {
+      const badge = document.getElementById('statusBadge');
+      badge.className = 'status-badge offline';
+      badge.innerHTML = '<div class="pulse" style="background:var(--red)"></div> RECONNECTING';
+      reconnectTimer = setTimeout(connectWS, 3000);
+    };
+
+    ws.onerror = () => ws.close();
+
+    ws.onmessage = (msg) => {
+      try {
+        const data = JSON.parse(msg.data);
+        if (data.type === 'event') {
+          addEvent(data.data);
+        } else if (data.type === 'metrics') {
+          updateMetrics(data.data);
+        }
+      } catch (e) {
+        console.error('WS parse error:', e);
+      }
+    };
+  }
+
+  function addEvent(evt) {
+    eventCount++;
+    const feed = document.getElementById('eventFeed');
+    const item = document.createElement('div');
+    item.className = 'event-item';
+
+    const evtType = evt.type || 'UNKNOWN';
+    const origin = evt.origin_id || '?';
+    const payload = evt.payload || {};
+    const time = evt.timestamp ? new Date(evt.timestamp).toLocaleTimeString() : '';
+
+    let detail = '';
+    if (payload.action) detail += payload.action;
+    if (payload.decision_reason) detail += ' — ' + payload.decision_reason;
+    if (payload.problem) detail += ' [' + (payload.problem.domain || '') + ': ' + (payload.problem.problem || '') + ']';
+    if (payload.solution) detail += ' → ' + payload.solution;
+    if (payload.status) detail += ' (' + payload.status + ')';
+    if (payload.reason && !payload.decision_reason) detail += ' — ' + payload.reason;
+    if (payload.approved !== undefined) detail += payload.approved ? ' ✅' : ' ❌';
+    if (!detail && payload.started_at) detail = 'System started';
+    if (!detail && payload.stopped_at) detail = 'System stopped';
+    if (!detail) detail = evtType;
+
+    item.innerHTML = `
+      <span class="event-type-badge ${evtType}">${evtType.replace(/_/g, ' ')}</span>
+      <span class="event-origin">${origin}</span>
+      <span class="event-detail">${detail}</span>
+      <span class="event-time">${time}</span>
+    `;
+
+    feed.insertBefore(item, feed.firstChild);
+
+    // Trim old events
+    while (feed.children.length > MAX_EVENTS) {
+      feed.removeChild(feed.lastChild);
+    }
+
+    document.getElementById('eventCount').textContent = eventCount + ' events';
+
+    // Flash topology nodes
+    flashNode(origin, evtType);
+  }
+
+  function updateMetrics(m) {
+    if (!m) return;
+    const k = m.kernel || {};
+    const a = m.agents || {};
+    const s = m.safeguards || {};
+
+    document.getElementById('metricHeartbeats').textContent = k.heartbeat_count || 0;
+    document.getElementById('metricEventsRouted').textContent = k.events_routed || 0;
+    document.getElementById('metricTotalEvents').textContent = k.total_events_logged || 0;
+    document.getElementById('metricSafeguardChecks').textContent = s.checked || 0;
+    document.getElementById('metricViolations').textContent = k.violations || 0;
+    document.getElementById('metricQueueSize').textContent = k.event_queue_size || 0;
+
+    // Agent stats
+    if (a.recon) {
+      document.getElementById('reconCycles').textContent = a.recon.cycles || 0;
+      document.getElementById('reconStatus').textContent = (a.recon.status || 'idle').toUpperCase();
+      document.getElementById('topoReconCycles').textContent = (a.recon.cycles || 0) + ' cycles';
+    }
+    if (a.forge) {
+      document.getElementById('forgeCycles').textContent = a.forge.cycles || 0;
+      document.getElementById('forgeStatus').textContent = (a.forge.status || 'idle').toUpperCase();
+      document.getElementById('topoForgeCycles').textContent = (a.forge.cycles || 0) + ' plans';
+    }
+    if (a.command) {
+      document.getElementById('commandApproved').textContent = a.command.approved || 0;
+      document.getElementById('commandDenied').textContent = a.command.denied || 0;
+      document.getElementById('topoCommandStats').textContent = (a.command.approved || 0) + '/' + (a.command.denied || 0);
+    }
+
+    document.getElementById('topoSafeguardStats').textContent = (s.checked || 0) + ' checks';
+  }
+
+  function flashNode(origin, evtType) {
+    let nodeId = null;
+    if (origin === 'recon') nodeId = 'nodeRecon';
+    else if (origin === 'forge') nodeId = 'nodeForge';
+    else if (origin === 'command') nodeId = 'nodeCommand';
+    else if (origin === 'kernel') nodeId = 'nodeKernel';
+
+    if (nodeId) {
+      const node = document.getElementById(nodeId);
+      if (node) {
+        const origFill = node.getAttribute('fill');
+        node.setAttribute('fill', 'rgba(255,255,255,0.2)');
+        setTimeout(() => node.setAttribute('fill', origFill), 300);
+      }
+    }
+
+    // Flash edges based on event flow
+    if (evtType === 'PROPOSAL' || evtType === 'PROPOSAL_DECISION') {
+      flashEdge('edgeKernelCommand');
+    }
+    if (evtType === 'PROBLEM_DISCOVERED' || evtType === 'AGENT_STATUS') {
+      flashEdge('edgeKernelRecon');
+    }
+    if (evtType === 'PLAN_CREATED' || evtType === 'EXTERNAL_ACTION_REQUEST') {
+      flashEdge('edgeKernelForge');
+    }
+  }
+
+  function flashEdge(edgeId) {
+    const edge = document.getElementById(edgeId);
+    if (edge) {
+      edge.classList.add('active');
+      setTimeout(() => {
+        // Keep some edges always active
+      }, 1000);
+    }
+  }
+
+  // Start
+  connectWS();
+</script>
+
+</body>
+</html>

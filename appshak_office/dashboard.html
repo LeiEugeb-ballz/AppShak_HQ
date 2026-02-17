@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppShak Office — Cognitive Organism Command Center</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #7d8590;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --amber: #d29922;
+    --purple: #a371f7;
+    --cyan: #39c5cf;
+    --pink: #db61a2;
+    --orange: #f0883e;
+    
+    /* Office colors */
+    --floor: #1a1f26;
+    --desk: #2d333b;
+    --water-cooler: #1f6feb;
+    --boardroom: #8b5cf6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--purple), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .status-badge.online {
+    background: rgba(63, 185, 80, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+  }
+
+  .status-badge.offline {
+    background: rgba(248, 81, 73, 0.15);
+    color: var(--red);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+  }
+
+  .pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* ── Main Layout ── */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    grid-template-rows: auto 1fr;
+    gap: 16px;
+    padding: 16px;
+    max-width: 1800px;
+    margin: 0 auto;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ── North Star Banner ── */
+  .north-star-banner {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.08), rgba(163, 113, 247, 0.08));
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
+  }
+
+  .north-star-banner strong {
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .north-star-text {
+    animation: scrollText 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes scrollText {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── Office Floor ── */
+  .office-floor {
+    background: var(--floor);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative;
+    min-height: 500px;
+    overflow: hidden;
+  }
+
+  .office-floor-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .office-floor-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+
+  .office-canvas {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    background: 
+      linear-gradient(90deg, rgba(48, 54, 61, 0.3) 1px, transparent 1px),
+      linear-gradient(rgba(48, 54, 61, 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* ── Agent Desks ── */
+  .agent-desk {
+    position: absolute;
+    width: 140px;
+    padding: 12px;
+    background: var(--desk);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .agent-desk:hover {
+    transform: scale(1.05);
+    z-index: 10;
+  }
+
+  .agent-desk.active {
+    border-color: var(--green);
+    box-shadow: 0 0 20px rgba(63, 185, 80, 0.3);
+  }
+
+  .agent-desk.at-water-cooler {
+    opacity: 0.5;
+    border-style: dashed;
+  }
+
+  .agent-desk.at-boardroom {
+    opacity: 0.5;
+    border-style: dashed;
+  }
+
+  .desk-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .desk-avatar {
+    font-size: 20px;
+  }
+
+  .desk-name {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .desk-level {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: auto;
+  }
+
+  .desk-level.l1 { background: rgba(57, 197, 207, 0.2); color: var(--cyan); }
+  .desk-level.l2 { background: rgba(240, 136, 62, 0.2); color: var(--orange); }
+  .desk-level.l3 { background: rgba(163, 113, 247, 0.2); color: var(--purple); }
+
+  .desk-status {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .desk-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    font-size: 9px;
+  }
+
+  .desk-stat {
+    background: var(--surface);
+    padding: 4px 6px;
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  .desk-stat-value {
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  /* ── Water Cooler ── */
+  .water-cooler {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(31, 111, 235, 0.2) 0%, transparent 70%);
+    border: 2px dashed var(--water-cooler);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .water-cooler.active {
+    background: radial-gradient(circle, rgba(31, 111, 235, 0.4) 0%, transparent 70%);
+    border-style: solid;
+    animation: waterCoolerPulse 2s infinite;
+  }
+
+  @keyframes waterCoolerPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(31, 111, 235, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(31, 111, 235, 0.6); }
+  }
+
+  .water-cooler-icon {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+
+  .water-cooler-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--water-cooler);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .water-cooler-count {
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ── Boardroom ── */
+  .boardroom {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 100px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 2px dashed var(--boardroom);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .boardroom.active {
+    background: rgba(139, 92, 246, 0.25);
+    border-style: solid;
+    animation: boardroomPulse 2s infinite;
+  }
+
+  @keyframes boardroomPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6); }
+  }
+
+  .boardroom-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .boardroom-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--boardroom);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .boardroom-status {
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ── Right Panel ── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+
+  .card-body {
+    padding: 12px;
+  }
+
+  /* ── Metrics Grid ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .metric-item {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .metric-value {
+    font-size: 20px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metric-label {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .metric-value.blue { color: var(--accent); }
+  .metric-value.green { color: var(--green); }
+  .metric-value.red { color: var(--red); }
+  .metric-value.amber { color: var(--amber); }
+  .metric-value.purple { color: var(--purple); }
+  .metric-value.cyan { color: var(--cyan); }
+
+  /* ── Event Feed ── */
+  .event-feed {
+    flex: 1;
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .event-feed .card-body {
+    overflow-y: auto;
+    flex: 1;
+    padding: 0;
+  }
+
+  .event-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .event-item:hover {
+    background: var(--surface2);
+  }
+
+  .event-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .event-type-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .event-type-badge.PROPOSAL { background: rgba(88, 166, 255, 0.2); color: var(--accent); }
+  .event-type-badge.PROPOSAL_DECISION { background: rgba(163, 113, 247, 0.2); color: var(--purple); }
+  .event-type-badge.TASK_ASSIGNED { background: rgba(240, 136, 62, 0.2); color: var(--orange); }
+  .event-type-badge.TASK_COMPLETE { background: rgba(63, 185, 80, 0.2); color: var(--green); }
+  .event-type-badge.PROBLEM_DISCOVERED { background: rgba(219, 97, 162, 0.2); color: var(--pink); }
+  .event-type-badge.PLAN_CREATED { background: rgba(210, 153, 34, 0.2); color: var(--amber); }
+  .event-type-badge.WATER_COOLER_START,
+  .event-type-badge.WATER_COOLER_EXCHANGE,
+  .event-type-badge.WATER_COOLER_END { background: rgba(31, 111, 235, 0.2); color: var(--water-cooler); }
+  .event-type-badge.BOARDROOM_CONVENE,
+  .event-type-badge.BOARDROOM_DISCUSSION,
+  .event-type-badge.BOARDROOM_DECISION,
+  .event-type-badge.BOARDROOM_ADJOURN { background: rgba(139, 92, 246, 0.2); color: var(--boardroom); }
+  .event-type-badge.PROJECT_LAUNCH { background: rgba(63, 185, 80, 0.2); color: var(--green); }
+  .event-type-badge.UPSKILL_SESSION { background: rgba(57, 197, 207, 0.2); color: var(--cyan); }
+  .event-type-badge.AGENT_STATUS { background: rgba(125, 133, 144, 0.2); color: var(--text-dim); }
+  .event-type-badge.KERNEL_START { background: rgba(57, 197, 207, 0.2); color: var(--cyan); }
+
+  .event-origin {
+    font-size: 9px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .event-time {
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  .event-detail {
+    font-size: 10px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  /* ── Memory Panel ── */
+  .memory-panel .card-body {
+    font-size: 11px;
+  }
+
+  .memory-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .memory-stat:last-child {
+    border-bottom: none;
+  }
+
+  .memory-stat-label {
+    color: var(--text-dim);
+  }
+
+  .memory-stat-value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Projects List ── */
+  .projects-list {
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .project-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+  }
+
+  .project-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .project-status.active { background: var(--green); }
+  .project-status.proposed { background: var(--amber); }
+  .project-status.completed { background: var(--accent); }
+
+  .project-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .project-domain {
+    color: var(--text-dim);
+    font-size: 9px;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* ── Responsive ── */
+  @media (max-width: 1200px) {
+    .main {
+      grid-template-columns: 1fr;
+    }
+    .right-panel {
+      order: -1;
+    }
+    .office-canvas {
+      height: 350px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="logo">APPSHAK OFFICE</div>
+      <div class="logo-sub">Cognitive Organism • vNext</div>
+    </div>
+  </div>
+  <div id="statusBadge" class="status-badge offline">
+    <div class="pulse" style="background: var(--red)"></div>
+    CONNECTING
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- North Star Banner -->
+  <div class="north-star-banner">
+    <strong>🌟 NORTH STAR:</strong>
+    <div class="north-star-text" id="northStarText">
+      Continuous Problem-Solving and Growth • Emergent Intelligence Expansion • Autonomous Value Creation • Collaborative Competence Building • Persistent Adaptation and Influence • Self-Improving Collective Agency • Enduring Ecosystem Evolution •
+      Continuous Problem-Solving and Growth • Emergent Intelligence Expansion • Autonomous Value Creation • Collaborative Competence Building • Persistent Adaptation and Influence • Self-Improving Collective Agency • Enduring Ecosystem Evolution •
+    </div>
+  </div>
+
+  <!-- Office Floor -->
+  <div class="office-floor">
+    <div class="office-floor-header">
+      <div class="office-floor-title">🏢 Office Floor</div>
+      <div style="font-size: 10px; color: var(--text-dim);" id="officeStatus">Agents at desks</div>
+    </div>
+    <div class="office-canvas">
+      <!-- Scout Desk -->
+      <div class="agent-desk" id="deskScout" style="left: 40px; top: 40px;">
+        <div class="desk-header">
+          <span class="desk-avatar">🔍</span>
+          <span class="desk-name">Scout</span>
+          <span class="desk-level l1">L1</span>
+        </div>
+        <div class="desk-status" id="scoutStatus">Idle</div>
+        <div class="desk-stats">
+          <div class="desk-stat">
+            <div class="desk-stat-value" id="scoutCycles" style="color: var(--cyan)">0</div>
+            <div>Scans</div>
+          </div>
+          <div class="desk-stat">
+            <div class="desk-stat-value" id="scoutConfidence" style="color: var(--green)">50%</div>
+            <div>Conf</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Builder Desk -->
+      <div class="agent-desk" id="deskBuilder" style="right: 40px; top: 40px;">
+        <div class="desk-header">
+          <span class="desk-avatar">🔨</span>
+          <span class="desk-name">Builder</span>
+          <span class="desk-level l2">L2</span>
+        </div>
+        <div class="desk-status" id="builderStatus">Idle</div>
+        <div class="desk-stats">
+          <div class="desk-stat">
+            <div class="desk-stat-value" id="builderPlans" style="color: var(--orange)">0</div>
+            <div>Plans</div>
+          </div>
+          <div class="desk-stat">
+            <div class="desk-stat-value" id="builderConfidence" style="color: var(--green)">50%</div>
+            <div>Conf</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chief Desk -->
+      <div class="agent-desk" id="deskChief" style="left: 50%; top: 20px; transform: translateX(-50%);">
+        <div class="desk-header">
+          <span class="desk-avatar">👑</span>
+          <span class="desk-name">Chief</span>
+          <span class="desk-level l3">L3</span>
+        </div>
+        <div class="desk-status" id="chiefStatus">Idle</div>
+        <div class="desk-stats">
+          <div class="desk-stat">
+            <div class="desk-stat-value" id="chiefApproved" style="color: var(--green)">0</div>
+            <div>Approved</div>
+          </div>
+          <div class="desk-stat">
+            <div class="desk-stat-value" id="chiefDenied" style="color: var(--red)">0</div>
+            <div>Denied</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Water Cooler -->
+      <div class="water-cooler" id="waterCooler">
+        <span class="water-cooler-icon">🚰</span>
+        <span class="water-cooler-label">Water Cooler</span>
+        <span class="water-cooler-count" id="waterCoolerCount">0 exchanges</span>
+      </div>
+
+      <!-- Boardroom -->
+      <div class="boardroom" id="boardroom">
+        <span class="boardroom-icon">🏛️</span>
+        <span class="boardroom-label">Boardroom</span>
+        <span class="boardroom-status" id="boardroomStatus">0 sessions</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <!-- Metrics -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 System Metrics</div>
+      </div>
+      <div class="card-body">
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div class="metric-value blue" id="metricHeartbeats">0</div>
+            <div class="metric-label">Heartbeats</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value green" id="metricEventsRouted">0</div>
+            <div class="metric-label">Events</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value purple" id="metricProblems">0</div>
+            <div class="metric-label">Problems</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value amber" id="metricProposals">0</div>
+            <div class="metric-label">Proposals</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value cyan" id="metricUpskills">0</div>
+            <div class="metric-label">Upskills</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value green" id="metricLaunches">0</div>
+            <div class="metric-label">Launches</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory -->
+    <div class="card memory-panel">
+      <div class="card-header">
+        <div class="card-title">🧠 Organizational Memory</div>
+      </div>
+      <div class="card-body">
+        <div class="memory-stat">
+          <span class="memory-stat-label">Total Projects</span>
+          <span class="memory-stat-value" id="memProjects">0</span>
+        </div>
+        <div class="memory-stat">
+          <span class="memory-stat-label">Active Projects</span>
+          <span class="memory-stat-value" id="memActiveProjects">0</span>
+        </div>
+        <div class="memory-stat">
+          <span class="memory-stat-label">Known Domains</span>
+          <span class="memory-stat-value" id="memDomains">0</span>
+        </div>
+        <div class="memory-stat">
+          <span class="memory-stat-label">Relationships</span>
+          <span class="memory-stat-value" id="memRelationships">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📁 Active Projects</div>
+      </div>
+      <div class="card-body">
+        <div class="projects-list" id="projectsList">
+          <div style="color: var(--text-dim); font-size: 10px; text-align: center; padding: 10px;">
+            No projects yet
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Feed -->
+    <div class="card event-feed">
+      <div class="card-header">
+        <div class="card-title">📡 Live Events</div>
+        <div style="font-size: 10px; color: var(--text-dim);" id="eventCount">0</div>
+      </div>
+      <div class="card-body" id="eventFeed"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const MAX_EVENTS = 100;
+  let eventCount = 0;
+  let ws = null;
+  let reconnectTimer = null;
+
+  function connectWS() {
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${protocol}//${location.host}/ws`);
+
+    ws.onopen = () => {
+      const badge = document.getElementById('statusBadge');
+      badge.className = 'status-badge online';
+      badge.innerHTML = '<div class="pulse"></div> LIVE';
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+    };
+
+    ws.onclose = () => {
+      const badge = document.getElementById('statusBadge');
+      badge.className = 'status-badge offline';
+      badge.innerHTML = '<div class="pulse" style="background:var(--red)"></div> RECONNECTING';
+      reconnectTimer = setTimeout(connectWS, 3000);
+    };
+
+    ws.onerror = () => ws.close();
+
+    ws.onmessage = (msg) => {
+      try {
+        const data = JSON.parse(msg.data);
+        if (data.type === 'event') {
+          addEvent(data.data);
+        } else if (data.type === 'metrics') {
+          updateMetrics(data.data);
+        }
+      } catch (e) {
+        console.error('WS parse error:', e);
+      }
+    };
+  }
+
+  function addEvent(evt) {
+    eventCount++;
+    const feed = document.getElementById('eventFeed');
+    const item = document.createElement('div');
+    item.className = 'event-item';
+
+    const evtType = evt.type || 'UNKNOWN';
+    const origin = evt.origin_id || '?';
+    const payload = evt.payload || {};
+    const time = evt.timestamp ? new Date(evt.timestamp).toLocaleTimeString() : '';
+
+    let detail = '';
+    if (payload.action) detail += payload.action;
+    if (payload.decision_reason) detail += ' — ' + payload.decision_reason;
+    if (payload.topic) detail += ': ' + payload.topic;
+    if (payload.problem) detail += ' [' + (payload.problem.domain || '') + ']';
+    if (payload.participants) detail += ' (' + payload.participants.join(', ') + ')';
+    if (payload.skill) detail += ' — ' + payload.skill;
+    if (payload.exchanges) {
+      detail += ': ' + payload.exchanges.map(e => e.agent + ' shares insight').join(', ');
+    }
+    if (payload.approved !== undefined) detail += payload.approved ? ' ✅' : ' ❌';
+    if (!detail) detail = evtType.replace(/_/g, ' ').toLowerCase();
+
+    item.innerHTML = `
+      <div class="event-header">
+        <span class="event-type-badge ${evtType}">${evtType.replace(/_/g, ' ')}</span>
+        <span class="event-origin">${origin}</span>
+        <span class="event-time">${time}</span>
+      </div>
+      <div class="event-detail">${detail}</div>
+    `;
+
+    feed.insertBefore(item, feed.firstChild);
+
+    while (feed.children.length > MAX_EVENTS) {
+      feed.removeChild(feed.lastChild);
+    }
+
+    document.getElementById('eventCount').textContent = eventCount;
+
+    // Update office visuals based on event
+    updateOfficeVisuals(evtType, payload);
+  }
+
+  function updateMetrics(m) {
+    if (!m) return;
+    const k = m.kernel || {};
+    const a = m.agents || {};
+    const o = m.office || {};
+    const mem = m.memory || {};
+
+    // Kernel metrics
+    document.getElementById('metricHeartbeats').textContent = k.heartbeat_count || 0;
+    document.getElementById('metricEventsRouted').textContent = k.events_routed || 0;
+
+    // Memory metrics
+    document.getElementById('metricProblems').textContent = mem.total_problems_discovered || 0;
+    document.getElementById('metricProposals').textContent = (mem.total_proposals_approved || 0) + (mem.total_proposals_denied || 0);
+    document.getElementById('metricUpskills').textContent = mem.upskills_completed || 0;
+    document.getElementById('metricLaunches').textContent = mem.launches_completed || 0;
+
+    document.getElementById('memProjects').textContent = mem.total_projects || 0;
+    document.getElementById('memActiveProjects').textContent = mem.active_projects || 0;
+    document.getElementById('memDomains').textContent = mem.known_domains_count || 0;
+    document.getElementById('memRelationships').textContent = mem.relationship_count || 0;
+
+    // Agent states
+    if (a.scout) {
+      const scout = a.scout;
+      document.getElementById('scoutStatus').textContent = (scout.status || 'idle').toUpperCase();
+      document.getElementById('scoutCycles').textContent = scout.cycle_count || 0;
+      document.getElementById('scoutConfidence').textContent = Math.round((scout.memory_summary?.confidence || 0.5) * 100) + '%';
+      updateDeskLocation('deskScout', scout.location);
+    }
+
+    if (a.builder) {
+      const builder = a.builder;
+      document.getElementById('builderStatus').textContent = (builder.status || 'idle').toUpperCase();
+      document.getElementById('builderPlans').textContent = builder.cycle_count || 0;
+      document.getElementById('builderConfidence').textContent = Math.round((builder.memory_summary?.confidence || 0.5) * 100) + '%';
+      updateDeskLocation('deskBuilder', builder.location);
+    }
+
+    if (a.chief) {
+      const chief = a.chief;
+      document.getElementById('chiefStatus').textContent = (chief.status || 'idle').toUpperCase();
+      const stats = chief.memory_summary || {};
+      // Get approved/denied from somewhere else if available
+      updateDeskLocation('deskChief', chief.location);
+    }
+
+    // Office spaces
+    if (o.water_cooler) {
+      const wc = o.water_cooler;
+      document.getElementById('waterCoolerCount').textContent = (wc.exchange_count || 0) + ' exchanges';
+      document.getElementById('waterCooler').classList.toggle('active', wc.running && wc.exchange_count > 0);
+    }
+
+    if (o.boardroom) {
+      const br = o.boardroom;
+      document.getElementById('boardroomStatus').textContent = (br.session_count || 0) + ' sessions';
+      document.getElementById('boardroom').classList.toggle('active', br.in_session);
+    }
+  }
+
+  function updateDeskLocation(deskId, location) {
+    const desk = document.getElementById(deskId);
+    if (!desk) return;
+    
+    desk.classList.remove('at-water-cooler', 'at-boardroom', 'active');
+    
+    if (location === 'water_cooler') {
+      desk.classList.add('at-water-cooler');
+    } else if (location === 'boardroom') {
+      desk.classList.add('at-boardroom');
+    } else if (location === 'desk') {
+      desk.classList.add('active');
+    }
+  }
+
+  function updateOfficeVisuals(evtType, payload) {
+    // Water cooler events
+    if (evtType.startsWith('WATER_COOLER')) {
+      const wc = document.getElementById('waterCooler');
+      if (evtType === 'WATER_COOLER_START' || evtType === 'WATER_COOLER_EXCHANGE') {
+        wc.classList.add('active');
+      } else if (evtType === 'WATER_COOLER_END') {
+        setTimeout(() => wc.classList.remove('active'), 2000);
+      }
+    }
+
+    // Boardroom events
+    if (evtType.startsWith('BOARDROOM')) {
+      const br = document.getElementById('boardroom');
+      if (evtType === 'BOARDROOM_CONVENE' || evtType === 'BOARDROOM_DISCUSSION') {
+        br.classList.add('active');
+      } else if (evtType === 'BOARDROOM_ADJOURN') {
+        setTimeout(() => br.classList.remove('active'), 2000);
+      }
+    }
+
+    // Update office status
+    let status = 'Agents at desks';
+    if (evtType.startsWith('WATER_COOLER')) {
+      status = '🚰 Water cooler chat in progress...';
+    } else if (evtType.startsWith('BOARDROOM')) {
+      status = '🏛️ Boardroom session in progress...';
+    }
+    document.getElementById('officeStatus').textContent = status;
+  }
+
+  // Fetch initial metrics
+  async function fetchInitialData() {
+    try {
+      const metricsRes = await fetch('/api/metrics');
+      const metrics = await metricsRes.json();
+      updateMetrics(metrics);
+    } catch (e) {
+      console.error('Failed to fetch initial data:', e);
+    }
+  }
+
+  // Start
+  connectWS();
+  fetchInitialData();
+</script>
+
+</body>
+</html>
