@@ -1,0 +1,167 @@
+from __future__ import annotations
+
+import asyncio
+import json
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict
+
+
+class GlobalMemory:
+    """JSON-based persistent store with isolated agent namespaces."""
+
+    def __init__(self, config: Dict[str, Any]) -> None:
+        self.config = config
+        root = Path(config.get("memory_root", "appshak_state"))
+        self.root_dir = root if root.is_absolute() else Path.cwd() / root
+        self.logs_dir = self.root_dir / "logs"
+        self.agents_dir = self.root_dir / "agents"
+
+        self.logs_dir.mkdir(parents=True, exist_ok=True)
+        self.agents_dir.mkdir(parents=True, exist_ok=True)
+
+        self.store_path = self.root_dir / "memory_store.json"
+        self.global_log_path = self.logs_dir / "global.jsonl"
+        self.error_log_path = self.logs_dir / "errors.jsonl"
+        self.external_action_log_path = self.logs_dir / "external_actions.jsonl"
+
+        self._state_lock = asyncio.Lock()
+        self._file_lock = asyncio.Lock()
+        self._agent_locks: Dict[str, asyncio.Lock] = {}
+        self._state: Dict[str, Any] = {
+            "updated_at": self._iso_now(),
+            "errors": [],
+            "agent_namespaces": {},
+            "kernel_state": {},
+            "external_pipeline": {},
+        }
+
+    async def log_error(self, source: str, message: str) -> None:
+        record = {
+            "timestamp": self._iso_now(),
+            "source": source,
+            "message": message,
+        }
+        async with self._state_lock:
+            self._state["errors"].append(record)
+            self._state["updated_at"] = self._iso_now()
+
+        await self._append_json_line(self.error_log_path, record)
+        await self.append_global_log("ERROR", {"source": source, "message": message})
+
+    async def periodic_persist(self) -> None:
+        await self._persist_state()
+
+    async def persist_all(self) -> None:
+        await self._persist_state()
+
+    async def load_state(self) -> Dict[str, Any]:
+        if not self.store_path.exists():
+            return dict(self._state)
+
+        async with self._file_lock:
+            raw_text = await asyncio.to_thread(self.store_path.read_text, "utf-8")
+
+        try:
+            loaded = json.loads(raw_text)
+        except json.JSONDecodeError:
+            return dict(self._state)
+
+        if not isinstance(loaded, dict):
+            return dict(self._state)
+
+        async with self._state_lock:
+            self._state = {
+                "updated_at": loaded.get("updated_at", self._iso_now()),
+                "errors": loaded.get("errors", []),
+                "agent_namespaces": loaded.get("agent_namespaces", {}),
+                "kernel_state": loaded.get("kernel_state", {}),
+                "external_pipeline": loaded.get("external_pipeline", {}),
+            }
+            return dict(self._state)
+
+    async def save_kernel_state(self, kernel_state: Dict[str, Any]) -> None:
+        async with self._state_lock:
+            current = self._state.setdefault("kernel_state", {})
+            current.update(kernel_state)
+            self._state["updated_at"] = self._iso_now()
+        await self._persist_state()
+
+    async def get_kernel_state(self) -> Dict[str, Any]:
+        async with self._state_lock:
+            state = self._state.get("kernel_state", {})
+            return dict(state) if isinstance(state, dict) else {}
+
+    async def save_external_pipeline_state(self, pipeline_state: Dict[str, Any]) -> None:
+        async with self._state_lock:
+            self._state["external_pipeline"] = dict(pipeline_state)
+            self._state["updated_at"] = self._iso_now()
+        await self._persist_state()
+
+    async def append_global_log(self, event_type: str, payload: Dict[str, Any]) -> None:
+        await self._append_json_line(
+            self.global_log_path,
+            {"timestamp": self._iso_now(), "event_type": event_type, "payload": payload},
+        )
+
+    async def append_agent_event(self, agent_id: str, event: Dict[str, Any]) -> None:
+        safe_agent_id = self._sanitize_agent_id(agent_id)
+        agent_record = {
+            "timestamp": self._iso_now(),
+            "event_type": "AGENT_EVENT",
+            "payload": event,
+        }
+
+        async with self._state_lock:
+            namespace = self._state["agent_namespaces"].setdefault(
+                safe_agent_id, {"events": [], "updated_at": self._iso_now()}
+            )
+            namespace["events"].append(agent_record)
+            namespace["updated_at"] = self._iso_now()
+            self._state["updated_at"] = self._iso_now()
+
+        path = self.agents_dir / f"{safe_agent_id}.jsonl"
+        lock = self._agent_locks.setdefault(safe_agent_id, asyncio.Lock())
+        await self._append_json_line(path, agent_record, lock=lock)
+
+    async def log_external_action(self, stage: str, payload: Dict[str, Any]) -> None:
+        await self._append_json_line(
+            self.external_action_log_path,
+            {"timestamp": self._iso_now(), "event_type": "EXTERNAL_ACTION", "payload": {"stage": stage, **payload}},
+        )
+
+    async def _persist_state(self) -> None:
+        async with self._state_lock:
+            self._state["updated_at"] = self._iso_now()
+            snapshot = json.dumps(self._state, ensure_ascii=True, indent=2)
+
+        async with self._file_lock:
+            await asyncio.to_thread(self.store_path.write_text, snapshot, "utf-8")
+
+    async def _append_json_line(
+        self,
+        path: Path,
+        record: Dict[str, Any],
+        *,
+        lock: asyncio.Lock | None = None,
+    ) -> None:
+        line = json.dumps(record, ensure_ascii=True) + "\n"
+        use_lock = lock or self._file_lock
+        async with use_lock:
+            await asyncio.to_thread(self._write_line, path, line)
+
+    @staticmethod
+    def _write_line(path: Path, line: str) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as file_handle:
+            file_handle.write(line)
+
+    @staticmethod
+    def _sanitize_agent_id(agent_id: str) -> str:
+        cleaned = re.sub(r"[^A-Za-z0-9_-]", "_", str(agent_id))
+        return cleaned or "agent"
+
+    @staticmethod
+    def _iso_now() -> str:
+        return datetime.now(timezone.utc).isoformat()
