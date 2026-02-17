@@ -1,0 +1,203 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AppShack Blueprint</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+    header, section, details { margin-bottom: 2em; }
+    h1 { margin-bottom: 0.2em; }
+    table { border-collapse: collapse; width: 100%; margin-top: 0.5em; }
+    table, th, td { border: 1px solid #ccc; }
+    th, td { padding: 8px; text-align: left; }
+    code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+    pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    details summary { font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- Landing Page Header -->
+  <header>
+    <h1>AppShack Blueprint</h1>
+    <p><strong>Date:</strong> February 9, 2026</p>
+    <p><strong>Model:</strong> GPT-3.5-turbo</p>
+    <p><strong>Provider:</strong> OpenAI</p>
+  </header>
+
+  <!-- Token Usage Tiers -->
+  <section id="token-tiers">
+    <h2>Token Usage Tiers</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Tier</th>
+          <th>Monthly Tokens</th>
+          <th>Price</th>
+          <th>Features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Basic</td>
+          <td>50,000 tokens</td>
+          <td>Free</td>
+          <td>Up to 2 min audio sessions</td>
+        </tr>
+        <tr>
+          <td>Professional</td>
+          <td>500,000 tokens</td>
+          <td>$49/month</td>
+          <td>Up to 10 min sessions + priority support</td>
+        </tr>
+        <tr>
+          <td>Enterprise</td>
+          <td>2,000,000 tokens</td>
+          <td>$199/month</td>
+          <td>Unlimited sessions + dedicated SLAs</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Proposed File Structure -->
+  <section id="file-structure">
+    <h2>Proposed File Structure</h2>
+    <pre><code>appshack/
+├── public/
+│   ├── index.html
+│   └── assets/
+│       ├── css/
+│       │   └── styles.css
+│       └── js/
+│           └── player.js
+├── src/
+│   ├── api/
+│   │   ├── auth.js
+│   │   ├── session.js
+│   │   └── library.js
+│   ├── services/
+│   │   ├── llmOrchestrator.js
+│   │   ├── ttsOrchestrator.js
+│   │   └── mediaProcessor.js
+│   ├── models/
+│   │   ├── Session.js
+│   │   └── Persona.js
+│   └── utils/
+│       └── promptBuilder.js
+├── scripts/
+│   └── deploy.sh
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── docs/
+│   └── blueprint.html
+├── .env.example
+└── README.md</code></pre>
+  </section>
+
+  <!-- Overview -->
+  <section id="overview">
+    <h2>Overview</h2>
+    <p>
+      AppShack produces 2–10 minute, human-like audio recordings of multi-agent debates or roundtable discussions. 
+      A “chairperson” user selects a topic and 2–6 personas, tweaks tone/expertise, then triggers generation. 
+      The system orchestrates an LLM for dialogue, TTS for voice, stitches audio, and stores it in a library for streaming or download.
+    </p>
+  </section>
+
+  <!-- User Journey -->
+  <section id="user-journey">
+    <h2>User Journey</h2>
+    <ul>
+      <li><strong>Login/Onboard</strong>: OAuth/email/SAML; store preferences.</li>
+      <li><strong>Create Session</strong>: Enter topic; choose personas; adjust traits.</li>
+      <li><strong>Generate Debate</strong>: LLM → transcript → TTS → audio.</li>
+      <li><strong>Review & Publish</strong>: Preview snippet; approve; tag; save to library.</li>
+      <li><strong>Stream/Download</strong>: Browse library; filter by topic/persona; play HLS or download mp3.</li>
+    </ul>
+  </section>
+
+  <!-- System Architecture -->
+  <section id="architecture">
+    <h2>System Architecture</h2>
+    <pre><code>Browser ←HTTPS→ API Gateway
+    └─ Backend Services (Node.js/Python)
+       ├─ Auth Service
+       ├─ Session Manager
+       ├─ LLM Orchestrator (OpenAI GPT-3.5-turbo)
+       ├─ TTS Orchestrator (e.g., AWS Polly)
+       ├─ Media Processor (FFmpeg)
+       ├─ Library + Metadata DB (DynamoDB)
+       └─ Streaming (CloudFront/S3)</code></pre>
+  </section>
+
+  <!-- Data Flow -->
+  <section id="data-flow">
+    <h2>Data Flow</h2>
+    <ol>
+      <li>User → Backend: <code>POST /api/session</code> with <code>{ topic, personas }</code>.</li>
+      <li>Backend → OpenAI: system + user prompts → transcript with speaker labels.</li>
+      <li>Transcript → TTS API per speaker chunk → audio clips.</li>
+      <li>Media Processor concatenates and encodes to mp3.</li>
+      <li>Audio + metadata stored in S3; metadata in NoSQL DB.</li>
+      <li>Frontend receives <code>{ sessionId, audioUrl, transcript }</code>.</li>
+    </ol>
+  </section>
+
+  <!-- Cost Estimation -->
+  <section id="cost-estimation">
+    <h2>Cost Estimation</h2>
+    <p>
+      Total cost per audio:
+      $$\text{Cost}_{audio} = \text{Cost}_{LLM} + \text{Cost}_{TTS} + \text{Cost}_{storage}$$
+    </p>
+    <ul>
+      <li>$\text{Cost}_{LLM} = \$0.004$ (2,000 tokens @ \$0.002/1k)</li>
+      <li>$\text{Cost}_{TTS} = \$0.012$ (3,000 chars @ \$4/1M)</li>
+      <li>$\text{Cost}_{storage} = \$0.0001$ (5 MB @ \$0.023/GB-mo)</li>
+    </ul>
+    <p><strong>Total:</strong> $\$0.0161$ &lt; \$1 per session.</p>
+  </section>
+
+  <!-- Collapsible Details -->
+  <details>
+    <summary>Implementation Roadmap</summary>
+    <ol>
+      <li><strong>Infra Setup:</strong> API gateway, containers, S3, NoSQL, env vars.</li>
+      <li><strong>Backend Skeleton:</strong> Models, Auth, Session & Library endpoints.</li>
+      <li><strong>LLM Integration:</strong> Prompt templates, OpenAI SDK, streaming chat.</li>
+      <li><strong>TTS Integration:</strong> Provider selection, chunking, rate-limit handling.</li>
+      <li><strong>Media Processing:</strong> FFmpeg for concat & encode; preview generation.</li>
+      <li><strong>Frontend:</strong> Persona selector, progress UI, library & player.</li>
+      <li><strong>Testing & QA:</strong> Unit and E2E tests.</li>
+      <li><strong>Monitoring:</strong> Logs, cost alerts, retry logic.</li>
+    </ol>
+  </details>
+
+  <details>
+    <summary>Security & Compliance</summary>
+    <ul>
+      <li>Store API keys in env or Secrets Manager.</li>
+      <li>HTTPS/TLS for all endpoints.</li>
+      <li>Least-privilege IAM for S3/DB.</li>
+      <li>Encryption at rest (S3) & in transit (TLS).</li>
+      <li>GDPR/CCPA: data export/purge on request.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Non-Functional Requirements</summary>
+    <ul>
+      <li>Latency: &lt;30 s to full audio after trigger.</li>
+      <li>Scalability: auto-scaling backend.</li>
+      <li>Reliability: retry on transient errors.</li>
+      <li>Cost Control: per-session spend tracking & caps.</li>
+    </ul>
+  </details>
+
+</body>
+</html>
+```

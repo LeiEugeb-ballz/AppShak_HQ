@@ -1,0 +1,178 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppShack Blueprint - Landing Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; color: #333; }
+        h1, h2, h3 { color: #007BFF; }
+        .section { margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .tier { background-color: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 5px solid #007BFF; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+        pre { background-color: #f4f4f4; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to AppShack Blueprint</h1>
+        <p>This is the landing page for the AppShack app blueprint. Below, you'll find key details about the AI model, provider, date, proposed file structure, and a 3-tier token usage model. The full blueprint follows.</p>
+    </header>
+
+    <section class="section">
+        <h2>AI Model and Provider Information</h2>
+        <p><strong>Model:</strong> Grok 4</p>
+        <p><strong>Provider:</strong> xAI</p>
+        <p><strong>Current Date:</strong> February 09, 2026</p>
+    </section>
+
+    <section class="section">
+        <h2>Proposed File Structure</h2>
+        <p>The following is a proposed high-level file structure for the AppShack app. This organizes the codebase into frontend, backend, and shared resources for easy development and maintenance.</p>
+        <pre><code>
+AppShack/
+├── frontend/                # React.js frontend code
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   │   ├── Dashboard.js
+│   │   │   ├── Library.js
+│   │   │   ├── RadioPlayer.js
+│   │   │   └── Form.js      # Topic and personality input form
+│   │   ├── pages/           # Main app pages
+│   │   │   ├── Home.js
+│   │   │   ├── CreateDebate.js
+│   │   │   └── LibraryView.js
+│   │   ├── services/        # API calls and utilities
+│   │   │   └── api.js
+│   │   ├── App.js           # Main app entry
+│   │   └── index.js
+│   ├── public/              # Static assets
+│   └── package.json
+├── backend/                 # Node.js/Express backend
+│   ├── src/
+│   │   ├── controllers/     # API endpoint logic
+│   │   │   └── debateController.js  # Handles generation and storage
+│   │   ├── models/          # Database models (e.g., User, Audio)
+│   │   ├── routes/          # API routes
+│   │   │   └── apiRoutes.js
+│   │   ├── services/        # AI/TTS integration
+│   │   │   ├── aiService.js
+│   │   │   └── ttsService.js
+│   │   ├── config/          # Env vars, API keys
+│   │   │   └── config.js
+│   │   └── server.js        # Main server entry
+│   └── package.json
+├── docs/                    # Documentation and blueprints
+│   └── blueprint.md         # This blueprint document
+├── scripts/                 # Deployment and utility scripts
+│   └── deploy.sh
+└── README.md                # Project overview and setup instructions
+        </code></pre>
+        <p>This structure assumes a monorepo. For separation, split into 'client' and 'server' repos. Use tools like Yarn Workspaces for management.</p>
+    </section>
+
+    <section class="section">
+        <h2>3-Tier Token Usage Model</h2>
+        <p>AppShack uses AI APIs that consume tokens (e.g., for LLM calls). We've designed a 3-tier system for user access, with each tier offering progressively more token usage for generating debates. Tiers are freemium-based, upgrading from basic to advanced for heavier users. Costs are internal (API fees), but users may subscribe for higher tiers.</p>
+        
+        <div class="tier">
+            <h3>Tier 1: Basic (Free)</h3>
+            <p>Entry-level for casual users. Limited to 10,000 tokens per month (enough for ~5-10 short debates). Features: Basic personalities, up to 5-minute audios, 3 agents max.</p>
+        </div>
+        
+        <div class="tier">
+            <h3>Tier 2: Pro (Paid, e.g., $4.99/month)</h3>
+            <p>Upgrade for frequent users. 50,000 tokens per month (enough for ~20-50 debates). Features: Custom personalities, up to 10-minute audios, 6 agents, priority queueing.</p>
+        </div>
+        
+        <div class="tier">
+            <h3>Tier 3: Enterprise (Paid, e.g., $19.99/month)</h3>
+            <p>Top-tier for educators/power users. 200,000 tokens per month (enough for 100+ debates or longer sessions). Features: Unlimited agents, batch generation, analytics, custom branding for radio streams.</p>
+        </div>
+        <p>Token usage scales obviously: Tier 1 is minimal, Tier 2 is 5x more, Tier 3 is 4x Tier 2 (20x Tier 1). Tokens are tracked per user via the backend database.</p>
+    </section>
+
+    <section class="section">
+        <h2>Full AppShack Blueprint</h2>
+        <p>Below is the comprehensive blueprint for building "AppShack," an app that generates 2-10 minute audio files of AI-simulated debates or discussions among a team of virtual agents. The app positions the user as the chairperson (or "ring leader"), allowing them to input a topic and select personalities for the agents. The core focus is on producing human-like audio that's dynamic, unscripted, and authentic—achieved by iteratively simulating agent responses via AI to mimic natural conversation flow, interruptions, agreements/disagreements, and honest viewpoints. Once generated, audio files are stored in a library for on-demand streaming as part of a virtual "radio station" for educational purposes (e.g., learning debates, teaching critical thinking).</p>
+        <p>This blueprint is designed to be handed directly to a developer for implementation. It assumes a full-stack developer with experience in web apps, AI APIs, and cloud services. No coding is provided here—only architecture, flows, requirements, and specs. The app can be "turned on" with just API keys (no custom model training required). I've optimized for low costs: targeting under $1 per audio file generation (based on current API pricing as of February 2026; actual costs may vary slightly with usage). This is achieved by using efficient, pay-per-use APIs, minimizing API calls, and leveraging free tiers where possible.</p>
+
+        <h3>1. Overview and Key Features</h3>
+        <ul>
+            <li><strong>App Purpose</strong>: Enable users to create and store realistic audio debates for educational streaming. The app simulates a "roundtable" discussion where AI agents (3-5 by default) debate a user-provided topic, with the user as chairperson introducing/moderating via text prompts.</li>
+            <li><strong>Core Output</strong>: 2-10 minute MP3 audio files (target: 4-8 minutes average to balance depth and cost). Audio is generated from dynamically created conversation "scripts" that feel human: include natural pauses, overlaps, laughter/sighs (via TTS annotations), back-and-forth arguments, and personality-driven viewpoints (e.g., one agent optimistic, another skeptical).</li>
+            <li><strong>Human-Like Quality</strong>: Avoid scripted/static feel by using iterative AI calls to build the conversation turn-by-turn (e.g., Agent A responds to Agent B's point, with random elements for spontaneity). No pre-written scripts—generate on-the-fly.</li>
+            <li><strong>User Role</strong>: Chairperson selects topic, agent count (2-6), personalities (from presets like "Optimist," "Skeptic," "Expert," "Devil's Advocate," or custom descriptions), and optional moderation prompts (e.g., "Steer the debate toward solutions").</li>
+            <li><strong>Storage and Streaming</strong>: Audio files auto-save to a user-specific library. A "radio station" mode streams files sequentially or on-demand for learning (e.g., via web player or podcast feed).</li>
+            <li><strong>Platform</strong>: Web app (progressive web app for mobile/desktop). Optional: Native apps via wrappers like React Native.</li>
+            <li><strong>Cost Goal</strong>: &lt; $1 per audio file (e.g., ~$0.20-0.80 based on 5-minute script). Achieved via cheap APIs, batching calls, and free storage tiers.</li>
+            <li><strong>Monetization/Scaling</strong>: Free for users (ad-supported or freemium); scale via cloud hosting.</li>
+        </ul>
+
+        <h3>2. User Flow</h3>
+        <ol>
+            <li><strong>Login/Setup</strong>: User signs up/logs in (email/password or OAuth via Google/Apple). Free tier limits: 5 audios/month; premium for unlimited (but blueprint focuses on free core).</li>
+            <li><strong>Create Debate</strong>:
+                <ul>
+                    <li>Input topic (text field, e.g., "The ethics of AI in education").</li>
+                    <li>Select agent count (slider: 3-5 default).</li>
+                    <li>Choose personalities (dropdown presets + custom text input, e.g., "Cynical Philosopher," "Enthusiastic Scientist").</li>
+                    <li>Optional: Add chairperson intro/mid-debate prompts (e.g., "As chair, I interrupt: What about the risks?").</li>
+                    <li>Set duration (slider: 2-10 minutes; app estimates based on word count).</li>
+                    <li>Submit: App generates conversation iteratively, converts to audio, and notifies user.</li>
+                </ul>
+            </li>
+            <li><strong>Generation Process</strong> (Backend-Handled):
+                <ul>
+                    <li>Simulate debate turns (e.g., 10-20 exchanges).</li>
+                    <li>Render audio.</li>
+                    <li>Store in library.</li>
+                </ul>
+            </li>
+            <li><strong>Library View</strong>: Browse stored audios with metadata (topic, date, personalities, duration). Play, download, or delete.</li>
+            <li><strong>Radio Station Mode</strong>: Queue library files for continuous streaming (web player with play/pause/skip). Shareable links for teaching (e.g., embed in classrooms).</li>
+            <li><strong>Feedback Loop</strong>: Users rate audios (1-5 stars) for "human-likeness"; app logs for future improvements (no AI training in this blueprint).</li>
+        </ol>
+
+        <h3>3. Technical Architecture</h3>
+        <ul>
+            <li><strong>Frontend</strong>: React.js (or Vue.js) for UI. Components: Dashboard, Preview, Library, Radio.</li>
+            <li><strong>Backend</strong>: Node.js with Express (or Python with FastAPI) for API endpoints.</li>
+            <li><strong>Database</strong>: Firebase Firestore or MongoDB Atlas (free tiers).</li>
+            <li><strong>Storage</strong>: Google Cloud Storage or AWS S3 (free tiers).</li>
+            <li><strong>AI Integration</strong>: OpenAI GPT-4o for conversation; ElevenLabs or Google TTS for audio.</li>
+            <li><strong>Queueing/Processing</strong>: AWS SQS or Bull.js for async jobs.</li>
+            <li><strong>Streaming</strong>: HLS via Cloudflare Stream or direct links.</li>
+            <li><strong>Deployment</strong>: Vercel or Heroku (free tiers).</li>
+        </ul>
+
+        <h3>4. APIs and Services (Only Keys Needed)</h3>
+        <ul>
+            <li><strong>AI/LLM</strong>: OpenAI API (key).</li>
+            <li><strong>TTS</strong>: ElevenLabs API (key).</li>
+            <li><strong>Storage/Auth</strong>: Firebase (Google API key).</li>
+            <li><strong>Total Cost Breakdown per File</strong>: ~$0.51 for 5-min audio.</li>
+        </ul>
+
+        <h3>5. Cost Management Strategies</h3>
+        <ul>
+            <li>Minimize API calls, use free tiers, rate limiting.</li>
+        </ul>
+
+        <h3>6. Security and Best Practices</h3>
+        <ul>
+            <li>Auth with JWT, privacy compliance, error handling.</li>
+        </ul>
+
+        <h3>7. Development Roadmap</h3>
+        <p>4-6 weeks for MVP: Setup, Integration, Testing, Deployment.</p>
+        <p>This blueprint provides everything a developer needs to build AppShack. Hand them your API keys (OpenAI, ElevenLabs, Firebase), and they can prototype quickly. If costs creep up, prioritize open-source TTS alternatives. Let me know if you need refinements!</p>
+    </section>
+
+    <footer>
+        <p>Generated by Grok 4 from xAI on February 09, 2026. Good luck with AppShack!</p>
+    </footer>
+</body>
+</html>
+```

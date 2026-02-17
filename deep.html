@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppShack Blueprint: AI Debate Podcast Generator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #f59e0b;
+            --light: #f3f4f6;
+            --dark: #1f2937;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f8fafc;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .meta-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        h2 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+        h3 {
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+        .tiers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .tier-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .tier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        .tier-1 { border-top: 4px solid #10b981; }
+        .tier-2 { border-top: 4px solid #3b82f6; }
+        .tier-3 { border-top: 4px solid #f59e0b; }
+        .tier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .tier-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .tier-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .token-badge {
+            background: #dbeafe;
+            color: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .file-tree {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 1rem 0;
+            line-height: 1.8;
+        }
+        details {
+            margin: 1rem 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        summary {
+            padding: 1rem;
+            background: #eff6ff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        details[open] summary {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .cost-table th, .cost-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .cost-table th {
+            background: #eff6ff;
+            font-weight: 600;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .highlight {
+            background: #fffbeb;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .tech-item {
+            background: #dbeafe;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .tiers {
+                grid-template-columns: 1fr;
+            }
+            .meta-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AppShack Blueprint</h1>
+        <p class="subtitle">AI-Powered Dynamic Debate Podcast Generator</p>
+        
+        <div class="meta-grid">
+            <div class="meta-card">
+                <strong>Model:</strong> GPT-3.5 Turbo + Gemini-TTS
+            </div>
+            <div class="meta-card">
+                <strong>Provider:</strong> OpenAI + Google Cloud
+            </div>
+            <div class="meta-card">
+                <strong>Date:</strong> <span id="current-date"></span>
+            </div>
+            <div class="meta-card">
+                <strong>Cost Target:</strong> &lt;$0.30/debate
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <h2>Core Architecture</h2>
+        <div class="tech-stack">
+            <div class="tech-item">Chairperson UI</div>
+            <div class="tech-item">LLM Orchestrator</div>
+            <div class="tech-item">Multi-Speaker TTS</div>
+            <div class="tech-item">Firestore DB</div>
+            <div class="tech-item">Cloud Storage</div>
+        </div>
+        
+        <details>
+            <summary>File Structure</summary>
+            <div class="file-tree">
+                appshack/<br>
+                ├── frontend/<br>
+                │   ├── chairperson_ui/          # React-based control panel<br>
+                │   │   ├── src/<br>
+                │   │   │   ├── components/      # Debate controls<br>
+                │   │   │   ├── assets/          # Agent profile images<br>
+                │   │   │   └── lib/             # API clients<br>
+                │   │   └── public/<br>
+                │   └── streaming_portal/        # Radio station interface<br>
+                ├── backend/<br>
+                │   ├── debate_orchestrator/     # LLM script generation<br>
+                │   │   ├── agents/              # Personality profiles<br>
+                │   │   └── prompts/             # Debate templates<br>
+                │   ├── tts_service/             # Audio generation<br>
+                │   ├── storage/                 # GCP bucket handlers<br>
+                │   └── api/                     # REST endpoints<br>
+                ├── scripts/<br>
+                │   ├── ffmpeg/                  # Audio post-processing<br>
+                │   └── cost_monitor/            # Usage alerts<br>
+                └── env.example                  # API key templates
+            </div>
+        </details>
+    </section>
+
+    <section>
+        <h2>Token Usage Tiers</h2>
+        <p>Three-tiered pricing based on debate complexity and duration</p>
+        
+        <div class="tiers">
+            <div class="tier-card tier-1">
+                <div class="tier-header">
+                    <div class="tier-name">Basic Tier</div>
+                    <div class="tier-price">$0.03/debate</div>
+                </div>
+                <div class="token-badge">15K tokens</div>
+                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li>2-5 minute debates</li>
+                    <li>3 agents maximum</li>
+                    <li>Standard personalities</li>
+                    <li>Basic emotional range</li>
+                    <li>5MB storage/debate</li>
+                </ul>
+            </div>
+            
+            <div class="tier-card tier-2">
+                <div class="tier-header">
+                    <div class="tier-name">Standard Tier</div>
+                    <div class="tier-price">$0.06/debate</div>
+                </div>
+                <div class="token-badge">30K tokens</div>
+                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li>5-8 minute debates</li>
+                    <li>5 agents maximum</li>
+                    <li>Custom personalities</li>
+                    <li>Enhanced emotional depth</li>
+                    <li>Contextual interruptions</li>
+                    <li>10MB storage/debate</li>
+                </ul>
+            </div>
+            
+            <div class="tier-card tier-3">
+                <div class="tier-header">
+                    <div class="tier-name">Premium Tier</div>
+                    <div class="tier-price">$0.10/debate</div>
+                </div>
+                <div class="token-badge">50K tokens</div>
+                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li>8-10 minute debates</li>
+                    <li>8 agents maximum</li>
+                    <li>Expert-level personas</li>
+                    <li>Dynamic topic shifting</li>
+                    <li>Real-time fact checking</li>
+                    <li>Voice cloning options</li>
+                    <li>20MB storage/debate</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Cost Breakdown (Per 10-Min Debate)</h2>
+        <table class="cost-table">
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Cost</th>
+                    <th>Calculation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>LLM (GPT-3.5 Turbo)</td>
+                    <td>$0.03</td>
+                    <td>15K tokens × $0.002/1K tokens</td>
+                </tr>
+                <tr>
+                    <td>TTS (Gemini-TTS)</td>
+                    <td>$0.22</td>
+                    <td>29K characters × $0.0000075/char</td>
+                </tr>
+                <tr>
+                    <td>Cloud Storage</td>
+                    <td>$0.000048</td>
+                    <td>5MB × $0.01/GB/month</td>
+                </tr>
+                <tr style="font-weight: bold; background-color: #f0fdf4;">
+                    <td>Total</td>
+                    <td>$0.25</td>
+                    <td>✅ Under $0.30 target</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Implementation Roadmap</h2>
+        <details>
+            <summary>Phase 1: Core Setup (2 weeks)</summary>
+            <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                <li>Configure Google Cloud Project with Gemini-TTS API</li>
+                <li>Set up OpenAI API integration</li>
+                <li>Design Firestore database schema</li>
+                <li>Create basic chairperson UI with topic/personality controls</li>
+            </ul>
+        </details>
+        
+        <details>
+            <summary>Phase 2: Workflow Implementation (3 weeks)</summary>
+            <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                <li>Build debate generation endpoint</li>
+                <li>Implement multi-speaker TTS pipeline</li>
+                <li>Develop audio post-processing with FFmpeg</li>
+                <li>Create storage library management system</li>
+            </ul>
+        </details>
+        
+        <details>
+            <summary>Phase 3: Optimization & Scaling (1 week)</summary>
+            <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                <li>Implement voice caching system</li>
+                <li>Add gzip compression for API payloads</li>
+                <li>Set up cost monitoring alerts</li>
+                <li>Build radio streaming integration</li>
+            </ul>
+        </details>
+    </section>
+
+    <section>
+        <h2>Required API Keys</h2>
+        <p class="highlight">Store these in environment variables (never in code)</p>
+        <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+            <li><strong>OpenAI API Key:</strong> Debate script generation</li>
+            <li><strong>Google Cloud API Key:</strong> Gemini-TTS + Cloud Storage</li>
+            <li><strong>Firestore Credentials:</strong> Metadata storage</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>AppShack Blueprint • Generated by DeepSeek R1 • Production-Ready Architecture</p>
+        <p>Total cost per debate: $0.25 (well below $1 target)</p>
+    </footer>
+
+    <script>
+        // Add current date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        
+        // Collapsible section interaction
+        document.querySelectorAll('details').forEach(detail => {
+            detail.addEventListener('toggle', function() {
+                if (this.open) {
+                    this.style.backgroundColor = '#f8fafc';
+                } else {
+                    this.style.backgroundColor = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+```
+
+To use:
+1. Copy entire code above
+2. Save as `appshack_blueprint.html`
+3. Open in Chrome (double-click file or `Ctrl+O` in Chrome)
+
+Key features:
+- Responsive design works on mobile/desktop
+- Collapsible sections for detailed views
+- Tiered pricing cards with hover effects
+- Dynamic date display
+- File structure visualization
+- Cost breakdown table
+- Tech stack badges
+- Hover animations on tier cards
+
+The blueprint includes:
+1. Current date auto-generation
+2. Three token usage tiers (Basic/Standard/Premium)
+3. File structure tree
+4. Cost breakdown table
+5. Implementation roadmap
+6. API key requirements
+7. Responsive design for all devices
+
+No external dependencies - all styling and functionality is self-contained. Simply open the HTML file in Chrome to review the complete blueprint.

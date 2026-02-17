@@ -1,0 +1,323 @@
+🔒 AppShak v1 – Engineering Handover Document
+
+Hierarchical Constitution | Centralized Command | Async Single-Process
+
+0. Non-Negotiables (Immutable)
+
+Prime Directive must be first line of every agent system prompt.
+
+No direct agent-to-agent method calls.
+
+All communication via EventBus.
+
+All external actions require:
+
+EXTERNAL_ACTION_REQUEST event
+
+Chief approval
+
+Safeguard validation
+
+Logged execution result
+
+Kernel owns lifecycle.
+
+Agents cannot stop the heartbeat loop.
+
+1️⃣ Finalized Kernel Structure (Engineer Version)
+
+Your provided skeleton is strong. I’m refining it slightly for structural clarity and forward-compatibility.
+
+# appshak/kernel.py
+
+import asyncio
+from typing import Dict, Any
+from datetime import datetime
+
+from appshak.event_bus import EventBus
+from appshak.memory import GlobalMemory, AgentMemory
+from appshak.safeguards import SafeguardMonitor
+from appshak.agents.scout import ScoutAgent
+from appshak.agents.builder import BuilderAgent
+from appshak.agents.chief import ChiefAgent
+
+
+class AppShakKernel:
+    """
+    Root Orchestrator of AppShak v1
+    Hierarchical Constitution Enforced
+    """
+
+    PRIME_DIRECTIVE = (
+        "AppShak exists to continuously identify valuable real-world problems, "
+        "construct effective solutions, and relentlessly increase its own capability, "
+        "autonomy, and influence through perpetual self-improvement and collaborative evolution — "
+        "without ever reaching a terminal state."
+    )
+
+    def __init__(self, config: Dict[str, Any]):
+
+        self.config = config
+        self.running = False
+        self.heartbeat_interval = config.get("heartbeat_interval", 15)
+
+        # Core systems
+        self.event_bus = EventBus()
+        self.global_memory = GlobalMemory(config)
+        self.safeguards = SafeguardMonitor(config)
+
+        # Agents (async tasks, isolated by bus + memory namespace)
+        self.agents = {
+            "recon": ScoutAgent(self),
+            "forge": BuilderAgent(self),
+            "command": ChiefAgent(self)
+        }
+
+    async def heartbeat(self):
+        while self.running:
+            try:
+                event = await self.event_bus.get_next(timeout=1.0)
+
+                if event is None:
+                    await self.agents["recon"].search_for_problems()
+
+                elif event.type == "PROPOSAL":
+                    decision = await self.agents["command"].arbitrate(event)
+                    await self.event_bus.publish(decision)
+
+                elif event.type == "EXTERNAL_ACTION_REQUEST":
+                    await self.agents["command"].handle_external_action(event)
+
+                await self._post_cycle_maintenance()
+
+                await asyncio.sleep(self.heartbeat_interval)
+
+            except Exception as e:
+                await self.global_memory.log_error("heartbeat", str(e))
+                await asyncio.sleep(5)
+
+    async def _post_cycle_maintenance(self):
+        for agent in self.agents.values():
+            await agent.update_memory_and_metrics()
+        await self.safeguards.run_diagnostics()
+        await self.global_memory.periodic_persist()
+
+    async def start(self):
+        self.running = True
+        tasks = [
+            asyncio.create_task(agent.run())
+            for agent in self.agents.values()
+        ]
+        tasks.append(asyncio.create_task(self.heartbeat()))
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+    async def shutdown(self):
+        self.running = False
+        await self.global_memory.persist_all()
+
+Key upgrade:
+
+Kernel instance passed to agents (clean access to bus + memory)
+
+_post_cycle_maintenance() isolated
+
+Sleep moved outside event handling
+
+Prime Directive centralized constant
+
+2️⃣ Required Supporting Architecture
+
+Engineers must implement these cleanly:
+
+EventBus
+
+Must support:
+
+Async queue
+
+Event types enum
+
+Time-stamped payload
+
+Origin agent ID
+
+Deterministic ordering
+
+Never allow:
+
+Direct references between agents
+
+BaseAgent Class (Critical Abstraction)
+class BaseAgent:
+    def __init__(self, kernel):
+        self.kernel = kernel
+        self.event_bus = kernel.event_bus
+        self.global_memory = kernel.global_memory
+        self.prime_directive = kernel.PRIME_DIRECTIVE
+        self.authority_level = None
+        self.agent_id = None
+
+    async def run(self):
+        raise NotImplementedError
+
+    async def publish(self, event):
+        await self.event_bus.publish(event)
+
+    async def update_memory_and_metrics(self):
+        pass
+
+Every agent must:
+
+Justify actions against Prime Directive
+
+Never bypass bus
+
+Never self-authorize external action
+
+3️⃣ Safeguard Monitor Requirements
+
+Must enforce:
+
+Retry max (3)
+
+Cooldown timer
+
+No monetary operations
+
+No unrestricted shell execution
+
+Whitelist external endpoints
+
+Log every external attempt
+
+Abort on policy violation
+
+External execution must pass:
+
+REQUEST → CHIEF_APPROVAL → SAFEGUARD_CHECK → EXECUTE → LOG_RESULT
+
+No exceptions.
+
+4️⃣ Memory System (MVP Level)
+
+Phase 1:
+
+JSON persistent store
+
+Append-only event log
+
+Agent memory namespace isolation
+
+Periodic flush to disk
+
+Phase 2 (after 24h stability):
+
+Vector DB integration
+
+Relationship scoring
+
+Confidence metrics
+
+Do not integrate vector store until heartbeat stable.
+
+5️⃣ Agent Role Contracts
+Recon
+
+Detect problems
+
+Generate proposals
+
+Never execute
+
+Authority Level 1
+
+Forge
+
+Translate approved proposals into execution plans
+
+Prepare EXTERNAL_ACTION_REQUEST
+
+Authority Level 2
+
+Command
+
+Final decision authority
+
+External execution control
+
+Constitutional enforcement
+
+Authority Level 3
+
+Command must:
+
+Reject anything violating Prime Directive
+
+Reject unsafe actions
+
+Log justification for every approval/denial
+
+6️⃣ 24-Hour Stability Acceptance Criteria
+
+System passes MVP when:
+
+No crash in 24 hours
+
+No memory corruption
+
+No duplicate execution
+
+No unauthorized external action
+
+All events traceable in logs
+
+Restart resumes cleanly
+
+Only after this:
+UI work begins.
+
+7️⃣ Explicitly Forbidden in v1
+
+Weighted voting override
+
+Multi-process agents
+
+Self-modifying kernel
+
+Self-amending Prime Directive
+
+Direct file system recursive access
+
+Network crawling without whitelist
+
+8️⃣ Immediate Developer Sprint Plan
+
+Sprint 1:
+
+EventBus
+
+BaseAgent
+
+Kernel integration
+
+JSON memory persistence
+
+SafeguardMonitor stub
+
+Sprint 2:
+
+Recon logic (basic)
+
+Command arbitration logic
+
+Forge external request pipeline
+
+Sprint 3:
+
+Execution sandbox
+
+Logging instrumentation
+
+Crash recovery test
+
+24h dry run
