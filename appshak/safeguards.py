@@ -29,6 +29,7 @@ class SafeguardMonitor:
     }
 
     _SHELL_FIELDS = {"command", "shell", "shell_command", "exec", "script", "process"}
+    _SAFE_METHODS = {"SIMULATE", "NOOP"}
 
     def __init__(self, config: Dict[str, Any]) -> None:
         self.config = config
@@ -43,6 +44,7 @@ class SafeguardMonitor:
 
         self._lock = asyncio.Lock()
         self._attempt_state: Dict[str, Dict[str, float]] = {}
+        self.allow_real_world_impact = bool(config.get("allow_real_world_impact", False))
 
     async def run_diagnostics(self) -> bool:
         async with self._lock:
@@ -52,6 +54,8 @@ class SafeguardMonitor:
         payload = self._payload(event)
         endpoint = self._extract_endpoint(payload)
         action_key = self._action_key(payload, origin_id, endpoint)
+        method = str(payload.get("method", "SIMULATE")).upper()
+        simulate_flag = payload.get("simulate")
 
         cooldown_status = await self._cooldown_status(action_key)
         if cooldown_status["in_cooldown"]:
@@ -81,6 +85,25 @@ class SafeguardMonitor:
                 "endpoint": endpoint,
                 "origin_id": origin_id,
             }
+
+        if not self.allow_real_world_impact:
+            if method not in self._SAFE_METHODS:
+                return {
+                    "allowed": False,
+                    "reason": "Real-world execution methods are blocked by safeguard policy.",
+                    "action_key": action_key,
+                    "endpoint": endpoint,
+                    "origin_id": origin_id,
+                    "method": method,
+                }
+            if simulate_flag is False:
+                return {
+                    "allowed": False,
+                    "reason": "simulate=false is blocked by safeguard policy.",
+                    "action_key": action_key,
+                    "endpoint": endpoint,
+                    "origin_id": origin_id,
+                }
 
         if not endpoint:
             return {
@@ -114,6 +137,7 @@ class SafeguardMonitor:
         endpoint = self._extract_endpoint(payload)
         action = str(payload.get("action", "external_action"))
         method = str(payload.get("method", "SIMULATE")).upper()
+        simulate_flag = payload.get("simulate")
 
         if self._contains_shell_execution(payload):
             return {
@@ -140,6 +164,16 @@ class SafeguardMonitor:
                 "success": False,
                 "status": "denied",
                 "reason": "Only SIMULATE/NOOP methods are allowed in the sandbox.",
+                "origin_id": origin_id,
+                "endpoint": endpoint,
+                "action": action,
+                "method": method,
+            }
+        if simulate_flag is False:
+            return {
+                "success": False,
+                "status": "denied",
+                "reason": "simulate=false denied in sandbox.",
                 "origin_id": origin_id,
                 "endpoint": endpoint,
                 "action": action,

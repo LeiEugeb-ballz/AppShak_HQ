@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 from appshak.agents.builder import BuilderAgent
@@ -47,11 +48,24 @@ class AppShakKernel:
         self._external_pipeline_lock = asyncio.Lock()
         self._heartbeat_failures = 0
         self._recovered_state: Dict[str, Any] = {}
+        self._stop_event = asyncio.Event()
+        configured_stop_file = config.get(
+            "emergency_stop_file",
+            str(self.global_memory.root_dir / "EMERGENCY_STOP"),
+        )
+        self._emergency_stop_file = Path(configured_stop_file)
 
     async def heartbeat(self) -> None:
         """Kernel event loop with constitutional routing."""
-        while self.running:
+        while self.running and not self._stop_event.is_set():
             try:
+                if await self._should_emergency_stop():
+                    await self.request_emergency_stop(
+                        reason="Emergency stop signal detected.",
+                        origin_id="operator",
+                    )
+                    break
+
                 event = await self.event_bus.get_next(timeout=self.idle_poll_timeout)
 
                 if event is None:
@@ -69,12 +83,18 @@ class AppShakKernel:
                 await self._recover_after_heartbeat_failure(exc)
                 await asyncio.sleep(5)
 
-            await asyncio.sleep(self.heartbeat_interval)
+            if self._stop_event.is_set():
+                break
+            try:
+                await asyncio.wait_for(self._stop_event.wait(), timeout=self.heartbeat_interval)
+            except asyncio.TimeoutError:
+                pass
 
     async def start(self) -> None:
         if self.running:
             return
 
+        self._stop_event.clear()
         await self._recover_from_persisted_state()
         self.running = True
         await self._publish_system_event(
@@ -100,6 +120,7 @@ class AppShakKernel:
             return
 
         self.running = False
+        self._stop_event.set()
         await self._publish_system_event(
             EventType.KERNEL_SHUTDOWN.value,
             {"stopped_at": self._iso_now()},
@@ -257,7 +278,7 @@ class AppShakKernel:
 
     async def _run_agent(self, agent_id: str) -> None:
         agent = self.agents[agent_id]
-        while self.running:
+        while self.running and not self._stop_event.is_set():
             try:
                 await agent.run()
                 if self.running:
@@ -350,20 +371,104 @@ class AppShakKernel:
         recovered_kernel_state = {}
         if isinstance(loaded, dict):
             recovered_kernel_state = loaded.get("kernel_state", {}) if isinstance(loaded.get("kernel_state"), dict) else {}
+            await self._publish_system_event(
+                EventType.KERNEL_RECOVERY.value,
+                {
+                    "recovered_at": self._iso_now(),
+                    "heartbeat_error": repr(error),
+                    "recovered_kernel_state": recovered_kernel_state,
+                },
+            )
+
+    async def request_emergency_stop(self, reason: str, origin_id: str = "operator") -> None:
+        if self._stop_event.is_set():
+            return
+        self._stop_event.set()
+        self.running = False
         await self._publish_system_event(
-            EventType.KERNEL_RECOVERY.value,
+            EventType.CONSTITUTION_VIOLATION.value,
             {
-                "recovered_at": self._iso_now(),
-                "heartbeat_error": repr(error),
-                "recovered_kernel_state": recovered_kernel_state,
+                "reason": f"EMERGENCY_STOP: {reason}",
+                "origin_id": origin_id,
+                "triggered_at": self._iso_now(),
+            },
+        )
+        await self._call_optional(
+            self.global_memory,
+            ("save_kernel_state",),
+            {
+                "running": False,
+                "emergency_stop": True,
+                "emergency_stop_reason": reason,
+                "emergency_stop_origin_id": origin_id,
+                "emergency_stop_at": self._iso_now(),
             },
         )
 
-    async def _call_optional(self, obj: Any, methods: Iterable[str], *args: Any, default: Any = None) -> Any:
+    async def replay_events(
+        self,
+        *,
+        limit: int = 200,
+        include_types: Optional[Iterable[str]] = None,
+        origin_id: str = "replay",
+    ) -> int:
+        source_events = await self._call_optional(
+            self.global_memory,
+            ("load_published_events_for_replay",),
+            limit=limit,
+            include_types=include_types,
+            default=[],
+        )
+        if not isinstance(source_events, list):
+            return 0
+
+        replayed = 0
+        for source in source_events:
+            if not isinstance(source, dict):
+                continue
+            payload = source.get("payload", {})
+            replay_payload = dict(payload) if isinstance(payload, dict) else {}
+            replay_payload["replayed"] = True
+            replay_payload["replayed_from_timestamp"] = source.get("timestamp")
+            replay_payload["prime_directive_justification"] = replay_payload.get(
+                "prime_directive_justification",
+                "Replay supports resilience analysis under the Prime Directive.",
+            )
+            try:
+                await self.event_bus.publish(
+                    {
+                        "type": source.get("type"),
+                        "origin_id": origin_id,
+                        "timestamp": self._iso_now(),
+                        "payload": replay_payload,
+                    }
+                )
+                replayed += 1
+            except Exception as exc:
+                await self._log_kernel_error("replay", exc)
+        return replayed
+
+    async def get_terminal_log_tail(self, log_name: str = "global", lines: int = 25) -> List[str]:
+        return await self._call_optional(
+            self.global_memory,
+            ("tail_log",),
+            log_name,
+            lines,
+            default=[],
+        )
+
+    async def _call_optional(
+        self,
+        obj: Any,
+        methods: Iterable[str],
+        *args: Any,
+        default: Any = None,
+        **kwargs: Any,
+    ) -> Any:
         for method in methods:
             func = getattr(obj, method, None)
             if callable(func):
-                res = func(*args)
+                res = func(*args, **kwargs)
                 if inspect.isawaitable(res):
                     return await res
                 return res
@@ -385,3 +490,6 @@ class AppShakKernel:
 
     def _iso_now(self) -> str:
         return datetime.now(timezone.utc).isoformat()
+
+    async def _should_emergency_stop(self) -> bool:
+        return await asyncio.to_thread(self._emergency_stop_file.exists)

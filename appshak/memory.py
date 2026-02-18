@@ -3,9 +3,10 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, AsyncIterator, Dict, Iterable, List, Optional
 
 
 class GlobalMemory:
@@ -99,6 +100,73 @@ class GlobalMemory:
             self._state["updated_at"] = self._iso_now()
         await self._persist_state()
 
+    async def tail_log(
+        self,
+        log_name: str = "global",
+        lines: int = 25,
+    ) -> List[str]:
+        path = self._log_path(log_name)
+        if not path.exists():
+            return []
+        return await asyncio.to_thread(self._tail_file_lines, path, max(1, lines))
+
+    async def stream_log(
+        self,
+        log_name: str = "global",
+        *,
+        start_from_end: bool = True,
+        poll_interval: float = 0.5,
+        stop_event: Optional[asyncio.Event] = None,
+    ) -> AsyncIterator[str]:
+        path = self._log_path(log_name)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not path.exists():
+            path.touch()
+
+        with path.open("r", encoding="utf-8") as handle:
+            if start_from_end:
+                handle.seek(0, 2)
+            while True:
+                if stop_event is not None and stop_event.is_set():
+                    return
+                line = handle.readline()
+                if line:
+                    yield line.rstrip("\n")
+                else:
+                    await asyncio.sleep(poll_interval)
+
+    async def load_published_events_for_replay(
+        self,
+        *,
+        limit: int = 200,
+        include_types: Optional[Iterable[str]] = None,
+    ) -> List[Dict[str, Any]]:
+        allowed_types = {str(item) for item in include_types} if include_types is not None else None
+        path = self.global_log_path
+        if not path.exists():
+            return []
+
+        selected: deque[Dict[str, Any]] = deque(maxlen=max(1, limit))
+        with path.open("r", encoding="utf-8") as handle:
+            for raw in handle:
+                line = raw.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if rec.get("event_type") != "EVENT_PUBLISHED":
+                    continue
+                payload = rec.get("payload", {})
+                if not isinstance(payload, dict):
+                    continue
+                event_type = str(payload.get("type", ""))
+                if allowed_types is not None and event_type not in allowed_types:
+                    continue
+                selected.append(payload)
+        return list(selected)
+
     async def append_global_log(self, event_type: str, payload: Dict[str, Any]) -> None:
         await self._append_json_line(
             self.global_log_path,
@@ -156,6 +224,24 @@ class GlobalMemory:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as file_handle:
             file_handle.write(line)
+
+    def _log_path(self, log_name: str) -> Path:
+        normalized = log_name.strip().lower()
+        if normalized == "global":
+            return self.global_log_path
+        if normalized == "errors":
+            return self.error_log_path
+        if normalized in {"external", "external_actions"}:
+            return self.external_action_log_path
+        raise ValueError(f"Unknown log name '{log_name}'. Use global/errors/external_actions.")
+
+    @staticmethod
+    def _tail_file_lines(path: Path, lines: int) -> List[str]:
+        tail: deque[str] = deque(maxlen=lines)
+        with path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                tail.append(line.rstrip("\n"))
+        return list(tail)
 
     @staticmethod
     def _sanitize_agent_id(agent_id: str) -> str:

@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppShak Office — Security Camera Feed</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #7d8590;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --amber: #d29922;
+    --purple: #a371f7;
+    --cyan: #39c5cf;
+    --pink: #db61a2;
+    --orange: #f0883e;
+    --floor: #1a1f26;
+    --desk: #2d333b;
+    --water-cooler: #1f6feb;
+    --boardroom: #8b5cf6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--purple), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .status-badge.online {
+    background: rgba(63, 185, 80, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+  }
+
+  .status-badge.offline {
+    background: rgba(248, 81, 73, 0.15);
+    color: var(--red);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+  }
+
+  .pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* ── Main Layout ── */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    padding: 16px;
+    max-width: 1800px;
+    margin: 0 auto;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ── Office Floor (Security Camera Style) ── */
+  .office-floor {
+    background: var(--floor);
+    border: 3px solid #0a0a0a;
+    border-radius: 8px;
+    position: relative;
+    min-height: 600px;
+    overflow: hidden;
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+  }
+
+  .office-floor-header {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .office-floor-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+
+  .office-canvas {
+    position: relative;
+    width: 100%;
+    height: 550px;
+    background: 
+      linear-gradient(90deg, rgba(48, 54, 61, 0.2) 1px, transparent 1px),
+      linear-gradient(rgba(48, 54, 61, 0.2) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* ── Security Camera Overlay ── */
+  .cctv-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .cctv-timestamp {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+    background: rgba(0,0,0,0.5);
+    padding: 4px 8px;
+  }
+
+  .cctv-camera-label {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+    background: rgba(0,0,0,0.5);
+    padding: 4px 8px;
+  }
+
+  .cctv-rec {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #ff0000;
+    text-shadow: 0 0 10px rgba(255,0,0,0.9);
+  }
+
+  .cctv-rec-dot {
+    width: 12px;
+    height: 12px;
+    background: #ff0000;
+    border-radius: 50%;
+    animation: recBlink 1s infinite;
+  }
+
+  @keyframes recBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .cctv-scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: scanline 3s linear infinite;
+  }
+
+  @keyframes scanline {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  .cctv-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.5) 100%);
+  }
+
+  /* ── Agent Desks ── */
+  .agent-desk {
+    position: absolute;
+    width: 130px;
+    padding: 10px;
+    background: var(--desk);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.8s ease;
+    cursor: pointer;
+  }
+
+  .agent-desk:hover {
+    transform: scale(1.05);
+    z-index: 10;
+  }
+
+  .agent-desk.active {
+    border-color: var(--green);
+    box-shadow: 0 0 20px rgba(63, 185, 80, 0.3);
+  }
+
+  .agent-desk.at-water-cooler {
+    opacity: 0.4;
+    border-style: dashed;
+  }
+
+  .agent-desk.at-boardroom {
+    opacity: 0.4;
+    border-style: dashed;
+  }
+
+  .agent-desk.moving {
+    animation: agentWalking 2s ease-in-out infinite;
+  }
+
+  @keyframes agentWalking {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(3px); }
+    75% { transform: translateX(-3px); }
+  }
+
+  /* Positions */
+  .desk-scout { top: 30px; left: 30px; }
+  .desk-builder { top: 30px; right: 30px; }
+  .desk-chief { bottom: 30px; left: 50%; transform: translateX(-50%); }
+
+  .desk-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .desk-avatar { font-size: 18px; }
+  .desk-name { font-size: 11px; font-weight: 700; }
+  .desk-level {
+    font-size: 8px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: auto;
+  }
+  .desk-level.l1 { background: rgba(57, 197, 207, 0.2); color: var(--cyan); }
+  .desk-level.l2 { background: rgba(240, 136, 62, 0.2); color: var(--orange); }
+  .desk-level.l3 { background: rgba(163, 113, 247, 0.2); color: var(--purple); }
+
+  .desk-status { font-size: 9px; color: var(--text-dim); }
+
+  /* ── Water Cooler ── */
+  .water-cooler {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(31, 111, 235, 0.3) 0%, transparent 70%);
+    border: 2px dashed var(--water-cooler);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .water-cooler.active {
+    background: radial-gradient(circle, rgba(31, 111, 235, 0.5) 0%, transparent 70%);
+    border-style: solid;
+    animation: waterCoolerPulse 1.5s infinite;
+  }
+
+  @keyframes waterCoolerPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(31, 111, 235, 0.4); }
+    50% { box-shadow: 0 0 50px rgba(31, 111, 235, 0.7); }
+  }
+
+  .water-cooler-icon { font-size: 24px; }
+  .water-cooler-label { font-size: 9px; font-weight: 600; color: var(--water-cooler); text-transform: uppercase; }
+
+  /* ── Boardroom ── */
+  .boardroom {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    height: 80px;
+    background: rgba(139, 92, 246, 0.15);
+    border: 2px dashed var(--boardroom);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .boardroom.active {
+    background: rgba(139, 92, 246, 0.3);
+    border-style: solid;
+    animation: boardroomPulse 1.5s infinite;
+  }
+
+  @keyframes boardroomPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+    50% { box-shadow: 0 0 50px rgba(139, 92, 246, 0.7); }
+  }
+
+  .boardroom-icon { font-size: 20px; }
+  .boardroom-label { font-size: 10px; font-weight: 600; color: var(--boardroom); text-transform: uppercase; }
+
+  /* ── User Desk ── */
+  .user-desk {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    width: 110px;
+    padding: 10px;
+    background: linear-gradient(135deg, #1a3a2a 0%, #0d1f17 100%);
+    border: 2px solid #2ea043;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .user-desk:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(46, 160, 67, 0.4);
+  }
+
+  .user-desk.at-desk {
+    border-style: solid;
+    box-shadow: 0 0 15px rgba(46, 160, 67, 0.3);
+  }
+
+  .user-desk.at-water-cooler {
+    border-color: var(--water-cooler);
+    opacity: 0.6;
+  }
+
+  .user-desk.at-boardroom {
+    border-color: var(--boardroom);
+    opacity: 0.6;
+  }
+
+  .user-desk.away {
+    border-style: dashed;
+    opacity: 0.4;
+  }
+
+  .user-desk-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #2ea043;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .user-desk-location {
+    font-size: 8px;
+    color: var(--text-dim);
+  }
+
+  /* ── Right Panel ── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+
+  .card-body {
+    padding: 10px;
+  }
+
+  /* ── Event Feed ── */
+  .event-feed .card-body {
+    overflow-y: auto;
+    max-height: 200px;
+  }
+
+  .event-item {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 9px;
+  }
+
+  .event-header {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .event-type-badge {
+    font-size: 7px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+
+  .event-type-badge.PROPOSAL { background: rgba(88, 166, 255, 0.2); color: var(--accent); }
+  .event-type-badge.PROPOSAL_DECISION { background: rgba(163, 113, 247, 0.2); color: var(--purple); }
+  .event-type-badge.WATER_COOLER { background: rgba(31, 111, 235, 0.2); color: var(--water-cooler); }
+  .event-type-badge.BOARDROOM { background: rgba(139, 92, 246, 0.2); color: var(--boardroom); }
+  .event-type-badge.USER_APPROVAL { background: rgba(255, 215, 0, 0.2); color: #ffd700; }
+
+  /* ── Inbox Panel ── */
+  .inbox-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #ffd700;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+    z-index: 1000;
+    transition: all 0.3s;
+  }
+
+  .inbox-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(255, 215, 0, 0.5);
+  }
+
+  .inbox-toggle-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #f85149;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .inbox-panel {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 320px;
+    max-height: 350px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    overflow: hidden;
+    display: none;
+  }
+
+  .inbox-panel.visible {
+    display: block;
+  }
+
+  .inbox-header {
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .inbox-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #ffd700;
+  }
+
+  .inbox-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .inbox-body {
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  .inbox-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 10px;
+  }
+
+  .approval-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .approval-type {
+    font-size: 9px;
+    font-weight: 700;
+    color: #ffd700;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .approval-content {
+    font-size: 10px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .approval-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .approval-btn {
+    flex: 1;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .approval-btn.approve {
+    background: rgba(46, 160, 67, 0.2);
+    color: #2ea043;
+  }
+
+  .approval-btn.approve:hover {
+    background: #2ea043;
+    color: white;
+  }
+
+  .approval-btn.deny {
+    background: rgba(248, 81, 73, 0.2);
+    color: #f85149;
+  }
+
+  .approval-btn.deny:hover {
+    background: #f85149;
+    color: white;
+  }
+
+  /* ── Meeting Modal ── */
+  .meeting-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1002;
+  }
+
+  .meeting-modal.visible {
+    display: flex;
+  }
+
+  .meeting-card {
+    background: var(--surface);
+    border: 2px solid var(--boardroom);
+    border-radius: 12px;
+    padding: 20px;
+    width: 360px;
+    max-width: 90%;
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.4);
+  }
+
+  .meeting-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .meeting-icon { font-size: 28px; }
+  .meeting-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--boardroom);
+    text-transform: uppercase;
+  }
+
+  .meeting-agenda {
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.5;
+    background: var(--surface2);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+
+  .meeting-participants {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .meeting-card-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .meeting-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .meeting-btn.join {
+    background: var(--boardroom);
+    color: white;
+  }
+
+  .meeting-btn.join:hover { background: #a78bfa; }
+
+  .meeting-btn.decline {
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .meeting-btn.decline:hover { background: var(--border); }
+
+  /* ── Agent Detail Modal ── */
+  .agent-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1003;
+  }
+
+  .agent-modal.visible { display: flex; }
+
+  .agent-card {
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    padding: 24px;
+    width: 420px;
+    max-width: 90%;
+    box-shadow: 0 0 50px rgba(88, 166, 255, 0.4);
+  }
+
+  .agent-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .agent-avatar { font-size: 48px; }
+  .agent-name { font-size: 24px; font-weight: 700; color: var(--text); }
+  .agent-level { font-size: 12px; padding: 4px 10px; border-radius: 12px; }
+  .agent-level.l1 { background: rgba(57, 197, 207, 0.2); color: var(--cyan); }
+  .agent-level.l2 { background: rgba(240, 136, 62, 0.2); color: var(--orange); }
+  .agent-level.l3 { background: rgba(163, 113, 247, 0.2); color: var(--purple); }
+
+  .agent-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .agent-stat {
+    background: var(--surface2);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .agent-stat-value { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .agent-stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
+
+  .agent-chat {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+
+  .chat-message {
+    padding: 8px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    font-size: 11px;
+  }
+
+  .chat-message.sent {
+    background: rgba(88, 166, 255, 0.2);
+    margin-left: 20px;
+  }
+
+  .chat-message.received {
+    background: rgba(163, 113, 247, 0.2);
+    margin-right: 20px;
+  }
+
+  .chat-input {
+    display: flex;
+    gap: 8px;
+  }
+
+  .chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  .chat-input button {
+    padding: 10px 16px;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Headless Mode */
+  .headless-indicator {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    padding: 8px 16px;
+    background: rgba(255, 215, 0, 0.2);
+    border: 1px solid #ffd700;
+    border-radius: 20px;
+    font-size: 10px;
+    color: #ffd700;
+    display: none;
+    z-index: 1001;
+  }
+
+  .headless-indicator.visible { display: block; }
+
+  /* ── History Panel ── */
+  .history-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 100px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(88, 166, 255, 0.3);
+    z-index: 1000;
+    transition: all 0.3s;
+  }
+
+  .history-toggle:hover {
+    transform: scale(1.1);
+  }
+
+  .history-panel {
+    position: fixed;
+    bottom: 90px;
+    right: 100px;
+    width: 380px;
+    max-height: 450px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    overflow: hidden;
+    display: none;
+  }
+
+  .history-panel.visible {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .history-header {
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .history-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+  }
+
+  .history-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .history-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .history-tab {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+  }
+
+  .history-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .history-content {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 350px;
+  }
+
+  .history-timeline {
+    padding: 10px;
+  }
+
+  .history-item {
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    background: var(--surface2);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .history-item:hover {
+    background: var(--border);
+  }
+
+  .history-item.selected {
+    border: 1px solid var(--accent);
+  }
+
+  .history-item-time {
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .history-item-type {
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .history-item-type.boardroom { color: var(--boardroom); }
+  .history-item-type.water_cooler { color: var(--water-cooler); }
+  .history-item-type.proposal { color: var(--accent); }
+  .history-item-type.approval { color: #ffd700; }
+
+  .history-item-content {
+    font-size: 10px;
+    color: var(--text);
+  }
+
+  .history-detail {
+    padding: 12px;
+  }
+
+  .history-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .history-detail-time {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .history-detail-back {
+    font-size: 9px;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+
+  .history-detail-messages {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  .history-message {
+    padding: 8px;
+    margin-bottom: 6px;
+    background: var(--surface2);
+    border-radius: 6px;
+  }
+
+  .history-message-speaker {
+    font-size: 9px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .history-message-content {
+    font-size: 10px;
+    color: var(--text);
+  }
+
+  .meeting-btn.decline:hover { background: var(--border); }
+
+  /* ── North Star Banner ── */
+  .north-star-banner {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.08), rgba(163, 113, 247, 0.08));
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 10px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .north-star-banner strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="logo">AppShak Office</div>
+      <div class="logo-sub">Cognitive Organism Command Center</div>
+    </div>
+    <div class="status-badge offline" id="statusBadge">
+      <div class="pulse" style="background:var(--red)"></div> CONNECTING
+    </div>
+  </div>
+  <div style="font-size: 11px; color: var(--text-dim);">
+    Press <strong style="color: var(--accent);">?</strong> for help
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Office Floor (CCTV) -->
+  <div class="office-floor">
+    <div class="office-floor-header">
+      <span class="office-floor-title">📹 OFFICE CAM 01 - MAIN FLOOR</span>
+      <span style="font-size: 10px; color: var(--text-dim);" id="officeStatus">Monitoring...</span>
+    </div>
+    
+    <div class="office-canvas">
+      
+      <!-- CCTV Overlay -->
+      <div class="cctv-overlay">
+        <div class="cctv-timestamp" id="cctvTimestamp">2026-02-17 00:00:00</div>
+        <div class="cctv-camera-label">CAM-01: OFFICE FLOOR</div>
+        <div class="cctv-rec">
+          <div class="cctv-rec-dot"></div>
+          REC
+        </div>
+        <div class="cctv-scanline"></div>
+        <div class="cctv-vignette"></div>
+      </div>
+
+      <!-- Agent Desks -->
+      <div class="agent-desk desk-scout active" id="deskScout">
+        <div class="desk-header">
+          <span class="desk-avatar">🔍</span>
+          <span class="desk-name">Scout</span>
+          <span class="desk-level l1">L1</span>
+        </div>
+        <div class="desk-status" id="scoutStatus">IDLE</div>
+      </div>
+
+      <div class="agent-desk desk-builder" id="deskBuilder">
+        <div class="desk-header">
+          <span class="desk-avatar">🔨</span>
+          <span class="desk-name">Builder</span>
+          <span class="desk-level l2">L2</span>
+        </div>
+        <div class="desk-status" id="builderStatus">IDLE</div>
+      </div>
+
+      <div class="agent-desk desk-chief" id="deskChief">
+        <div class="desk-header">
+          <span class="desk-avatar">👑</span>
+          <span class="desk-name">Chief</span>
+          <span class="desk-level l3">L3</span>
+        </div>
+        <div class="desk-status" id="chiefStatus">IDLE</div>
+      </div>
+
+      <!-- Water Cooler -->
+      <div class="water-cooler" id="waterCooler">
+        <span class="water-cooler-icon">🚰</span>
+        <span class="water-cooler-label">Water Cooler</span>
+      </div>
+
+      <!-- Boardroom -->
+      <div class="boardroom" id="boardroom">
+        <span class="boardroom-icon">🏛️</span>
+        <span class="boardroom-label">Boardroom</span>
+      </div>
+
+      <!-- User Desk -->
+      <div class="user-desk at-desk" id="userDesk" onclick="handleUserClick()">
+        <div class="user-desk-label">👤 YOU</div>
+        <div class="user-desk-location" id="userLocation">At Desk</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <!-- Event Feed -->
+    <div class="card event-feed">
+      <div class="card-header">
+        <div class="card-title">📡 Live Feed</div>
+        <span style="font-size: 9px; color: var(--text-dim);" id="eventCount">0</span>
+      </div>
+      <div class="card-body" id="eventFeed"></div>
+    </div>
+
+    <!-- Boardroom Discussions Panel -->
+    <div class="card" id="boardroomPanel" style="display:none;">
+      <div class="card-header">
+        <div class="card-title">🏛️ Boardroom Discussion</div>
+      </div>
+      <div class="card-body" id="boardroomDiscussion" style="max-height: 200px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Headless Mode Indicator -->
+<div class="headless-indicator" id="headlessIndicator">
+  🎮 HEADLESS MODE - Use Arrow Keys to Move
+</div>
+<div class="inbox-toggle" onclick="toggleInbox()">
+  <span style="font-size: 24px;">📬</span>
+  <div class="inbox-toggle-badge" id="inboxBadge" style="display: none;">0</div>
+</div>
+
+<!-- History Toggle -->
+<div class="history-toggle" onclick="toggleHistory()">
+  <span style="font-size: 20px;">📜</span>
+</div>
+
+<!-- Domain Approval Toggle -->
+<div class="history-toggle" id="domainToggle" style="right: 160px; border-color: #ffd700;" onclick="toggleDomainApproval()">
+  <span style="font-size: 18px;">🌐</span>
+  <div class="inbox-toggle-badge" id="domainBadge" style="display: none;">0</div>
+</div>
+
+<!-- Inbox Panel -->
+<div class="inbox-panel" id="inboxPanel">
+  <div class="inbox-header">
+    <span class="inbox-title">📬 Approval Queue</span>
+    <button class="inbox-close" onclick="toggleInbox()">×</button>
+  </div>
+  <div class="inbox-body" id="inboxBody">
+    <div class="inbox-empty">No pending approvals</div>
+  </div>
+</div>
+
+<!-- History Panel -->
+<div class="history-panel" id="historyPanel">
+  <div class="history-header">
+    <span class="history-title">📜 History</span>
+    <button class="history-close" onclick="toggleHistory()">×</button>
+  </div>
+  <div class="history-tabs">
+    <div class="history-tab active" onclick="switchHistoryTab('boardroom')">Boardroom</div>
+    <div class="history-tab" onclick="switchHistoryTab('water')">Water Cooler</div>
+    <div class="history-tab" onclick="switchHistoryTab('all')">All Events</div>
+  </div>
+  <div class="history-content" id="historyContent">
+    <div class="history-timeline" id="historyTimeline"></div>
+  </div>
+</div>
+
+<!-- Domain Approval Panel -->
+<div class="history-panel" id="domainPanel" style="width: 320px; right: 180px;">
+  <div class="history-header" style="background: linear-gradient(135deg, #2a1a0a, #1a1510);">
+    <span class="history-title" style="color: #ffd700;">🌐 Domain Approvals</span>
+    <button class="history-close" onclick="toggleDomainApproval()">×</button>
+  </div>
+  <div style="padding: 10px; border-bottom: 1px solid var(--border);">
+    <button class="meeting-btn" style="background: #ffd700; color: #000; font-size: 9px; width: 100%;" onclick="pauseAllDomains()">⏸️ PAUSE ALL SCANNING</button>
+  </div>
+  <div class="history-content" id="domainContent">
+    <div style="padding: 15px; text-align: center; color: var(--text-dim); font-size: 10px;">
+      Loading domains...
+    </div>
+  </div>
+</div>
+
+<!-- Meeting Modal -->
+<div class="meeting-modal" id="meetingModal">
+  <div class="meeting-card">
+    <div class="meeting-card-header">
+      <span class="meeting-icon">🏛️</span>
+      <span class="meeting-card-title">Boardroom Meeting</span>
+    </div>
+    <div class="meeting-card-body">
+      <div class="meeting-agenda" id="meetingAgenda">
+        Loading meeting details...
+      </div>
+      <div class="meeting-participants" id="meetingParticipants">
+        Participants: Scout, Builder, Chief
+      </div>
+    </div>
+    <div class="meeting-card-actions">
+      <button class="meeting-btn join" onclick="joinMeeting()">Join Meeting</button>
+      <button class="meeting-btn decline" onclick="declineMeeting()">Decline</button>
+    </div>
+  </div>
+</div>
+
+<!-- Agent Detail Modal -->
+<div class="agent-modal" id="agentModal">
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <span class="agent-avatar" id="modalAgentAvatar">🔍</span>
+      <div>
+        <div class="agent-name" id="modalAgentName">Scout</div>
+        <span class="agent-level l1" id="modalAgentLevel">L1</span>
+      </div>
+      <button style="margin-left:auto;background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;" onclick="closeAgentModal()">×</button>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-stat"><div class="agent-stat-value" id="modalCycles">0</div><div class="agent-stat-label">Cycles</div></div>
+      <div class="agent-stat"><div class="agent-stat-value" id="modalConfidence">0%</div><div class="agent-stat-label">Confidence</div></div>
+      <div class="agent-stat"><div class="agent-stat-value" id="modalProblems">0</div><div class="agent-stat-label">Problems</div></div>
+      <div class="agent-stat"><div class="agent-stat-value" id="modalProposals">0</div><div class="agent-stat-label">Proposals</div></div>
+    </div>
+    <div class="agent-chat" id="modalChat">
+      <div class="chat-message received">👋 Hi! I'm an agent. Click to chat!</div>
+    </div>
+    <div class="chat-input"><input type="text" id="chatInput" placeholder="Say something..." onkeypress="handleChatKey(event)"><button onclick="sendChatMessage()">Send</button></div>
+  </div>
+</div>
+
+<script>
+// State
+const MAX_EVENTS = 80;
+let eventCount = 0;
+let ws = null;
+let reconnectTimer = null;
+let inboxVisible = false;
+let pendingApprovals = [];
+let pendingMeetings = [];
+let userLocation = 'desk';
+let currentMeetingId = null;
+
+// CCTV Timestamp
+function updateTimestamp() {
+  const now = new Date();
+  const ts = now.toISOString().replace('T', ' ').substring(0, 19);
+  document.getElementById('cctvTimestamp').textContent = ts;
+}
+setInterval(updateTimestamp, 1000);
+updateTimestamp();
+
+// WebSocket
+function connectWS() {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${location.host}/ws`);
+
+  ws.onopen = () => {
+    document.getElementById('statusBadge').className = 'status-badge online';
+    document.getElementById('statusBadge').innerHTML = '<div class="pulse"></div> LIVE';
+    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+    fetchApprovals();
+    fetchMeetings();
+  };
+
+  ws.onclose = () => {
+    document.getElementById('statusBadge').className = 'status-badge offline';
+    document.getElementById('statusBadge').innerHTML = '<div class="pulse" style="background:var(--red)"></div> RECONNECTING';
+    reconnectTimer = setTimeout(connectWS, 3000);
+  };
+
+  ws.onerror = () => ws.close();
+
+  ws.onmessage = (msg) => {
+    try {
+      const data = JSON.parse(msg.data);
+      if (data.type === 'event') {
+        addEvent(data.data);
+      }
+    } catch (e) { console.error(e); }
+  };
+}
+
+function addEvent(evt) {
+  eventCount++;
+  const feed = document.getElementById('eventFeed');
+  const item = document.createElement('div');
+  item.className = 'event-item';
+
+  const time = new Date().toLocaleTimeString();
+  const origin = evt.origin_id || 'system';
+  const evtType = evt.type || 'EVENT';
+  const payload = evt.payload || {};
+  const detail = payload.action || payload.message || JSON.stringify(payload).substring(0, 50);
+
+  item.innerHTML = `
+    <div class="event-header">
+      <span class="event-type-badge ${evtType}">${evtType.replace(/_/g, ' ')}</span>
+      <span style="color:var(--text-dim)">${origin}</span>
+    </div>
+    <div>${detail}</div>
+  `;
+
+  feed.insertBefore(item, feed.firstChild);
+  while (feed.children.length > MAX_EVENTS) feed.removeChild(feed.lastChild);
+  document.getElementById('eventCount').textContent = eventCount;
+
+  updateOfficeVisuals(evtType, payload);
+}
+
+// Office Visual Updates
+let boardroomDiscussion = [];
+
+function updateOfficeVisuals(evtType, payload) {
+  // Water cooler
+  if (evtType.startsWith('WATER_COOLER')) {
+    const wc = document.getElementById('waterCooler');
+    if (evtType === 'WATER_COOLER_START' || evtType === 'WATER_COOLER_EXCHANGE') {
+      wc.classList.add('active');
+      moveAgentTo('deskScout', 'water-cooler', 2000);
+      moveAgentTo('deskBuilder', 'water-cooler', 2500);
+      setTimeout(() => moveAgentTo('deskScout', 'desk', 1000), 8000);
+      setTimeout(() => moveAgentTo('deskBuilder', 'desk', 1000), 8500);
+    } else if (evtType === 'WATER_COOLER_END') {
+      wc.classList.remove('active');
+    }
+    document.getElementById('officeStatus').textContent = '🚰 Water cooler chat in progress...';
+  }
+
+  // Boardroom
+  if (evtType.startsWith('BOARDROOM')) {
+    const br = document.getElementById('boardroom');
+    if (evtType === 'BOARDROOM_CONVENE' || evtType === 'BOARDROOM_DISCUSSION') {
+      br.classList.add('active');
+      // Show Boardroom panel
+      document.getElementById('boardroomPanel').style.display = 'block';
+      moveAgentTo('deskScout', 'boardroom', 1500);
+      moveAgentTo('deskBuilder', 'boardroom', 2000);
+      moveAgentTo('deskChief', 'boardroom', 1000);
+      showMeetingRequest();
+    } else if (evtType === 'BOARDROOM_ADJOURN') {
+      br.classList.remove('active');
+      // Hide Boardroom panel after delay
+      setTimeout(() => {
+        document.getElementById('boardroomPanel').style.display = 'none';
+        boardroomDiscussion = [];
+      }, 3000);
+    }
+    document.getElementById('officeStatus').textContent = '🏛️ Boardroom session in progress...';
+  }
+
+  // Add Boardroom discussion messages
+  if (evtType.includes('BOARDROOM') && payload) {
+    const speaker = payload.speaker || payload.origin_id || 'Agent';
+    const message = payload.message || payload.agenda || payload.topic || JSON.stringify(payload).substring(0, 100);
+    boardroomDiscussion.push({speaker, message, time: new Date().toLocaleTimeString()});
+    renderBoardroomDiscussion();
+  }
+
+  // Proposal decision (send to inbox)
+  if (evtType === 'PROPOSAL_DECISION' && payload.approved) {
+    addApprovalRequest({
+      proposal_id: payload.proposal?.id || Date.now().toString(),
+      type: 'PROPOSAL_APPROVAL',
+      content: `Chief approved: ${payload.decision_reason || 'New proposal'}`,
+      from: 'Chief'
+    });
+  }
+
+  // Default status
+  if (!evtType.startsWith('WATER_COOLER') && !evtType.startsWith('BOARDROOM')) {
+    document.getElementById('officeStatus').textContent = 'Monitoring...';
+  }
+}
+
+function renderBoardroomDiscussion() {
+  const panel = document.getElementById('boardroomDiscussion');
+  if (boardroomDiscussion.length === 0) {
+    panel.innerHTML = '<div style="color:var(--text-dim); font-size:10px; text-align:center; padding:20px;">No discussions yet</div>';
+    return;
+  }
+  
+  panel.innerHTML = boardroomDiscussion.slice(-10).map(d => `
+    <div style="padding:8px; border-bottom:1px solid var(--border);">
+      <div style="font-size:9px; color:var(--purple); font-weight:700;">${d.speaker}</div>
+      <div style="font-size:10px; color:var(--text);">${d.message}</div>
+    </div>
+  `).join('');
+  panel.scrollTop = panel.scrollHeight;
+}
+
+function moveAgentTo(deskId, location, delay) {
+  setTimeout(() => {
+    const desk = document.getElementById(deskId);
+    if (!desk) return;
+    
+    // Add moving animation
+    desk.classList.add('moving');
+    
+    setTimeout(() => {
+      desk.classList.remove('moving');
+      desk.classList.remove('at-water-cooler', 'at-boardroom', 'active');
+      
+      if (location === 'water_cooler') {
+        // Move to water cooler position (left wall)
+        desk.style.top = '50%';
+        desk.style.left = '60px';
+        desk.style.transform = 'translateY(-50%)';
+        desk.classList.add('at-water-cooler');
+      } else if (location === 'boardroom') {
+        // Move to boardroom position
+        desk.style.top = 'auto';
+        desk.style.bottom = '40px';
+        desk.style.left = '50%';
+        desk.style.transform = 'translateX(-50%)';
+        desk.classList.add('at-boardroom');
+      } else {
+        // Return to desk
+        desk.style.top = '';
+        desk.style.left = '';
+        desk.style.bottom = '';
+        desk.style.transform = '';
+        
+        if (deskId === 'deskScout') {
+          desk.style.top = '30px';
+          desk.style.left = '30px';
+        } else if (deskId === 'deskBuilder') {
+          desk.style.top = '30px';
+          desk.style.right = '30px';
+          desk.style.left = 'auto';
+        } else if (deskId === 'deskChief') {
+          desk.style.bottom = '30px';
+          desk.style.left = '50%';
+        }
+        desk.classList.add('active');
+      }
+    }, 400);
+  }, delay);
+}
+
+// Inbox Functions
+function toggleInbox() {
+  inboxVisible = !inboxVisible;
+  document.getElementById('inboxPanel').classList.toggle('visible', inboxVisible);
+}
+
+function addApprovalRequest(approval) {
+  pendingApprovals.push(approval);
+  updateInboxBadge();
+  renderInbox();
+}
+
+async function fetchApprovals() {
+  try {
+    const res = await fetch('/api/approvals');
+    const data = await res.json();
+    pendingApprovals = data;
+    updateInboxBadge();
+    renderInbox();
+  } catch (e) { console.error(e); }
+}
+
+function updateInboxBadge() {
+  const badge = document.getElementById('inboxBadge');
+  const count = pendingApprovals.length;
+  badge.style.display = count > 0 ? 'flex' : 'none';
+  badge.textContent = count;
+}
+
+function renderInbox() {
+  const body = document.getElementById('inboxBody');
+  if (pendingApprovals.length === 0) {
+    body.innerHTML = '<div class="inbox-empty">No pending approvals</div>';
+    return;
+  }
+
+  body.innerHTML = pendingApprovals.map(a => `
+    <div class="approval-item">
+      <div class="approval-type">${a.type || 'Proposal'}</div>
+      <div class="approval-content">${a.content}</div>
+      <div class="approval-actions">
+        <button class="approval-btn approve" onclick="approveProposal('${a.proposal_id}')">✓ Approve</button>
+        <button class="approval-btn deny" onclick="denyProposal('${a.proposal_id}')">✗ Deny</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function approveProposal(id) {
+  try {
+    await fetch(`/api/approve/${id}`, { method: 'POST' });
+    pendingApprovals = pendingApprovals.filter(a => a.proposal_id !== id);
+    updateInboxBadge();
+    renderInbox();
+  } catch (e) { console.error(e); }
+}
+
+async function denyProposal(id) {
+  try {
+    await fetch(`/api/deny/${id}`, { method: 'POST' });
+    pendingApprovals = pendingApprovals.filter(a => a.proposal_id !== id);
+    updateInboxBadge();
+    renderInbox();
+  } catch (e) { console.error(e); }
+}
+
+// Meeting Functions
+function showMeetingRequest() {
+  currentMeetingId = 'session_' + Date.now();
+  pendingMeetings.push({
+    session_id: currentMeetingId,
+    agenda: 'Project review and planning session',
+    participants: 'Scout, Builder, Chief'
+  });
+  
+  document.getElementById('meetingAgenda').textContent = pendingMeetings[0].agenda;
+  document.getElementById('meetingParticipants').textContent = 'Participants: ' + pendingMeetings[0].participants;
+  document.getElementById('meetingModal').classList.add('visible');
+}
+
+function joinMeeting() {
+  if (currentMeetingId) {
+    fetch(`/api/meetings/${currentMeetingId}/join`, { method: 'POST' });
+    // Move user to boardroom visually
+    document.getElementById('userDesk').classList.remove('at-desk', 'away');
+    document.getElementById('userDesk').classList.add('at-boardroom');
+    document.getElementById('userLocation').textContent = 'In Boardroom';
+  }
+  closeMeetingModal();
+}
+
+function declineMeeting() {
+  if (currentMeetingId) {
+    fetch(`/api/meetings/${currentMeetingId}/decline`, { method: 'POST' });
+  }
+  closeMeetingModal();
+}
+
+function closeMeetingModal() {
+  document.getElementById('meetingModal').classList.remove('visible');
+  currentMeetingId = null;
+}
+
+// User Location
+let userLocation = 'desk';
+
+function toggleUserLocation() {
+  const locations = ['desk', 'water_cooler', 'boardroom', 'away'];
+  const labels = ['At Desk', 'At Water Cooler', 'In Boardroom', 'Away'];
+  const currentIndex = locations.indexOf(userLocation);
+  userLocation = locations[(currentIndex + 1) % locations.length];
+  
+  const desk = document.getElementById('userDesk');
+  const label = document.getElementById('userLocation');
+  
+  desk.className = 'user-desk';
+  if (userLocation === 'desk') {
+    desk.classList.add('at-desk');
+    label.textContent = 'At Desk';
+  } else if (userLocation === 'water_cooler') {
+    desk.classList.add('at-water-cooler');
+    label.textContent = 'At Water Cooler';
+  } else if (userLocation === 'boardroom') {
+    desk.classList.add('at-boardroom');
+    label.textContent = 'In Boardroom';
+  } else {
+    desk.classList.add('away');
+    label.textContent = 'Away';
+  }
+
+  // Notify server
+  fetch('/api/user/location', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({location: userLocation})
+  });
+}
+
+// User Desk click handler
+function handleUserClick() {
+  toggleUserLocation();
+}
+
+let currentAgentId = null;
+let headlessMode = false;
+  if (headlessMode) {
+    // In headless mode, clicking user moves them
+    toggleUserLocation();
+  } else {
+    // Normal mode - show location options
+    toggleUserLocation();
+  }
+}
+
+// Agent Modal Functions
+function showAgentModal(agentId, name, avatar, level) {
+  currentAgentId = agentId;
+  document.getElementById('modalAgentAvatar').textContent = avatar;
+  document.getElementById('modalAgentName').textContent = name;
+  document.getElementById('modalAgentLevel').textContent = level;
+  document.getElementById('modalAgentLevel').className = 'agent-level ' + level.toLowerCase().replace(' ','');
+  
+  // Get agent stats from the dashboard
+  if (agentId === 'deskScout') {
+    document.getElementById('modalCycles').textContent = document.getElementById('scoutStatus').textContent || '0';
+    document.getElementById('modalConfidence').textContent = '85%';
+    document.getElementById('modalProblems').textContent = document.getElementById('metricProblems').textContent || '0';
+    document.getElementById('modalProposals').textContent = '0';
+  } else if (agentId === 'deskBuilder') {
+    document.getElementById('modalCycles').textContent = document.getElementById('builderPlans').textContent || '0';
+    document.getElementById('modalConfidence').textContent = '78%';
+    document.getElementById('modalProblems').textContent = '0';
+    document.getElementById('modalProposals').textContent = document.getElementById('metricProposals').textContent || '0';
+  } else if (agentId === 'deskChief') {
+    document.getElementById('modalCycles').textContent = '0';
+    document.getElementById('modalConfidence').textContent = '92%';
+    document.getElementById('modalProblems').textContent = '0';
+    document.getElementById('modalProposals').textContent = '0';
+  }
+  
+  document.getElementById('agentModal').classList.add('visible');
+}
+
+function closeAgentModal() {
+  document.getElementById('agentModal').classList.remove('visible');
+  currentAgentId = null;
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  
+  const chat = document.getElementById('modalChat');
+  chat.innerHTML += '<div class="chat-message sent">'+msg+'</div>';
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Simulate response
+  setTimeout(() => {
+    const responses = [
+      'I understand. Let me process that.',
+      'Interesting! Tell me more.',
+      'I\'ll note that for my next cycle.',
+      'Thanks for the input!',
+      'Got it! Working on it now.'
+    ];
+    const resp = responses[Math.floor(Math.random() * responses.length)];
+    chat.innerHTML += '<div class="chat-message received">'+resp+'</div>';
+    chat.scrollTop = chat.scrollHeight;
+  }, 1000);
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter') sendChatMessage();
+}
+
+// Water Cooler click - show history
+function showWaterCoolerHistory() {
+  // Switch to water cooler tab in history and open
+  historyTab = 'water';
+  document.getElementById('historyPanel').classList.add('visible');
+  renderHistoryTimeline();
+}
+
+// Headless Mode
+function toggleHeadlessMode() {
+  headlessMode = !headlessMode;
+  document.getElementById('headlessIndicator').classList.toggle('visible', headlessMode);
+  if (headlessMode) {
+    alert('HEADLESS MODE enabled! Use Arrow Keys to move around. Click on agents to interact.');
+  }
+}
+  const locations = ['desk', 'water_cooler', 'boardroom', 'away'];
+  const labels = ['At Desk', 'At Water Cooler', 'In Boardroom', 'Away'];
+  const currentIndex = locations.indexOf(userLocation);
+  userLocation = locations[(currentIndex + 1) % locations.length];
+  
+  const desk = document.getElementById('userDesk');
+  const label = document.getElementById('userLocation');
+  
+  desk.className = 'user-desk';
+  if (userLocation === 'desk') {
+    desk.classList.add('at-desk');
+    label.textContent = 'At Desk';
+  } else if (userLocation === 'water_cooler') {
+    desk.classList.add('at-water-cooler');
+    label.textContent = 'At Water Cooler';
+  } else if (userLocation === 'boardroom') {
+    desk.classList.add('at-boardroom');
+    label.textContent = 'In Boardroom';
+  } else {
+    desk.classList.add('away');
+    label.textContent = 'Away';
+  }
+
+  // Notify server
+  fetch('/api/user/location', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({location: userLocation})
+  });
+}
+
+// Keyboard Help
+document.addEventListener('keydown', (e) => {
+  if (e.key === '?') {
+    alert('Keyboard Shortcuts:\n\ni - Toggle Inbox\nu - Toggle User Location\nm - Toggle Meeting Modal\nESC - Close Modals');
+  }
+  if (e.key === 'i') toggleInbox();
+  if (e.key === 'u') toggleUserLocation();
+  if (e.key === 'm') showMeetingRequest();
+  if (e.key === 'Escape') {
+    closeMeetingModal();
+    if (inboxVisible) toggleInbox();
+    document.getElementById('historyPanel').classList.remove('visible');
+  }
+  if (e.key === 'h') toggleHistory();
+  if (e.key === 'd') toggleDomainApproval();
+});
+
+// History functionality
+let allEvents = [];
+let historyTab = 'boardroom';
+
+function toggleHistory() {
+  const panel = document.getElementById('historyPanel');
+  panel.classList.toggle('visible');
+  if (panel.classList.contains('visible')) {
+    renderHistoryTimeline();
+  }
+}
+
+// Domain/External Action Approval
+let pendingDomains = [];
+let approvedDomains = [];
+
+function toggleDomainApproval() {
+  const panel = document.getElementById('domainPanel');
+  panel.classList.toggle('visible');
+  if (panel.classList.contains('visible')) {
+    fetchDomains();
+  }
+}
+
+async function fetchDomains() {
+  try {
+    const [pendingRes, approvedRes] = await Promise.all([
+      fetch('/api/domains/pending'),
+      fetch('/api/domains/approved')
+    ]);
+    pendingDomains = await pendingRes.json();
+    approvedDomains = await approvedRes.json();
+    renderDomains();
+  } catch(e) { console.error(e); }
+}
+
+function renderDomains() {
+  const content = document.getElementById('domainContent');
+  
+  if (pendingDomains.length === 0 && approvedDomains.length === 0) {
+    content.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-dim); font-size:10px;">'+
+      'No domains approved yet.<br>Click "Pause All Scanning" to stop agents.'+'</div>';
+    return;
+  }
+  
+  let html = '';
+  
+  if (pendingDomains.length > 0) {
+    html += '<div style="padding:8px; font-size:9px; font-weight:700; color:#ffd700; border-bottom:1px solid var(--border);">PENDING APPROVAL</div>';
+    pendingDomains.forEach(d => {
+      html += '<div style="padding:10px; border-bottom:1px solid var(--border);">'+
+        '<div style="font-size:11px; font-weight:700; color:var(--text);">'+d.domain+'</div>'+
+        '<div style="font-size:9px; color:var(--text-dim); margin:4px 0;">'+(d.reason || 'Wants to scan this domain')+'</div>'+
+        '<div style="display:flex; gap:6px;">'+
+          '<button class="approval-btn approve" style="flex:1; padding:6px;" onclick="approveDomain(\''+d.domain+'\')">✓ Approve</button>'+
+          '<button class="approval-btn deny" style="flex:1; padding:6px;" onclick="denyDomain(\''+d.domain+'\')">✗ Deny</button>'+
+        '</div>'+
+      '</div>';
+    });
+  }
+  
+  if (approvedDomains.length > 0) {
+    html += '<div style="padding:8px; font-size:9px; font-weight:700; color:var(--green); border-bottom:1px solid var(--border);">APPROVED DOMAINS</div>';
+    approvedDomains.forEach(d => {
+      html += '<div style="padding:8px; font-size:10px; color:var(--text); border-bottom:1px solid var(--border);">✓ '+d+'</div>';
+    });
+  }
+  
+  content.innerHTML = html;
+}
+
+async function approveDomain(domain) {
+  try {
+    await fetch('/api/domains/approve/'+domain, {method:'POST'});
+    fetchDomains();
+  } catch(e) { console.error(e); }
+}
+
+async function denyDomain(domain) {
+  try {
+    await fetch('/api/domains/deny/'+domain, {method:'POST'});
+    fetchDomains();
+  } catch(e) { console.error(e); }
+}
+
+async function pauseAllDomains() {
+  try {
+    await fetch('/api/domains/pause-all', {method:'POST'});
+    fetchDomains();
+  } catch(e) { console.error(e); }
+}
+
+function switchHistoryTab(tab) {
+  historyTab = tab;
+  document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderHistoryTimeline();
+}
+
+function renderHistoryTimeline() {
+  const timeline = document.getElementById('historyTimeline');
+  
+  let filtered = allEvents;
+  if (historyTab === 'boardroom') {
+    filtered = allEvents.filter(e => e.type && e.type.includes('BOARDROOM'));
+  } else if (historyTab === 'water') {
+    filtered = allEvents.filter(e => e.type && e.type.includes('WATER_COOLER'));
+  }
+  
+  if (filtered.length === 0) {
+    timeline.innerHTML = '<div style="color:var(--text-dim); font-size:10px; text-align:center; padding:20px;">No events recorded yet</div>';
+    return;
+  }
+  
+  // Group by session/time
+  const sessions = {};
+  filtered.forEach(evt => {
+    const time = new Date(evt.timestamp || Date.now()).toLocaleTimeString();
+    const date = new Date(evt.timestamp || Date.now()).toLocaleDateString();
+    const key = date + ' ' + time;
+    if (!sessions[key]) sessions[key] = [];
+    sessions[key].push(evt);
+  });
+  
+  timeline.innerHTML = Object.entries(sessions).reverse().map(([time, events]) => {
+    const evt = events[0];
+    const type = evt.type || 'event';
+    const content = evt.payload?.message || evt.payload?.agenda || evt.payload?.action || JSON.stringify(evt.payload || {}).substring(0, 50);
+    const category = type.includes('BOARDROOM') ? 'boardroom' : type.includes('WATER') ? 'water_cooler' : 'proposal';
+    
+    return '<div class="history-item" onclick="showHistoryDetail(\''+time+'\')">'+
+      '<div class="history-item-time">'+time+'</div>'+
+      '<div class="history-item-type '+category+'">'+type.replace(/_/g, ' ')+'</div>'+
+      '<div class="history-item-content">'+content+'</div>'+
+      '</div>';
+  }).join('');
+}
+
+function showHistoryDetail(time) {
+  const content = document.getElementById('historyContent');
+  const events = allEvents.filter(e => {
+    const t = new Date(e.timestamp || Date.now()).toLocaleTimeString();
+    const d = new Date(e.timestamp || Date.now()).toLocaleDateString();
+    return (d + ' ' + t) === time;
+  });
+  
+  if (events.length === 0) return;
+  
+  content.innerHTML = '<div class="history-detail">'+
+    '<div class="history-detail-header">'+
+      '<span class="history-detail-time">'+time+'</span>'+
+      '<span class="history-detail-back" onclick="renderHistoryTimeline()">← Back</span>'+
+    '</div>'+
+    '<div class="history-detail-messages">'+
+    events.map(e => '<div class="history-message"><div class="history-message-speaker" style="color:'+getEventColor(e.type)+'">'+(e.origin_id || 'System')+'</div><div class="history-message-content">'+JSON.stringify(e.payload || e, null, 2)+'</div></div>').join('')+
+    '</div>'+
+  '</div>';
+}
+
+function getEventColor(type) {
+  if (type && type.includes('BOARDROOM')) return 'var(--boardroom)';
+  if (type && type.includes('WATER_COOLER')) return 'var(--water-cooler)';
+  if (type && type.includes('PROPOSAL')) return 'var(--accent)';
+  return 'var(--text)';
+}
+
+// Store all events for history
+const originalAddEvent = addEvent;
+addEvent = function(evt) {
+  allEvents.push({...evt, timestamp: Date.now()});
+  if (allEvents.length > 500) allEvents = allEvents.slice(-500);
+  originalAddEvent(evt);
+};
+
+// Start
+connectWS();
+
+</script>
+</body>
+</html>

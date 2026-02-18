@@ -1,0 +1,50 @@
+{
+  "updated_at": "2026-02-18T00:47:26.418961+00:00",
+  "errors": [],
+  "agent_namespaces": {
+    "recon": {
+      "events": [
+        {
+          "timestamp": "2026-02-18T00:47:26.258899+00:00",
+          "event_type": "AGENT_EVENT",
+          "payload": {
+            "type": "AGENT_STATUS",
+            "timestamp": "2026-02-18T00:47:26.258199+00:00",
+            "origin_id": "recon",
+            "payload": {
+              "action": "search_for_problems",
+              "status": "idle_scan_complete",
+              "agent": "recon",
+              "prime_directive_justification": "search_for_problems advances the Prime Directive by continuously discovering valuable real-world opportunities to solve.",
+              "queue_index": 2
+            }
+          }
+        },
+        {
+          "timestamp": "2026-02-18T00:47:26.417964+00:00",
+          "event_type": "AGENT_EVENT",
+          "payload": {
+            "type": "AGENT_STATUS",
+            "timestamp": "2026-02-18T00:47:26.416949+00:00",
+            "origin_id": "recon",
+            "payload": {
+              "action": "search_for_problems",
+              "status": "idle_scan_complete",
+              "agent": "recon",
+              "prime_directive_justification": "search_for_problems advances the Prime Directive by continuously discovering valuable real-world opportunities to solve.",
+              "queue_index": 3
+            }
+          }
+        }
+      ],
+      "updated_at": "2026-02-18T00:47:26.417964+00:00"
+    }
+  },
+  "kernel_state": {
+    "running": true,
+    "last_heartbeat_at": "2026-02-18T00:47:26.322607+00:00",
+    "last_event_type": "AGENT_STATUS",
+    "heartbeat_failures": 0
+  },
+  "external_pipeline": {}
+}
