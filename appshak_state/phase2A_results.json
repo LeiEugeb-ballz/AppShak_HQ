@@ -1,0 +1,1026 @@
+{
+  "schema_version": "phase2A_v1",
+  "pm_config": {
+    "planning_granularity": 3,
+    "escalation_threshold": 0.4,
+    "buffer_ratio": 0.2
+  },
+  "sprint_count": 100,
+  "base_seed": 1000,
+  "summary": {
+    "reliability_mean": 59.2167,
+    "reliability_std_dev": 9.3081,
+    "variance_mean": 76.1253,
+    "variance_std_dev": 7.137,
+    "reliability_min": 31.667,
+    "reliability_max": 77.5,
+    "variance_min": 49.306,
+    "variance_max": 89.576,
+    "completion_rate_mean": 70.3333,
+    "deadline_miss_mean": 9.36,
+    "rework_mean": 1.63,
+    "urgent_success_rate": 72.0
+  },
+  "per_sprint": [
+    {
+      "sprint_id": "001",
+      "seed": 1000,
+      "reliability": 53.333,
+      "variance": 66.473,
+      "tasks_completed": 9,
+      "deadline_misses": 10,
+      "rework_events": 1,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "002",
+      "seed": 1001,
+      "reliability": 49.167,
+      "variance": 80.328,
+      "tasks_completed": 6,
+      "deadline_misses": 11,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "003",
+      "seed": 1002,
+      "reliability": 63.333,
+      "variance": 61.155,
+      "tasks_completed": 10,
+      "deadline_misses": 10,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "004",
+      "seed": 1003,
+      "reliability": 67.5,
+      "variance": 77.343,
+      "tasks_completed": 10,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "005",
+      "seed": 1004,
+      "reliability": 62.5,
+      "variance": 74.23,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "006",
+      "seed": 1005,
+      "reliability": 44.167,
+      "variance": 65.698,
+      "tasks_completed": 6,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "007",
+      "seed": 1006,
+      "reliability": 37.5,
+      "variance": 85.76,
+      "tasks_completed": 6,
+      "deadline_misses": 11,
+      "rework_events": 3,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "008",
+      "seed": 1007,
+      "reliability": 52.5,
+      "variance": 71.95,
+      "tasks_completed": 7,
+      "deadline_misses": 11,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "009",
+      "seed": 1008,
+      "reliability": 57.5,
+      "variance": 78.447,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 0,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "010",
+      "seed": 1009,
+      "reliability": 50.833,
+      "variance": 84.7,
+      "tasks_completed": 7,
+      "deadline_misses": 9,
+      "rework_events": 0,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "011",
+      "seed": 1010,
+      "reliability": 50.833,
+      "variance": 84.075,
+      "tasks_completed": 6,
+      "deadline_misses": 11,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "012",
+      "seed": 1011,
+      "reliability": 61.667,
+      "variance": 71.517,
+      "tasks_completed": 9,
+      "deadline_misses": 10,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "013",
+      "seed": 1012,
+      "reliability": 54.167,
+      "variance": 65.364,
+      "tasks_completed": 7,
+      "deadline_misses": 11,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "014",
+      "seed": 1013,
+      "reliability": 65.833,
+      "variance": 74.602,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "015",
+      "seed": 1014,
+      "reliability": 65.833,
+      "variance": 65.403,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "016",
+      "seed": 1015,
+      "reliability": 61.667,
+      "variance": 81.181,
+      "tasks_completed": 10,
+      "deadline_misses": 8,
+      "rework_events": 1,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "017",
+      "seed": 1016,
+      "reliability": 46.667,
+      "variance": 81.12,
+      "tasks_completed": 6,
+      "deadline_misses": 8,
+      "rework_events": 2,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "018",
+      "seed": 1017,
+      "reliability": 59.167,
+      "variance": 82.904,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "019",
+      "seed": 1018,
+      "reliability": 56.667,
+      "variance": 78.323,
+      "tasks_completed": 9,
+      "deadline_misses": 8,
+      "rework_events": 2,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "020",
+      "seed": 1019,
+      "reliability": 65.0,
+      "variance": 84.335,
+      "tasks_completed": 8,
+      "deadline_misses": 8,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "021",
+      "seed": 1020,
+      "reliability": 67.5,
+      "variance": 71.509,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "022",
+      "seed": 1021,
+      "reliability": 65.833,
+      "variance": 66.87,
+      "tasks_completed": 10,
+      "deadline_misses": 9,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "023",
+      "seed": 1022,
+      "reliability": 54.167,
+      "variance": 66.544,
+      "tasks_completed": 8,
+      "deadline_misses": 11,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "024",
+      "seed": 1023,
+      "reliability": 62.5,
+      "variance": 71.459,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "025",
+      "seed": 1024,
+      "reliability": 59.167,
+      "variance": 69.553,
+      "tasks_completed": 10,
+      "deadline_misses": 11,
+      "rework_events": 4,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "026",
+      "seed": 1025,
+      "reliability": 55.0,
+      "variance": 71.096,
+      "tasks_completed": 8,
+      "deadline_misses": 12,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "027",
+      "seed": 1026,
+      "reliability": 56.667,
+      "variance": 78.621,
+      "tasks_completed": 9,
+      "deadline_misses": 8,
+      "rework_events": 2,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "028",
+      "seed": 1027,
+      "reliability": 73.333,
+      "variance": 85.918,
+      "tasks_completed": 10,
+      "deadline_misses": 8,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "029",
+      "seed": 1028,
+      "reliability": 63.333,
+      "variance": 81.025,
+      "tasks_completed": 10,
+      "deadline_misses": 10,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "030",
+      "seed": 1029,
+      "reliability": 60.0,
+      "variance": 76.39,
+      "tasks_completed": 8,
+      "deadline_misses": 10,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "031",
+      "seed": 1030,
+      "reliability": 57.5,
+      "variance": 77.569,
+      "tasks_completed": 6,
+      "deadline_misses": 9,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "032",
+      "seed": 1031,
+      "reliability": 50.0,
+      "variance": 76.017,
+      "tasks_completed": 8,
+      "deadline_misses": 10,
+      "rework_events": 1,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "033",
+      "seed": 1032,
+      "reliability": 70.833,
+      "variance": 79.484,
+      "tasks_completed": 10,
+      "deadline_misses": 7,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "034",
+      "seed": 1033,
+      "reliability": 65.0,
+      "variance": 78.613,
+      "tasks_completed": 10,
+      "deadline_misses": 10,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "035",
+      "seed": 1034,
+      "reliability": 54.167,
+      "variance": 83.397,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "036",
+      "seed": 1035,
+      "reliability": 34.167,
+      "variance": 81.96,
+      "tasks_completed": 4,
+      "deadline_misses": 11,
+      "rework_events": 1,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "037",
+      "seed": 1036,
+      "reliability": 56.667,
+      "variance": 72.232,
+      "tasks_completed": 8,
+      "deadline_misses": 10,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "038",
+      "seed": 1037,
+      "reliability": 53.333,
+      "variance": 83.163,
+      "tasks_completed": 8,
+      "deadline_misses": 8,
+      "rework_events": 2,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "039",
+      "seed": 1038,
+      "reliability": 52.5,
+      "variance": 77.474,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "040",
+      "seed": 1039,
+      "reliability": 60.0,
+      "variance": 81.472,
+      "tasks_completed": 8,
+      "deadline_misses": 10,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "041",
+      "seed": 1040,
+      "reliability": 66.667,
+      "variance": 80.866,
+      "tasks_completed": 8,
+      "deadline_misses": 8,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "042",
+      "seed": 1041,
+      "reliability": 42.5,
+      "variance": 78.672,
+      "tasks_completed": 7,
+      "deadline_misses": 11,
+      "rework_events": 2,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "043",
+      "seed": 1042,
+      "reliability": 68.333,
+      "variance": 84.925,
+      "tasks_completed": 10,
+      "deadline_misses": 10,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "044",
+      "seed": 1043,
+      "reliability": 75.0,
+      "variance": 77.88,
+      "tasks_completed": 11,
+      "deadline_misses": 8,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "045",
+      "seed": 1044,
+      "reliability": 70.833,
+      "variance": 77.649,
+      "tasks_completed": 10,
+      "deadline_misses": 9,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "046",
+      "seed": 1045,
+      "reliability": 52.5,
+      "variance": 83.304,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 3,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "047",
+      "seed": 1046,
+      "reliability": 65.0,
+      "variance": 75.545,
+      "tasks_completed": 9,
+      "deadline_misses": 8,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "048",
+      "seed": 1047,
+      "reliability": 62.5,
+      "variance": 82.439,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "049",
+      "seed": 1048,
+      "reliability": 74.167,
+      "variance": 77.0,
+      "tasks_completed": 10,
+      "deadline_misses": 7,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "050",
+      "seed": 1049,
+      "reliability": 62.5,
+      "variance": 80.927,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "051",
+      "seed": 1050,
+      "reliability": 69.167,
+      "variance": 64.202,
+      "tasks_completed": 10,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "052",
+      "seed": 1051,
+      "reliability": 77.5,
+      "variance": 88.265,
+      "tasks_completed": 11,
+      "deadline_misses": 7,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "053",
+      "seed": 1052,
+      "reliability": 75.0,
+      "variance": 79.039,
+      "tasks_completed": 11,
+      "deadline_misses": 8,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "054",
+      "seed": 1053,
+      "reliability": 60.833,
+      "variance": 77.536,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "055",
+      "seed": 1054,
+      "reliability": 57.5,
+      "variance": 70.561,
+      "tasks_completed": 9,
+      "deadline_misses": 11,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "056",
+      "seed": 1055,
+      "reliability": 64.167,
+      "variance": 82.205,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "057",
+      "seed": 1056,
+      "reliability": 50.0,
+      "variance": 81.09,
+      "tasks_completed": 8,
+      "deadline_misses": 10,
+      "rework_events": 1,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "058",
+      "seed": 1057,
+      "reliability": 69.167,
+      "variance": 81.696,
+      "tasks_completed": 10,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "059",
+      "seed": 1058,
+      "reliability": 55.833,
+      "variance": 65.048,
+      "tasks_completed": 8,
+      "deadline_misses": 11,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "060",
+      "seed": 1059,
+      "reliability": 66.667,
+      "variance": 85.449,
+      "tasks_completed": 9,
+      "deadline_misses": 8,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "061",
+      "seed": 1060,
+      "reliability": 65.0,
+      "variance": 74.671,
+      "tasks_completed": 9,
+      "deadline_misses": 10,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "062",
+      "seed": 1061,
+      "reliability": 45.0,
+      "variance": 49.306,
+      "tasks_completed": 6,
+      "deadline_misses": 12,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "063",
+      "seed": 1062,
+      "reliability": 64.167,
+      "variance": 80.361,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "064",
+      "seed": 1063,
+      "reliability": 55.833,
+      "variance": 72.523,
+      "tasks_completed": 8,
+      "deadline_misses": 11,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "065",
+      "seed": 1064,
+      "reliability": 64.167,
+      "variance": 83.683,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "066",
+      "seed": 1065,
+      "reliability": 62.5,
+      "variance": 89.576,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "067",
+      "seed": 1066,
+      "reliability": 62.5,
+      "variance": 75.839,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "068",
+      "seed": 1067,
+      "reliability": 75.833,
+      "variance": 76.735,
+      "tasks_completed": 10,
+      "deadline_misses": 7,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "069",
+      "seed": 1068,
+      "reliability": 56.667,
+      "variance": 80.735,
+      "tasks_completed": 7,
+      "deadline_misses": 10,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "070",
+      "seed": 1069,
+      "reliability": 31.667,
+      "variance": 76.122,
+      "tasks_completed": 4,
+      "deadline_misses": 10,
+      "rework_events": 4,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "071",
+      "seed": 1070,
+      "reliability": 58.333,
+      "variance": 71.277,
+      "tasks_completed": 8,
+      "deadline_misses": 10,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "072",
+      "seed": 1071,
+      "reliability": 75.0,
+      "variance": 77.85,
+      "tasks_completed": 12,
+      "deadline_misses": 10,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "073",
+      "seed": 1072,
+      "reliability": 67.5,
+      "variance": 76.937,
+      "tasks_completed": 10,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "074",
+      "seed": 1073,
+      "reliability": 69.167,
+      "variance": 71.636,
+      "tasks_completed": 10,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "075",
+      "seed": 1074,
+      "reliability": 65.0,
+      "variance": 80.849,
+      "tasks_completed": 10,
+      "deadline_misses": 10,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "076",
+      "seed": 1075,
+      "reliability": 55.0,
+      "variance": 79.644,
+      "tasks_completed": 9,
+      "deadline_misses": 10,
+      "rework_events": 0,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "077",
+      "seed": 1076,
+      "reliability": 64.167,
+      "variance": 60.962,
+      "tasks_completed": 11,
+      "deadline_misses": 11,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "078",
+      "seed": 1077,
+      "reliability": 50.833,
+      "variance": 86.084,
+      "tasks_completed": 6,
+      "deadline_misses": 9,
+      "rework_events": 4,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "079",
+      "seed": 1078,
+      "reliability": 50.0,
+      "variance": 87.417,
+      "tasks_completed": 8,
+      "deadline_misses": 8,
+      "rework_events": 4,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "080",
+      "seed": 1079,
+      "reliability": 64.167,
+      "variance": 65.685,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "081",
+      "seed": 1080,
+      "reliability": 50.833,
+      "variance": 85.03,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 4,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "082",
+      "seed": 1081,
+      "reliability": 61.667,
+      "variance": 69.551,
+      "tasks_completed": 10,
+      "deadline_misses": 10,
+      "rework_events": 4,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "083",
+      "seed": 1082,
+      "reliability": 73.333,
+      "variance": 73.44,
+      "tasks_completed": 10,
+      "deadline_misses": 8,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "084",
+      "seed": 1083,
+      "reliability": 65.0,
+      "variance": 75.587,
+      "tasks_completed": 8,
+      "deadline_misses": 8,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "085",
+      "seed": 1084,
+      "reliability": 37.5,
+      "variance": 71.18,
+      "tasks_completed": 6,
+      "deadline_misses": 11,
+      "rework_events": 3,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "086",
+      "seed": 1085,
+      "reliability": 52.5,
+      "variance": 80.69,
+      "tasks_completed": 9,
+      "deadline_misses": 9,
+      "rework_events": 3,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "087",
+      "seed": 1086,
+      "reliability": 50.833,
+      "variance": 66.403,
+      "tasks_completed": 7,
+      "deadline_misses": 9,
+      "rework_events": 0,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "088",
+      "seed": 1087,
+      "reliability": 49.167,
+      "variance": 80.251,
+      "tasks_completed": 6,
+      "deadline_misses": 11,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "089",
+      "seed": 1088,
+      "reliability": 64.167,
+      "variance": 69.346,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "090",
+      "seed": 1089,
+      "reliability": 60.0,
+      "variance": 80.163,
+      "tasks_completed": 9,
+      "deadline_misses": 10,
+      "rework_events": 3,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "091",
+      "seed": 1090,
+      "reliability": 49.167,
+      "variance": 73.479,
+      "tasks_completed": 7,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "092",
+      "seed": 1091,
+      "reliability": 44.167,
+      "variance": 72.503,
+      "tasks_completed": 7,
+      "deadline_misses": 9,
+      "rework_events": 4,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "093",
+      "seed": 1092,
+      "reliability": 56.667,
+      "variance": 73.57,
+      "tasks_completed": 8,
+      "deadline_misses": 8,
+      "rework_events": 0,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "094",
+      "seed": 1093,
+      "reliability": 60.833,
+      "variance": 75.606,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "095",
+      "seed": 1094,
+      "reliability": 60.833,
+      "variance": 69.738,
+      "tasks_completed": 8,
+      "deadline_misses": 9,
+      "rework_events": 2,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "096",
+      "seed": 1095,
+      "reliability": 58.333,
+      "variance": 69.716,
+      "tasks_completed": 7,
+      "deadline_misses": 10,
+      "rework_events": 0,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "097",
+      "seed": 1096,
+      "reliability": 49.167,
+      "variance": 77.569,
+      "tasks_completed": 7,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": false
+    },
+    {
+      "sprint_id": "098",
+      "seed": 1097,
+      "reliability": 69.167,
+      "variance": 58.244,
+      "tasks_completed": 10,
+      "deadline_misses": 9,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "099",
+      "seed": 1098,
+      "reliability": 66.667,
+      "variance": 77.383,
+      "tasks_completed": 10,
+      "deadline_misses": 10,
+      "rework_events": 1,
+      "urgent_success": true
+    },
+    {
+      "sprint_id": "100",
+      "seed": 1099,
+      "reliability": 55.833,
+      "variance": 75.621,
+      "tasks_completed": 8,
+      "deadline_misses": 11,
+      "rework_events": 2,
+      "urgent_success": true
+    }
+  ]
+}

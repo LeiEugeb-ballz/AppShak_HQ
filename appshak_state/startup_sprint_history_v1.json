@@ -1,0 +1,1805 @@
+{
+  "version": "1.0",
+  "records": [
+    {
+      "sprint_id": "001",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 53.333,
+      "variance_score": 66.473,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 10,
+        "rework_events": 1,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.050055+00:00"
+    },
+    {
+      "sprint_id": "002",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 49.167,
+      "variance_score": 80.328,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 11,
+        "rework_events": 2,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:07.056056+00:00"
+    },
+    {
+      "sprint_id": "003",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 63.333,
+      "variance_score": 61.155,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 10,
+        "rework_events": 3,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:07.084454+00:00"
+    },
+    {
+      "sprint_id": "004",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 67.5,
+      "variance_score": 77.343,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:07.105574+00:00"
+    },
+    {
+      "sprint_id": "005",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 62.5,
+      "variance_score": 74.23,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.128670+00:00"
+    },
+    {
+      "sprint_id": "006",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 44.167,
+      "variance_score": 65.698,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.146327+00:00"
+    },
+    {
+      "sprint_id": "007",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 37.5,
+      "variance_score": 85.76,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 11,
+        "rework_events": 3,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.162495+00:00"
+    },
+    {
+      "sprint_id": "008",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 52.5,
+      "variance_score": 71.95,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 11,
+        "rework_events": 2,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.180833+00:00"
+    },
+    {
+      "sprint_id": "009",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 57.5,
+      "variance_score": 78.447,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 0,
+        "escalations": 3
+      },
+      "timestamp": "2026-02-20T21:06:07.196684+00:00"
+    },
+    {
+      "sprint_id": "010",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 50.833,
+      "variance_score": 84.7,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 9,
+        "rework_events": 0,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.212763+00:00"
+    },
+    {
+      "sprint_id": "011",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 50.833,
+      "variance_score": 84.075,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 11,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.229778+00:00"
+    },
+    {
+      "sprint_id": "012",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 61.667,
+      "variance_score": 71.517,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 10,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.246941+00:00"
+    },
+    {
+      "sprint_id": "013",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 54.167,
+      "variance_score": 65.364,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 11,
+        "rework_events": 1,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:07.263523+00:00"
+    },
+    {
+      "sprint_id": "014",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.833,
+      "variance_score": 74.602,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.279628+00:00"
+    },
+    {
+      "sprint_id": "015",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.833,
+      "variance_score": 65.403,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.300678+00:00"
+    },
+    {
+      "sprint_id": "016",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 61.667,
+      "variance_score": 81.181,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 8,
+        "rework_events": 1,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.330777+00:00"
+    },
+    {
+      "sprint_id": "017",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 46.667,
+      "variance_score": 81.12,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 8,
+        "rework_events": 2,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:07.357200+00:00"
+    },
+    {
+      "sprint_id": "018",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 59.167,
+      "variance_score": 82.904,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 3,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.384318+00:00"
+    },
+    {
+      "sprint_id": "019",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 56.667,
+      "variance_score": 78.323,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 8,
+        "rework_events": 2,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.404305+00:00"
+    },
+    {
+      "sprint_id": "020",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.0,
+      "variance_score": 84.335,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 8,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.426901+00:00"
+    },
+    {
+      "sprint_id": "021",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 67.5,
+      "variance_score": 71.509,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 0,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.444135+00:00"
+    },
+    {
+      "sprint_id": "022",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.833,
+      "variance_score": 66.87,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 9,
+        "rework_events": 3,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.462812+00:00"
+    },
+    {
+      "sprint_id": "023",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 54.167,
+      "variance_score": 66.544,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 11,
+        "rework_events": 3,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:07.479831+00:00"
+    },
+    {
+      "sprint_id": "024",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 62.5,
+      "variance_score": 71.459,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.495804+00:00"
+    },
+    {
+      "sprint_id": "025",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 59.167,
+      "variance_score": 69.553,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 11,
+        "rework_events": 4,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.513768+00:00"
+    },
+    {
+      "sprint_id": "026",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 55.0,
+      "variance_score": 71.096,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 12,
+        "rework_events": 1,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.532286+00:00"
+    },
+    {
+      "sprint_id": "027",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 56.667,
+      "variance_score": 78.621,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 8,
+        "rework_events": 2,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.560034+00:00"
+    },
+    {
+      "sprint_id": "028",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 73.333,
+      "variance_score": 85.918,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 8,
+        "rework_events": 0,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.576974+00:00"
+    },
+    {
+      "sprint_id": "029",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 63.333,
+      "variance_score": 81.025,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 10,
+        "rework_events": 3,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.594445+00:00"
+    },
+    {
+      "sprint_id": "030",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 60.0,
+      "variance_score": 76.39,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 10,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.612534+00:00"
+    },
+    {
+      "sprint_id": "031",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 57.5,
+      "variance_score": 77.569,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 9,
+        "rework_events": 0,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:07.637896+00:00"
+    },
+    {
+      "sprint_id": "032",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 50.0,
+      "variance_score": 76.017,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 10,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.654863+00:00"
+    },
+    {
+      "sprint_id": "033",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 70.833,
+      "variance_score": 79.484,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 7,
+        "rework_events": 3,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:07.671913+00:00"
+    },
+    {
+      "sprint_id": "034",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.0,
+      "variance_score": 78.613,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 10,
+        "rework_events": 2,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.691987+00:00"
+    },
+    {
+      "sprint_id": "035",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 54.167,
+      "variance_score": 83.397,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.708562+00:00"
+    },
+    {
+      "sprint_id": "036",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 34.167,
+      "variance_score": 81.96,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 4,
+        "deadline_misses": 11,
+        "rework_events": 1,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:07.726065+00:00"
+    },
+    {
+      "sprint_id": "037",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 56.667,
+      "variance_score": 72.232,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 10,
+        "rework_events": 3,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.744143+00:00"
+    },
+    {
+      "sprint_id": "038",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 53.333,
+      "variance_score": 83.163,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 8,
+        "rework_events": 2,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.762927+00:00"
+    },
+    {
+      "sprint_id": "039",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 52.5,
+      "variance_score": 77.474,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:07.779497+00:00"
+    },
+    {
+      "sprint_id": "040",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 60.0,
+      "variance_score": 81.472,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 10,
+        "rework_events": 1,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:07.796471+00:00"
+    },
+    {
+      "sprint_id": "041",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 66.667,
+      "variance_score": 80.866,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 8,
+        "rework_events": 0,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.813054+00:00"
+    },
+    {
+      "sprint_id": "042",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 42.5,
+      "variance_score": 78.672,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 11,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.829905+00:00"
+    },
+    {
+      "sprint_id": "043",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 68.333,
+      "variance_score": 84.925,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 10,
+        "rework_events": 0,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:07.845761+00:00"
+    },
+    {
+      "sprint_id": "044",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 75.0,
+      "variance_score": 77.88,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 11,
+        "deadline_misses": 8,
+        "rework_events": 1,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:07.861885+00:00"
+    },
+    {
+      "sprint_id": "045",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 70.833,
+      "variance_score": 77.649,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 9,
+        "rework_events": 0,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:07.882219+00:00"
+    },
+    {
+      "sprint_id": "046",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 52.5,
+      "variance_score": 83.304,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 3,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.901659+00:00"
+    },
+    {
+      "sprint_id": "047",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.0,
+      "variance_score": 75.545,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 8,
+        "rework_events": 3,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:07.922048+00:00"
+    },
+    {
+      "sprint_id": "048",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 62.5,
+      "variance_score": 82.439,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.940133+00:00"
+    },
+    {
+      "sprint_id": "049",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 74.167,
+      "variance_score": 77.0,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 7,
+        "rework_events": 1,
+        "escalations": 3
+      },
+      "timestamp": "2026-02-20T21:06:07.959249+00:00"
+    },
+    {
+      "sprint_id": "050",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 62.5,
+      "variance_score": 80.927,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:07.978917+00:00"
+    },
+    {
+      "sprint_id": "051",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 69.167,
+      "variance_score": 64.202,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:07.996962+00:00"
+    },
+    {
+      "sprint_id": "052",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 77.5,
+      "variance_score": 88.265,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 11,
+        "deadline_misses": 7,
+        "rework_events": 1,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:08.015998+00:00"
+    },
+    {
+      "sprint_id": "053",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 75.0,
+      "variance_score": 79.039,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 11,
+        "deadline_misses": 8,
+        "rework_events": 1,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:08.034144+00:00"
+    },
+    {
+      "sprint_id": "054",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 60.833,
+      "variance_score": 77.536,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.052019+00:00"
+    },
+    {
+      "sprint_id": "055",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 57.5,
+      "variance_score": 70.561,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 11,
+        "rework_events": 3,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:08.068620+00:00"
+    },
+    {
+      "sprint_id": "056",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 64.167,
+      "variance_score": 82.205,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.088736+00:00"
+    },
+    {
+      "sprint_id": "057",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 50.0,
+      "variance_score": 81.09,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 10,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.107355+00:00"
+    },
+    {
+      "sprint_id": "058",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 69.167,
+      "variance_score": 81.696,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.125717+00:00"
+    },
+    {
+      "sprint_id": "059",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 55.833,
+      "variance_score": 65.048,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 11,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.146502+00:00"
+    },
+    {
+      "sprint_id": "060",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 66.667,
+      "variance_score": 85.449,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 8,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.163051+00:00"
+    },
+    {
+      "sprint_id": "061",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.0,
+      "variance_score": 74.671,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 10,
+        "rework_events": 0,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.180337+00:00"
+    },
+    {
+      "sprint_id": "062",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 45.0,
+      "variance_score": 49.306,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 12,
+        "rework_events": 3,
+        "escalations": 10
+      },
+      "timestamp": "2026-02-20T21:06:08.197140+00:00"
+    },
+    {
+      "sprint_id": "063",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 64.167,
+      "variance_score": 80.361,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 0,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:08.214526+00:00"
+    },
+    {
+      "sprint_id": "064",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 55.833,
+      "variance_score": 72.523,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 11,
+        "rework_events": 2,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:08.233520+00:00"
+    },
+    {
+      "sprint_id": "065",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 64.167,
+      "variance_score": 83.683,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.251592+00:00"
+    },
+    {
+      "sprint_id": "066",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 62.5,
+      "variance_score": 89.576,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 3,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.269759+00:00"
+    },
+    {
+      "sprint_id": "067",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 62.5,
+      "variance_score": 75.839,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.293522+00:00"
+    },
+    {
+      "sprint_id": "068",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 75.833,
+      "variance_score": 76.735,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 7,
+        "rework_events": 0,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:08.333507+00:00"
+    },
+    {
+      "sprint_id": "069",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 56.667,
+      "variance_score": 80.735,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 10,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.357068+00:00"
+    },
+    {
+      "sprint_id": "070",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 31.667,
+      "variance_score": 76.122,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 4,
+        "deadline_misses": 10,
+        "rework_events": 4,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.376740+00:00"
+    },
+    {
+      "sprint_id": "071",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 58.333,
+      "variance_score": 71.277,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 10,
+        "rework_events": 2,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.395066+00:00"
+    },
+    {
+      "sprint_id": "072",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 75.0,
+      "variance_score": 77.85,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 12,
+        "deadline_misses": 10,
+        "rework_events": 0,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.413218+00:00"
+    },
+    {
+      "sprint_id": "073",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 67.5,
+      "variance_score": 76.937,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.431049+00:00"
+    },
+    {
+      "sprint_id": "074",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 69.167,
+      "variance_score": 71.636,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:08.448747+00:00"
+    },
+    {
+      "sprint_id": "075",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.0,
+      "variance_score": 80.849,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 10,
+        "rework_events": 2,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.465748+00:00"
+    },
+    {
+      "sprint_id": "076",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 55.0,
+      "variance_score": 79.644,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 10,
+        "rework_events": 0,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.483813+00:00"
+    },
+    {
+      "sprint_id": "077",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 64.167,
+      "variance_score": 60.962,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 11,
+        "deadline_misses": 11,
+        "rework_events": 3,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:08.501187+00:00"
+    },
+    {
+      "sprint_id": "078",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 50.833,
+      "variance_score": 86.084,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 9,
+        "rework_events": 4,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:08.520729+00:00"
+    },
+    {
+      "sprint_id": "079",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 50.0,
+      "variance_score": 87.417,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 8,
+        "rework_events": 4,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:08.538867+00:00"
+    },
+    {
+      "sprint_id": "080",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 64.167,
+      "variance_score": 65.685,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.557780+00:00"
+    },
+    {
+      "sprint_id": "081",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 50.833,
+      "variance_score": 85.03,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 4,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.576040+00:00"
+    },
+    {
+      "sprint_id": "082",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 61.667,
+      "variance_score": 69.551,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 10,
+        "rework_events": 4,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:08.596393+00:00"
+    },
+    {
+      "sprint_id": "083",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 73.333,
+      "variance_score": 73.44,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 8,
+        "rework_events": 0,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:08.614115+00:00"
+    },
+    {
+      "sprint_id": "084",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 65.0,
+      "variance_score": 75.587,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 8,
+        "rework_events": 1,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.635193+00:00"
+    },
+    {
+      "sprint_id": "085",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 37.5,
+      "variance_score": 71.18,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 11,
+        "rework_events": 3,
+        "escalations": 9
+      },
+      "timestamp": "2026-02-20T21:06:08.653271+00:00"
+    },
+    {
+      "sprint_id": "086",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 52.5,
+      "variance_score": 80.69,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 9,
+        "rework_events": 3,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:08.673673+00:00"
+    },
+    {
+      "sprint_id": "087",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 50.833,
+      "variance_score": 66.403,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 9,
+        "rework_events": 0,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.692740+00:00"
+    },
+    {
+      "sprint_id": "088",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 49.167,
+      "variance_score": 80.251,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 6,
+        "deadline_misses": 11,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.711657+00:00"
+    },
+    {
+      "sprint_id": "089",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 64.167,
+      "variance_score": 69.346,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 0,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.729852+00:00"
+    },
+    {
+      "sprint_id": "090",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 60.0,
+      "variance_score": 80.163,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 9,
+        "deadline_misses": 10,
+        "rework_events": 3,
+        "escalations": 4
+      },
+      "timestamp": "2026-02-20T21:06:08.748615+00:00"
+    },
+    {
+      "sprint_id": "091",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 49.167,
+      "variance_score": 73.479,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.766438+00:00"
+    },
+    {
+      "sprint_id": "092",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 44.167,
+      "variance_score": 72.503,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 9,
+        "rework_events": 4,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.786259+00:00"
+    },
+    {
+      "sprint_id": "093",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 56.667,
+      "variance_score": 73.57,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 8,
+        "rework_events": 0,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:08.805406+00:00"
+    },
+    {
+      "sprint_id": "094",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 60.833,
+      "variance_score": 75.606,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.826828+00:00"
+    },
+    {
+      "sprint_id": "095",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 60.833,
+      "variance_score": 69.738,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 9,
+        "rework_events": 2,
+        "escalations": 6
+      },
+      "timestamp": "2026-02-20T21:06:08.847042+00:00"
+    },
+    {
+      "sprint_id": "096",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 58.333,
+      "variance_score": 69.716,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 10,
+        "rework_events": 0,
+        "escalations": 9
+      },
+      "timestamp": "2026-02-20T21:06:08.865147+00:00"
+    },
+    {
+      "sprint_id": "097",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 49.167,
+      "variance_score": 77.569,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 7,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.913662+00:00"
+    },
+    {
+      "sprint_id": "098",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 69.167,
+      "variance_score": 58.244,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 9,
+        "rework_events": 1,
+        "escalations": 7
+      },
+      "timestamp": "2026-02-20T21:06:08.931584+00:00"
+    },
+    {
+      "sprint_id": "099",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 66.667,
+      "variance_score": 77.383,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 10,
+        "deadline_misses": 10,
+        "rework_events": 1,
+        "escalations": 8
+      },
+      "timestamp": "2026-02-20T21:06:08.951864+00:00"
+    },
+    {
+      "sprint_id": "100",
+      "pm_config_snapshot": {
+        "planning_granularity": 3,
+        "escalation_threshold": 0.4,
+        "buffer_ratio": 0.2
+      },
+      "reliability_score": 55.833,
+      "variance_score": 75.621,
+      "task_summary": {
+        "total_tasks": 12,
+        "completed_tasks": 8,
+        "deadline_misses": 11,
+        "rework_events": 2,
+        "escalations": 5
+      },
+      "timestamp": "2026-02-20T21:06:08.973195+00:00"
+    }
+  ]
+}
