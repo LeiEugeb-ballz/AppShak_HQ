@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AppShak Baseline Observability</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <main class="container">
+      <h1>AppShak Phase 2A Baseline</h1>
+      <p class="sub">Read-only dashboard. Export consumer only.</p>
+
+      <section class="card">
+        <h2>Config Snapshot</h2>
+        <div id="config" class="config-grid">Loading...</div>
+      </section>
+
+      <section class="card">
+        <h2>Reliability Over Time</h2>
+        <canvas id="reliabilityChart"></canvas>
+      </section>
+
+      <section class="card">
+        <h2>Variance Over Time</h2>
+        <canvas id="varianceChart"></canvas>
+      </section>
+
+      <section class="card">
+        <h2>Reliability Distribution</h2>
+        <canvas id="histChart"></canvas>
+      </section>
+
+      <section class="card">
+        <h2>Summary</h2>
+        <div id="summary" class="summary-grid">Loading...</div>
+      </section>
+    </main>
+
+    <script>
+      function histogram(values, bins) {
+        if (!values.length) return { centers: [], counts: [] };
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const width = Math.max(0.001, (max - min) / bins);
+        const counts = new Array(bins).fill(0);
+        const centers = [];
+        for (let i = 0; i < bins; i += 1) {
+          centers.push(min + width * (i + 0.5));
+        }
+        for (const v of values) {
+          let idx = Math.floor((v - min) / width);
+          if (idx < 0) idx = 0;
+          if (idx >= bins) idx = bins - 1;
+          counts[idx] += 1;
+        }
+        return { centers, counts };
+      }
+
+      function addConfig(config) {
+        const root = document.getElementById("config");
+        root.innerHTML = `
+          <div><strong>planning_granularity</strong><br>${config.planning_granularity}</div>
+          <div><strong>escalation_threshold</strong><br>${config.escalation_threshold}</div>
+          <div><strong>buffer_ratio</strong><br>${config.buffer_ratio}</div>
+          <div><strong>sprint_count</strong><br>${config.sprint_count}</div>
+        `;
+      }
+
+      function addSummary(summary) {
+        const root = document.getElementById("summary");
+        root.innerHTML = `
+          <div><strong>Mean Reliability</strong><br>${summary.reliability_mean.toFixed(2)}</div>
+          <div><strong>Reliability Std Dev</strong><br>${summary.reliability_std_dev.toFixed(2)}</div>
+          <div><strong>Collapse Rate (&lt;40)</strong><br>${summary.collapse_rate_pct.toFixed(2)}%</div>
+          <div><strong>Mean Variance</strong><br>${summary.variance_mean.toFixed(2)}</div>
+        `;
+      }
+
+      function buildReliabilityChart(labels, reliability, rolling) {
+        const ctx = document.getElementById("reliabilityChart");
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Reliability",
+                data: reliability,
+                borderColor: "#66c2ff",
+                borderWidth: 1.5,
+                pointRadius: 0,
+                tension: 0,
+              },
+              {
+                label: "Rolling Mean (10)",
+                data: rolling,
+                borderColor: "#ffd166",
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0,
+              },
+            ],
+          },
+          options: {
+            animation: false,
+            responsive: true,
+            scales: {
+              y: { min: 0, max: 100 },
+            },
+          },
+        });
+      }
+
+      function buildVarianceChart(labels, variance) {
+        const ctx = document.getElementById("varianceChart");
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Variance",
+                data: variance,
+                borderColor: "#c084fc",
+                borderWidth: 1.5,
+                pointRadius: 0,
+                tension: 0,
+              },
+            ],
+          },
+          options: {
+            animation: false,
+            responsive: true,
+            scales: {
+              y: { min: 0, max: 100 },
+            },
+          },
+        });
+      }
+
+      function buildHistogram(reliability, summary) {
+        const ctx = document.getElementById("histChart");
+        const hist = histogram(reliability, 16);
+        const yMax = Math.max(1, ...hist.counts);
+        const marker = (value, label, color) => ({
+          type: "line",
+          label,
+          parsing: false,
+          borderColor: color,
+          borderWidth: 2,
+          pointRadius: 0,
+          showLine: true,
+          data: [{ x: value, y: 0 }, { x: value, y: yMax }],
+        });
+
+        new Chart(ctx, {
+          data: {
+            datasets: [
+              {
+                type: "bar",
+                label: "Count",
+                parsing: false,
+                data: hist.centers.map((center, i) => ({ x: center, y: hist.counts[i] })),
+                backgroundColor: "rgba(80, 145, 255, 0.55)",
+                borderColor: "#5091ff",
+                borderWidth: 1,
+              },
+              marker(summary.reliability_mean, "Mean", "#ff6b6b"),
+              marker(summary.reliability_p05, "5th", "#53d769"),
+              marker(summary.reliability_p95, "95th", "#53d769"),
+            ],
+          },
+          options: {
+            animation: false,
+            responsive: true,
+            scales: {
+              x: { type: "linear", min: 0, max: 100 },
+              y: { beginAtZero: true },
+            },
+          },
+        });
+      }
+
+      async function main() {
+        const response = await fetch("/api/baseline");
+        const data = await response.json();
+        if (!data.available) {
+          document.getElementById("summary").textContent = data.message || "No data.";
+          document.getElementById("config").textContent = "No config.";
+          return;
+        }
+        addConfig(data.config);
+        addSummary(data.summary);
+        buildReliabilityChart(data.sprint_labels, data.reliability_series, data.rolling_reliability);
+        buildVarianceChart(data.sprint_labels, data.variance_series);
+        buildHistogram(data.reliability_series, data.summary);
+      }
+
+      main();
+    </script>
+  </body>
+</html>
