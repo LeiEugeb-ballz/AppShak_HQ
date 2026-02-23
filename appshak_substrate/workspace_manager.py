@@ -36,12 +36,23 @@ class WorkspaceManager:
                 raise ValueError("Agent id cannot be empty.")
             path = (self.workspaces_root / normalized).resolve()
             if not path.exists():
-                self._run_git(
-                    "worktree",
-                    "add",
-                    str(path),
-                    self.baseline_branch,
-                )
+                branch_name = f"substrate/{normalized}"
+                if self._branch_exists(branch_name):
+                    self._run_git(
+                        "worktree",
+                        "add",
+                        str(path),
+                        branch_name,
+                    )
+                else:
+                    self._run_git(
+                        "worktree",
+                        "add",
+                        "-b",
+                        branch_name,
+                        str(path),
+                        self.baseline_branch,
+                    )
             if self.reset_on_ensure:
                 self.reset_worktree(normalized)
             self._ensure_clean(path)
@@ -92,3 +103,12 @@ class WorkspaceManager:
                 f"Git command failed ({' '.join(cmd)}): {result.stderr.strip() or result.stdout.strip()}"
             )
         return result
+
+    def _branch_exists(self, branch_name: str) -> bool:
+        result = subprocess.run(
+            ["git", "-C", str(self.repo_root), "show-ref", "--verify", "--quiet", f"refs/heads/{branch_name}"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        return result.returncode == 0

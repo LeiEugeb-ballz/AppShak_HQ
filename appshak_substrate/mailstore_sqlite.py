@@ -1,8 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import sqlite3
 import time
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -51,7 +52,7 @@ class SQLiteMailStore:
             maybe_justification = payload.get("prime_directive_justification")
             justification = maybe_justification if isinstance(maybe_justification, str) else None
 
-        with self._connect() as conn:
+        with self._connection() as conn:
             cursor = conn.execute(
                 """
                 INSERT INTO events (
@@ -113,7 +114,7 @@ class SQLiteMailStore:
 
     def ack_event(self, event_id: int, status: str = "DONE", *, consumer_id: Optional[str] = None) -> None:
         normalized_status = status.strip().upper() if isinstance(status, str) and status.strip() else "DONE"
-        with self._connect() as conn:
+        with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
             if consumer_id:
                 row = conn.execute(
@@ -134,7 +135,7 @@ class SQLiteMailStore:
 
     def fail_event(self, event_id: int, error: str, *, consumer_id: Optional[str] = None) -> None:
         err = str(error)[:4000]
-        with self._connect() as conn:
+        with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
             if consumer_id:
                 row = conn.execute(
@@ -160,7 +161,7 @@ class SQLiteMailStore:
         consumer_id: Optional[str] = None,
         error: Optional[str] = None,
     ) -> None:
-        with self._connect() as conn:
+        with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
             if consumer_id:
                 row = conn.execute(
@@ -180,14 +181,14 @@ class SQLiteMailStore:
             conn.commit()
 
     def get_event(self, event_id: int) -> Optional[SubstrateEvent]:
-        with self._connect() as conn:
+        with self._connection() as conn:
             row = conn.execute("SELECT * FROM events WHERE id = ?", (int(event_id),)).fetchone()
             if row is None:
                 return None
             return SubstrateEvent.from_row(row)
 
     def list_events(self, *, status: Optional[str] = None) -> List[SubstrateEvent]:
-        with self._connect() as conn:
+        with self._connection() as conn:
             if status is None:
                 rows = conn.execute("SELECT * FROM events ORDER BY id ASC").fetchall()
             else:
@@ -199,7 +200,7 @@ class SQLiteMailStore:
 
     def status_counts(self) -> Dict[str, int]:
         counts: Dict[str, int] = {}
-        with self._connect() as conn:
+        with self._connection() as conn:
             rows = conn.execute(
                 "SELECT status, COUNT(*) as count FROM events GROUP BY status ORDER BY status ASC"
             ).fetchall()
@@ -220,7 +221,7 @@ class SQLiteMailStore:
         result: Optional[Dict[str, Any]],
         correlation_id: Optional[str] = None,
     ) -> int:
-        with self._connect() as conn:
+        with self._connection() as conn:
             cursor = conn.execute(
                 """
                 INSERT INTO tool_audit (
@@ -247,7 +248,7 @@ class SQLiteMailStore:
             return audit_id
 
     def list_tool_audit(self, *, limit: int = 100) -> List[Dict[str, Any]]:
-        with self._connect() as conn:
+        with self._connection() as conn:
             rows = conn.execute(
                 """
                 SELECT id, ts, agent_id, action_type, working_dir, allowed, reason,
@@ -290,7 +291,7 @@ class SQLiteMailStore:
         key = idempotency_key.strip()
         if not key:
             raise ValueError("idempotency_key must be non-empty.")
-        with self._connect() as conn:
+        with self._connection() as conn:
             try:
                 conn.execute(
                     """
@@ -311,7 +312,7 @@ class SQLiteMailStore:
         key = idempotency_key.strip()
         if not key:
             return None
-        with self._connect() as conn:
+        with self._connection() as conn:
             row = conn.execute(
                 """
                 SELECT idempotency_key, created_ts, agent_id, action_type, event_id, result_json
@@ -337,12 +338,63 @@ class SQLiteMailStore:
         key = idempotency_key.strip()
         if not key:
             return
-        with self._connect() as conn:
+        with self._connection() as conn:
             conn.execute(
                 "UPDATE idempotency_keys SET result_json = ? WHERE idempotency_key = ?",
                 (json.dumps(result, ensure_ascii=True), key),
             )
             conn.commit()
+
+    def record_worker_heartbeat(
+        self,
+        *,
+        agent_id: str,
+        consumer_id: str,
+        pid: int,
+        ts: Optional[str] = None,
+    ) -> None:
+        timestamp = ts or iso_now()
+        with self._connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO worker_heartbeats (agent_id, consumer_id, pid, ts)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(agent_id) DO UPDATE SET
+                    consumer_id = excluded.consumer_id,
+                    pid = excluded.pid,
+                    ts = excluded.ts
+                """,
+                (str(agent_id), str(consumer_id), int(pid), timestamp),
+            )
+            conn.commit()
+
+    def get_worker_heartbeat(self, agent_id: str) -> Optional[Dict[str, Any]]:
+        with self._connection() as conn:
+            row = conn.execute(
+                "SELECT agent_id, consumer_id, pid, ts FROM worker_heartbeats WHERE agent_id = ?",
+                (str(agent_id),),
+            ).fetchone()
+        if row is None:
+            return None
+        return {
+            "agent_id": str(row["agent_id"]),
+            "consumer_id": str(row["consumer_id"]),
+            "pid": int(row["pid"]),
+            "ts": str(row["ts"]),
+        }
+
+    def list_worker_heartbeats(self) -> Dict[str, Dict[str, Any]]:
+        with self._connection() as conn:
+            rows = conn.execute("SELECT agent_id, consumer_id, pid, ts FROM worker_heartbeats").fetchall()
+        out: Dict[str, Dict[str, Any]] = {}
+        for row in rows:
+            out[str(row["agent_id"])] = {
+                "agent_id": str(row["agent_id"]),
+                "consumer_id": str(row["consumer_id"]),
+                "pid": int(row["pid"]),
+                "ts": str(row["ts"]),
+            }
+        return out
 
     def _try_claim_next(
         self,
@@ -369,7 +421,7 @@ class SQLiteMailStore:
                 params.append(target_agent)
         where_clause = " AND ".join(where_parts)
 
-        with self._connect() as conn:
+        with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
             self._release_expired_leases_locked(conn, now_iso)
             row = conn.execute(
@@ -437,10 +489,18 @@ class SQLiteMailStore:
         connection.execute("PRAGMA foreign_keys=ON;")
         return connection
 
+    @contextmanager
+    def _connection(self) -> sqlite3.Connection:
+        conn = self._connect()
+        try:
+            yield conn
+        finally:
+            conn.close()
+
     def _initialize_schema(self) -> None:
         schema_path = Path(__file__).with_name("schema.sql")
         schema_sql = schema_path.read_text(encoding="utf-8")
-        with self._connect() as conn:
+        with self._connection() as conn:
             conn.executescript(schema_sql)
             columns = {
                 str(row["name"])

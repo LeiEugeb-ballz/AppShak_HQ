@@ -63,3 +63,13 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
     event_id INTEGER,
     result_json TEXT
 );
+
+CREATE TABLE IF NOT EXISTS worker_heartbeats (
+    agent_id TEXT PRIMARY KEY,
+    consumer_id TEXT NOT NULL,
+    pid INTEGER NOT NULL,
+    ts TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_worker_heartbeats_ts
+    ON worker_heartbeats(ts);

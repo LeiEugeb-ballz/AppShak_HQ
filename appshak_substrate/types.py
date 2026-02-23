@@ -60,27 +60,27 @@ class SubstrateEvent:
 
     @classmethod
     def from_row(cls, row: Mapping[str, Any]) -> "SubstrateEvent":
-        payload_raw = row.get("payload_json", "{}")
+        payload_raw = _row_value(row, "payload_json", "{}")
         payload = json.loads(payload_raw) if isinstance(payload_raw, str) and payload_raw.strip() else {}
         if not isinstance(payload, dict):
             payload = {}
-        event_id = row.get("id")
+        event_id = _row_value(row, "id")
         if isinstance(event_id, int):
             payload.setdefault("event_id", event_id)
-        target_agent = row.get("target_agent")
+        target_agent = _row_value(row, "target_agent")
         if target_agent is None:
             payload_target = payload.get("target_agent")
             target_agent = payload_target if isinstance(payload_target, str) and payload_target.strip() else None
         return cls(
             event_id=event_id if isinstance(event_id, int) else None,
-            timestamp=str(row.get("ts") or iso_now()),
-            type=str(row.get("type") or ""),
-            origin_id=str(row.get("origin_id") or "unknown"),
+            timestamp=str(_row_value(row, "ts") or iso_now()),
+            type=str(_row_value(row, "type") or ""),
+            origin_id=str(_row_value(row, "origin_id") or "unknown"),
             payload=payload,
-            justification=row.get("justification"),
-            status=str(row.get("status") or "PENDING"),
-            error=row.get("error"),
-            correlation_id=row.get("correlation_id"),
+            justification=_row_value(row, "justification"),
+            status=str(_row_value(row, "status") or "PENDING"),
+            error=_row_value(row, "error"),
+            correlation_id=_row_value(row, "correlation_id"),
             target_agent=target_agent,
         )
 
@@ -180,3 +180,12 @@ class ToolResult:
     reason: Optional[str] = None
     audit_event_id: Optional[int] = None
     correlation_id: Optional[str] = None
+
+
+def _row_value(row: Mapping[str, Any], key: str, default: Any = None) -> Any:
+    if isinstance(row, Mapping):
+        return row.get(key, default)
+    try:
+        return row[key]  # type: ignore[index]
+    except Exception:
+        return default
