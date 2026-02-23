@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8">
+<title>AppShak HQ — 3D CCTV</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+/* ── THEME TOKENS ── */
+:root{
+  --mono:'Share Tech Mono',monospace;
+  --orb:'Orbitron',sans-serif;
+  --g:#3fb950; --b:#58a6ff; --p:#bc8cff; --a:#e3b341;
+  --r:#ff4444; --gold:#f0c040; --boss:#c9922a;
+  --dim:#3d4451; --border:#30363d;
+  --hdr:#0d1117; --panel:rgba(10,13,18,.9);
+  --accent:#3fb950;
+}
+[data-theme="cyber"]{
+  --g:#00ffcc;--b:#00ccff;--p:#ff00ff;--a:#ffcc00;
+  --gold:#ffcc00;--boss:#ff9900;--dim:#335566;--border:#004455;
+  --hdr:#001118;--panel:rgba(0,18,28,.92);--accent:#00ffcc;
+}
+[data-theme="heat"]{
+  --g:#ff6b35;--b:#ff9500;--p:#ff3366;--a:#ffdd00;
+  --gold:#ffdd00;--boss:#ff6600;--dim:#553322;--border:#442200;
+  --hdr:#1a0800;--panel:rgba(22,8,0,.92);--accent:#ff6b35;
+}
+[data-theme="ice"]{
+  --g:#88ddff;--b:#aaeeff;--p:#ccbbff;--a:#ddeeff;
+  --gold:#aaddff;--boss:#88bbff;--dim:#334455;--border:#223344;
+  --hdr:#07111d;--panel:rgba(7,15,25,.92);--accent:#88ddff;
+}
+[data-theme="ghost"]{
+  --g:#cccccc;--b:#ffffff;--p:#aaaaaa;--a:#888888;
+  --gold:#dddddd;--boss:#999999;--dim:#333333;--border:#222222;
+  --hdr:#080808;--panel:rgba(8,8,8,.95);--accent:#fff;
+}
+[data-theme="military"]{
+  --g:#7cbb3c;--b:#a8c84a;--p:#88aa22;--a:#ccdd44;
+  --gold:#ccdd44;--boss:#99aa33;--dim:#334422;--border:#2a3318;
+  --hdr:#0c1108;--panel:rgba(10,14,6,.92);--accent:#7cbb3c;
+}
+
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:var(--mono);color:#c9d1d9}
+#cv{position:fixed;inset:0;width:100%;height:100%}
+
+/* ── SCANLINES + VIGNETTE ── */
+#ui{position:fixed;inset:0;pointer-events:none;z-index:10}
+#ui::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.07) 3px,rgba(0,0,0,.07) 4px);pointer-events:none;z-index:1}
+#ui::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 40% 38%,transparent 42%,rgba(0,0,0,.68) 100%);pointer-events:none;z-index:1}
+
+/* ── HEADER ── */
+#hdr{position:absolute;top:0;left:0;right:0;height:46px;background:var(--hdr);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;padding:0 14px;gap:10px;pointer-events:all;z-index:50}
+.logo{font-family:var(--orb);font-size:14px;font-weight:900;letter-spacing:3px;color:var(--g);text-shadow:0 0 14px color-mix(in srgb,var(--g) 50%,transparent)}
+.badge{font-size:8px;padding:2px 8px;border:1px solid color-mix(in srgb,var(--b) 40%,transparent);color:var(--b);background:color-mix(in srgb,var(--b) 8%,transparent);letter-spacing:1.5px}
+.rec-wrap{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--r)}
+.rec-dot{width:7px;height:7px;border-radius:50%;background:var(--r);box-shadow:0 0 7px var(--r);animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+.stage-lbl{font-size:9px;color:var(--a);letter-spacing:1px}
+.stage-lbl b{color:#fff}
+
+/* boss toggle */
+.boss-tog{display:flex;align-items:center;gap:7px;padding:4px 11px;border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);background:color-mix(in srgb,var(--gold) 5%,transparent);cursor:pointer;transition:all .3s}
+.boss-tog.on{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 12%,transparent);box-shadow:0 0 12px color-mix(in srgb,var(--gold) 20%,transparent)}
+.t-track{width:26px;height:13px;border-radius:7px;background:#21262d;border:1px solid var(--border);position:relative;transition:background .3s;flex-shrink:0}
+.boss-tog.on .t-track{background:color-mix(in srgb,var(--gold) 30%,transparent);border-color:var(--gold)}
+.t-thumb{width:9px;height:9px;border-radius:50%;background:var(--dim);position:absolute;top:1px;left:1px;transition:all .3s}
+.boss-tog.on .t-thumb{left:14px;background:var(--gold);box-shadow:0 0 5px var(--gold)}
+.t-lbl{font-size:8px;letter-spacing:1.5px;color:var(--a);white-space:nowrap}
+.boss-tog.on .t-lbl{color:var(--gold)}
+
+/* buttons */
+.hbtn{background:color-mix(in srgb,var(--b) 7%,transparent);border:1px solid color-mix(in srgb,var(--b) 40%,transparent);color:var(--b);font-family:var(--mono);font-size:8px;letter-spacing:2px;padding:4px 11px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.hbtn:hover{background:color-mix(in srgb,var(--b) 20%,transparent)}
+.hbtn.paused{border-color:var(--g);color:var(--g);background:color-mix(in srgb,var(--g) 12%,transparent)}
+
+/* theme dropdown */
+.th-dd{position:relative;pointer-events:all}
+.th-btn{background:transparent;border:1px solid var(--border);color:var(--dim);font-family:var(--mono);font-size:8px;letter-spacing:1.5px;padding:4px 10px;cursor:pointer;transition:all .25s}
+.th-btn:hover{border-color:var(--accent);color:var(--accent)}
+.th-panel{position:absolute;top:calc(100% + 5px);right:0;min-width:155px;background:var(--hdr);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.85);z-index:300;display:none}
+.th-panel.open{display:block}
+.th-opt{padding:8px 13px;font-size:8.5px;cursor:pointer;letter-spacing:1.5px;display:flex;align-items:center;gap:9px;transition:background .15s;border-bottom:1px solid rgba(255,255,255,.04);color:#8b949e}
+.th-opt:hover{background:rgba(255,255,255,.06);color:#c9d1d9}
+.th-opt.cur{color:var(--accent)}
+.th-sw{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ── CCTV HUD overlays ── */
+#hud{position:absolute;inset:0;z-index:20;pointer-events:none}
+.hud-tl{position:absolute;top:54px;left:13px;line-height:2}
+.hud-tr{position:absolute;top:54px;right:13px;text-align:right}
+.hud-bl{position:absolute;bottom:118px;left:13px}
+.ht{font-size:9px;color:rgba(255,255,255,.38);letter-spacing:1.5px;display:block}
+.ht.b{color:rgba(255,255,255,.6)}
+.ht.ts{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2px}
+.paused-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--orb);font-size:22px;letter-spacing:8px;color:rgba(255,255,255,.38);display:none}
+.paused-stamp.show{display:block}
+
+/* ── LOOP STRIP ── */
+#loop-strip{position:absolute;bottom:118px;left:50%;transform:translateX(-50%);z-index:25;display:flex;gap:2px;pointer-events:all}
+.ls{padding:4px 10px;font-size:7.5px;letter-spacing:2px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.25);cursor:pointer;background:rgba(0,0,0,.4);transition:all .3s}
+.ls.on{border-color:rgba(255,255,255,.5);color:#fff;background:rgba(255,255,255,.08)}
+
+/* ── RIGHT PANEL ── */
+#rpanel{position:absolute;right:0;top:46px;bottom:108px;width:285px;background:var(--panel);border-left:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;pointer-events:all;z-index:30;backdrop-filter:blur(6px)}
+.rp-title{padding:8px 12px;font-size:8px;letter-spacing:2px;color:#8b949e;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;flex-shrink:0}
+#feed{flex:1;overflow-y:auto;padding:6px}
+.fe{padding:7px 9px;margin-bottom:5px;border-radius:2px;background:rgba(0,0,0,.35);border-left:3px solid var(--dim);animation:fein .2s ease}
+@keyframes fein{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:none}}
+.fe.scout{border-left-color:var(--b)}
+.fe.boardroom,.fe.approve{border-left-color:var(--p)}
+.fe.builder,.fe.execute,.fe.qa,.fe.validate,.fe.watercooler,.fe.learn{border-left-color:var(--g)}
+.fe.memory,.fe.update{border-left-color:var(--a)}
+.fe.policy{border-left-color:var(--r)}
+.fe.boss{border-left-color:var(--gold)}
+.fe-ts{font-size:7px;color:var(--dim);margin-bottom:1px}
+.fe-stage{font-size:8px;font-weight:bold;margin-bottom:3px}
+.fe-detail{font-size:8px;color:#8b949e;line-height:1.55}
+.fe-await{display:inline-block;margin-top:4px;padding:2px 7px;background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.4);color:var(--gold);font-size:7px;letter-spacing:1px}
+
+/* ── FOOTER ── */
+#footer{position:absolute;bottom:0;left:0;right:0;height:108px;background:rgba(0,0,0,.88);border-top:1px solid rgba(255,255,255,.06);display:flex;pointer-events:all;z-index:30}
+.fs{flex:1;padding:9px 11px;border-right:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;gap:3px;cursor:pointer;position:relative;transition:background .2s}
+.fs:last-child{border-right:none}
+.fs:hover{background:rgba(255,255,255,.03)}
+.fs-lbl{font-size:7px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:4px}
+.fs-caret{font-size:7px;opacity:.4}
+.fs-val{font-size:13px;font-family:var(--orb);font-weight:700;color:var(--b);line-height:1.2}
+.fs-bar{height:2px;background:#1a1f26;margin-top:3px;overflow:hidden}
+.fs-fill{height:100%;background:var(--b);transition:width 1.5s ease}
+.fs-desc{font-size:7px;color:var(--dim);line-height:1.3;margin-top:2px}
+.dd{position:absolute;bottom:100%;left:0;min-width:165px;background:#1c2128;border:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,.7);z-index:200;display:none}
+.dd.open{display:block}
+.dd-item{padding:7px 11px;font-size:8px;cursor:pointer;color:#8b949e;display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s}
+.dd-item:hover{background:rgba(255,255,255,.06);color:#c9d1d9}
+.dd-item.cur{color:var(--b)}
+
+/* ── NOTIFICATIONS ── */
+.notif{position:absolute;z-index:100;pointer-events:all;animation:nin .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes nin{from{opacity:0;transform:translateY(-14px) scale(.97)}to{opacity:1;transform:none}}
+.nc{padding:14px;border:1px solid;box-shadow:0 10px 40px rgba(0,0,0,.75)}
+.nc-board{background:rgba(14,10,28,.96);border-color:rgba(188,140,255,.5);border-top-width:3px;border-top-color:var(--p)}
+.nc-build{background:rgba(10,18,10,.96);border-color:rgba(63,185,80,.4);border-top-width:3px;border-top-color:var(--g)}
+.nc-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.nc-title{font-family:var(--orb);font-size:10px;letter-spacing:1px}
+.nc-sub{font-size:7.5px;color:var(--dim);margin-top:1px}
+.nc-body{font-size:8px;color:#8b949e;line-height:1.65;margin-bottom:11px;padding:8px;background:rgba(0,0,0,.4);white-space:pre-line}
+.nc-btns{display:flex;gap:6px}
+.nb{flex:1;padding:7px 6px;font-family:var(--mono);font-size:8px;letter-spacing:1.5px;cursor:pointer;border:1px solid;transition:background .2s}
+.nb-p{background:color-mix(in srgb,var(--p) 12%,transparent);border-color:var(--p);color:var(--p)}
+.nb-p:hover{background:color-mix(in srgb,var(--p) 28%,transparent)}
+.nb-g{background:color-mix(in srgb,var(--g) 10%,transparent);border-color:var(--g);color:var(--g)}
+.nb-g:hover{background:color-mix(in srgb,var(--g) 25%,transparent)}
+.nb-r{background:color-mix(in srgb,var(--r) 7%,transparent);border-color:var(--r);color:var(--r)}
+.nb-r:hover{background:color-mix(in srgb,var(--r) 22%,transparent)}
+.nb-d{background:transparent;border-color:var(--dim);color:var(--dim)}
+.nb-d:hover{color:#c9d1d9;border-color:#c9d1d9}
+
+/* ── MODAL ── */
+.mbg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;pointer-events:all;backdrop-filter:blur(5px)}
+.modal{background:#161b22;border:1px solid var(--border);display:flex;flex-direction:column;max-height:82vh;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.85)}
+.modal-sm{min-width:460px;max-width:580px}
+.modal-lg{min-width:660px;max-width:820px}
+.mh{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.mt{font-family:var(--orb);font-size:12px;letter-spacing:2px}
+.mx{cursor:pointer;color:var(--dim);font-size:16px;padding:2px 6px;line-height:1}
+.mx:hover{color:#fff}
+.mb{flex:1;overflow-y:auto;padding:14px 16px}
+
+/* wc log */
+.wc-e{padding:9px 11px;background:rgba(0,0,0,.3);border-left:2px solid var(--g);margin-bottom:6px}
+.wc-eh{display:flex;justify-content:space-between;margin-bottom:4px}
+.wc-ag{font-size:8px;color:var(--g);letter-spacing:1px}
+.wc-ts-s{font-size:7px;color:var(--dim)}
+.wc-txt{font-size:8.5px;color:#8b949e;line-height:1.55}
+.sk-tag{display:inline-block;padding:2px 6px;background:color-mix(in srgb,var(--b) 12%,transparent);border:1px solid color-mix(in srgb,var(--b) 25%,transparent);color:var(--b);font-size:7px;margin:3px 2px 0 0}
+
+/* skill modal */
+.sk-sec{margin-bottom:14px}
+.sk-sec-t{font-size:8px;letter-spacing:2px;color:var(--dim);border-bottom:1px solid #21262d;padding-bottom:4px;margin-bottom:7px}
+.sk-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.sk-ico{font-size:14px;flex-shrink:0}
+.sk-name{font-size:8.5px;color:#c9d1d9;display:block;margin-bottom:2px}
+.sk-sub{font-size:7.5px;color:var(--dim)}
+.stag{display:inline-block;padding:1px 5px;font-size:7px;margin-left:5px;border-radius:2px}
+.si{background:color-mix(in srgb,var(--b) 12%,transparent);border:1px solid color-mix(in srgb,var(--b) 25%,transparent);color:var(--b)}
+.ss{background:color-mix(in srgb,var(--g) 12%,transparent);border:1px solid color-mix(in srgb,var(--g) 25%,transparent);color:var(--g)}
+.sp{background:color-mix(in srgb,var(--p) 12%,transparent);border:1px solid color-mix(in srgb,var(--p) 25%,transparent);color:var(--p)}
+
+/* virtual desk */
+.vd-piles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.vpile{padding:13px 10px;background:rgba(0,0,0,.45);border:1px solid var(--border);cursor:pointer;transition:all .3s;position:relative;text-align:center}
+.vpile::before,.vpile::after{content:'';position:absolute;border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.015)}
+.vpile::before{inset:4px;transform:rotate(1.5deg)}
+.vpile::after{inset:7px;transform:rotate(-1deg)}
+.vpile:hover{border-color:rgba(255,255,255,.22);transform:translateY(-2px)}
+.vpile.sel{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 7%,transparent)}
+.vp-ico{font-size:26px;margin-bottom:7px;position:relative;z-index:1}
+.vp-name{font-family:var(--orb);font-size:8px;letter-spacing:2px;color:var(--a);margin-bottom:4px;position:relative;z-index:1}
+.vp-cnt{font-size:8px;color:var(--dim);position:relative;z-index:1}
+.vp-cnt b{color:#fff;font-size:13px}
+.doc-list{display:flex;flex-direction:column;gap:7px;max-height:290px;overflow-y:auto}
+.doc{padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border)}
+.doc-h{display:flex;justify-content:space-between;margin-bottom:5px}
+.doc-t{font-size:9px;color:#c9d1d9}
+.doc-ts{font-size:7px;color:var(--dim)}
+.doc-b{font-size:8px;color:#8b949e;line-height:1.5;margin-bottom:8px;white-space:pre-line}
+.doc-acts{display:flex;gap:6px}
+.da{padding:4px 12px;font-family:var(--mono);font-size:7.5px;letter-spacing:1px;cursor:pointer;border:1px solid}
+.da-g{background:color-mix(in srgb,var(--g) 10%,transparent);border-color:var(--g);color:var(--g)}
+.da-g:hover{background:color-mix(in srgb,var(--g) 25%,transparent)}
+.da-r{background:color-mix(in srgb,var(--r) 7%,transparent);border-color:var(--r);color:var(--r)}
+.da-r:hover{background:color-mix(in srgb,var(--r) 22%,transparent)}
+.da-done{font-size:7.5px;padding:4px 12px}
+.da-done.app{color:var(--g);border:1px solid color-mix(in srgb,var(--g) 30%,transparent);background:color-mix(in srgb,var(--g) 8%,transparent)}
+.da-done.den{color:var(--r);border:1px solid color-mix(in srgb,var(--r) 30%,transparent);background:color-mix(in srgb,var(--r) 7%,transparent)}
+
+/* cam help */
+#cam-help{position:absolute;bottom:120px;right:298px;z-index:25;pointer-events:none;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.08);padding:8px 12px;font-size:8px;color:rgba(255,255,255,.4);letter-spacing:1px;line-height:2}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#3d4451;border-radius:2px}
+</style>
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+
+<div id="ui">
+  <!-- HEADER -->
+  <div id="hdr">
+    <span class="logo">APPSHAK HQ</span>
+    <span class="badge">3D CCTV · CAM-01 · CORNER MOUNT</span>
+    <div class="rec-wrap"><div class="rec-dot"></div>REC</div>
+    <span class="stage-lbl">STAGE: <b id="stage-txt">FIND</b></span>
+
+    <div class="boss-tog" id="boss-tog" onclick="toggleBoss()">
+      <div class="t-track"><div class="t-thumb"></div></div>
+      <span class="t-lbl" id="t-lbl">BOSS APPROVAL OFF</span>
+    </div>
+
+    <button class="hbtn" id="pause-btn" onclick="togglePause()">⏸ PAUSE <span style="font-size:7px;opacity:.35">[SPACE]</span></button>
+
+    <div class="th-dd" id="th-dd">
+      <button class="th-btn" onclick="toggleThemePanel(event)">🎨 THEME</button>
+      <div class="th-panel" id="th-panel">
+        <div class="th-opt cur" data-t="default"   onclick="setTheme('default')">  <span class="th-sw" style="background:#3fb950"></span>DEFAULT</div>
+        <div class="th-opt"     data-t="cyber"     onclick="setTheme('cyber')">    <span class="th-sw" style="background:#00ffcc"></span>CYBER</div>
+        <div class="th-opt"     data-t="heat"      onclick="setTheme('heat')">     <span class="th-sw" style="background:#ff6b35"></span>HEAT</div>
+        <div class="th-opt"     data-t="ice"       onclick="setTheme('ice')">      <span class="th-sw" style="background:#88ddff"></span>ICE</div>
+        <div class="th-opt"     data-t="ghost"     onclick="setTheme('ghost')">    <span class="th-sw" style="background:#ccc"></span>GHOST</div>
+        <div class="th-opt"     data-t="military"  onclick="setTheme('military')"> <span class="th-sw" style="background:#7cbb3c"></span>MILITARY</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-tl">
+      <span class="ht b">CAM 01 · APPSHAK HQ · MAIN FLOOR</span>
+      <span class="ht">MOUNT: CORNER SE · EL: 9m · ANG: 35°</span>
+      <span class="ht">MODE: SURVEILLANCE</span>
+    </div>
+    <div class="hud-tr">
+      <span class="ht ts" id="hud-ts">--:--:--</span>
+      <span class="ht" id="hud-date" style="margin-top:3px"></span>
+    </div>
+    <div class="hud-bl">
+      <span class="ht" id="hud-loop">LOOP ▸ FIND → APPROVE → EXECUTE → VALIDATE → LEARN → UPDATE</span>
+    </div>
+    <div class="paused-stamp" id="paused-stamp">⏸ PAUSED</div>
+  </div>
+
+  <!-- LOOP STRIP -->
+  <div id="loop-strip"></div>
+
+  <!-- RIGHT PANEL -->
+  <div id="rpanel">
+    <div class="rp-title">
+      <span>📡 LIVE EVENT FEED</span>
+      <span id="rp-stage" style="color:var(--b);font-size:8px;letter-spacing:1px">FIND · 1/6</span>
+    </div>
+    <div id="feed"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div id="footer"></div>
+
+  <!-- CAM HELP -->
+  <div id="cam-help">
+    🖱 LEFT DRAG — orbit camera<br>
+    🖱 RIGHT DRAG — pan<br>
+    🖱 SCROLL — zoom<br>
+    <span style="color:rgba(255,255,255,.22)">Click agent · zone · cooler</span>
+  </div>
+
+  <!-- NOTIFICATIONS + MODALS -->
+  <div id="notifs" style="pointer-events:none"></div>
+  <div id="modals"></div>
+</div>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ═══════════════════════════════════════════
+//  INLINE ORBIT CONTROLS (r128 compatible)
+// ═══════════════════════════════════════════
+THREE.OrbitControls=function(o,d){this.object=o;this.domElement=d;this.enabled=true;this.target=new THREE.Vector3();this.minDistance=4;this.maxDistance=30;this.minPolarAngle=0.15;this.maxPolarAngle=Math.PI/2-.05;this.enableDamping=true;this.dampingFactor=0.08;this.rotateSpeed=0.55;this.zoomSpeed=0.9;this.enablePan=true;this.panSpeed=0.5;var scope=this,STATE={NONE:-1,ROTATE:0,PAN:1},state=STATE.NONE,sph=new THREE.Spherical(),sphD=new THREE.Spherical(),scale=1,panOff=new THREE.Vector3(),rotS=new THREE.Vector2(),rotE=new THREE.Vector2(),rotD=new THREE.Vector2(),panS=new THREE.Vector2(),panE=new THREE.Vector2(),panD2=new THREE.Vector2();function gzs(){return Math.pow(0.95,scope.zoomSpeed)}function rotL(a){sphD.theta-=a}function rotU(a){sphD.phi-=a}var plv=new THREE.Vector3();function panLeft(dist,m){plv.setFromMatrixColumn(m,0);plv.multiplyScalar(-dist);panOff.add(plv)}var puv=new THREE.Vector3();function panUp(dist,m){puv.setFromMatrixColumn(m,1);puv.multiplyScalar(dist);panOff.add(puv)}function pan(dx,dy){var el=scope.domElement,pos=scope.object.position,off=pos.clone().sub(scope.target),td=off.length();td*=Math.tan(scope.object.fov/2*Math.PI/180);panLeft(2*dx*td/el.clientHeight,scope.object.matrix);panUp(2*dy*td/el.clientHeight,scope.object.matrix)}function dollyIn(s){scale/=s}function dollyOut(s){scale*=s}this.update=(function(){var off=new THREE.Vector3(),q=new THREE.Quaternion().setFromUnitVectors(o.up,new THREE.Vector3(0,1,0)),qi=q.clone().invert();return function(){var pos=scope.object.position;off.copy(pos).sub(scope.target);off.applyQuaternion(q);sph.setFromVector3(off);sph.theta+=sphD.theta;sph.phi+=sphD.phi;sph.phi=Math.max(scope.minPolarAngle,Math.min(scope.maxPolarAngle,sph.phi));sph.makeSafe();sph.radius*=scale;sph.radius=Math.max(scope.minDistance,Math.min(scope.maxDistance,sph.radius));scope.target.add(panOff);off.setFromSpherical(sph);off.applyQuaternion(qi);pos.copy(scope.target).add(off);scope.object.lookAt(scope.target);if(scope.enableDamping){sphD.theta*=(1-scope.dampingFactor);sphD.phi*=(1-scope.dampingFactor);panOff.multiplyScalar(1-scope.dampingFactor)}else{sphD.set(0,0,0);panOff.set(0,0,0)}scale=1}})();function onDown(e){if(!scope.enabled)return;e.preventDefault();if(e.button===0){state=STATE.ROTATE;rotS.set(e.clientX,e.clientY)}else if(e.button===2){state=STATE.PAN;panS.set(e.clientX,e.clientY)}d.ownerDocument.addEventListener('mousemove',onMove);d.ownerDocument.addEventListener('mouseup',onUp)}function onMove(e){if(!scope.enabled)return;if(state===STATE.ROTATE){rotE.set(e.clientX,e.clientY);rotD.subVectors(rotE,rotS).multiplyScalar(scope.rotateSpeed);var el=scope.domElement;rotL(2*Math.PI*rotD.x/el.clientHeight);rotU(2*Math.PI*rotD.y/el.clientHeight);rotS.copy(rotE)}else if(state===STATE.PAN){panE.set(e.clientX,e.clientY);panD2.subVectors(panE,panS).multiplyScalar(scope.panSpeed);pan(panD2.x,panD2.y);panS.copy(panE)}}function onUp(){d.ownerDocument.removeEventListener('mousemove',onMove);d.ownerDocument.removeEventListener('mouseup',onUp);state=STATE.NONE}function onWheel(e){e.preventDefault();if(e.deltaY<0)dollyOut(gzs());else dollyIn(gzs())}function onCtx(e){e.preventDefault()}d.addEventListener('mousedown',onDown);d.addEventListener('wheel',onWheel,{passive:false});d.addEventListener('contextmenu',onCtx);this.dispose=function(){d.removeEventListener('mousedown',onDown);d.removeEventListener('wheel',onWheel);d.removeEventListener('contextmenu',onCtx)};};
+
+// ═══════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════
+const STAGES = [
+  {id:'scout',      label:'FIND',     col:'#58a6ff', t3j:0x58a6ff,
+   events:['Scout activated — initiating autonomous web scan across domain registrars','Applying viability filters: TAM > $1M · feasibility > 0.7 · market confidence > 0.65','Scoring {N} candidates against North Star metrics — avg confidence {v}%','Domain enrichment pass: API availability, competition density, revenue signals','Top candidate identified: {D} · viability {v}% · TAM {m} — queuing for boardroom'],
+   locs:{scout:'desk',builder:'idle',chief:'idle'}},
+  {id:'boardroom',  label:'APPROVE',  col:'#bc8cff', t3j:0xbc8cff,
+   events:['BOARDROOM_CONVENE — Chief calling emergency session for proposal #{n}','Scout transiting to boardroom — presenting discovered opportunity','Chief reviewing: viability {v}% · TAM {m} · feasibility HIGH · risk LOW','Constitutional check: proposal passes all invariants — proceeding to vote','AWAITING OPERATOR DECISION before build directive issued to Builder'],
+   locs:{scout:'meeting',builder:'idle',chief:'meeting'}},
+  {id:'builder',    label:'EXECUTE',  col:'#3fb950', t3j:0x3fb950,
+   events:['TASK_ASSIGNED → Builder — Board approved proposal #{n}','Forking git worktree: /agents/builder-cycle-{n} · isolation confirmed','Scaffolding solution: core module + REST API + persistence layer + tests','Writing implementation plan — {t} stages estimated · Chief reviewing architecture','Builder awaiting Boss final sign-off before committing build to worktree'],
+   locs:{scout:'idle',builder:'desk',chief:'idle'}},
+  {id:'qa',         label:'VALIDATE', col:'#44cc66', t3j:0x44cc66,
+   events:['QA phase initialised — running full pytest + integration suite','Test coverage: {c}% — {p} assertions passed · {f} warnings flagged','EventBus routing ✓  SQLite WAL ✓  spawn-kill ✓  cleanup ✓  memory ✓','BOSS SIGN-OFF required before deploy — QA package forwarded to desk','Report generated: QA-{n} · confidence {c}% · ready for operator review'],
+   locs:{scout:'idle',builder:'desk',chief:'idle'}},
+  {id:'watercooler',label:'LEARN',    col:'#3fb950', t3j:0x3fb950,
+   events:['WATER_COOLER_START — Scout and Builder entering knowledge exchange','Scout broadcasting prompt patterns and viability heuristics from last cycle','Builder sharing git worktree isolation + API discovery strategies','{N} skill vectors exchanged — injecting into individual memory stores','Session log committed with timestamps — archive available in Water Cooler'],
+   locs:{scout:'upskill',builder:'upskill',chief:'idle'}},
+  {id:'memory',     label:'UPDATE',   col:'#e3b341', t3j:0xe3b341,
+   events:['MEMORY_UPDATE — Chief writing learned patterns to global vector DB','Encoding {N} new skill vectors — Scout +{v}% competence, Builder +{v}% competence','Updating inter-agent trust weights — calibrating confidence thresholds','Personality evolution log committed — cycle #{n} complete and archived','System primed for next hunt — Non-terminal directive confirmed · ready'],
+   locs:{scout:'idle',builder:'idle',chief:'desk'}},
+];
+
+const AGENTS = [
+  {id:'scout',  label:'SCOUT',   em:'👁️', model:'Llama 8B',   role:'The Eye · Fast/Divergent',
+   skills:{init:['Web scraping · Playwright + BS4','Domain viability scoring','TAM estimation heuristics','API discovery patterns','Competition density analysis'],self:['Prompt compression (cycle 3)','Adaptive threshold tuning','Domain deduplication cache','Urgency scoring v2'],peer:['Builder: git worktree isolation','Chief: boardroom framing templates','Chief: escalation grammar']}},
+  {id:'builder',label:'BUILDER', em:'🔧', model:'Mid-weight', role:'The Hand · Precise/Coder',
+   skills:{init:['Python scaffolding','SQLite WAL integration','REST API design','pytest harness setup'],self:['Auto-retry on 429 errors','Dependency graph caching','Token-efficient code gen'],peer:['Scout: viability pre-filter','Chief: board proposal templates','Scout: domain enrichment API']}},
+  {id:'chief',  label:'CHIEF',   em:'👑', model:'70B+',       role:'The Brain · Strategic Arbiter',
+   skills:{init:['Multi-agent arbitration','EventBus enforcement','North Star alignment','Constitutional invariants'],self:['Confidence-weighted veto','Trust calibration engine','Proposal scoring rubric v2'],peer:['Scout: market signal patterns','Builder: implementation risk flags','Builder: time-to-complete estimates']}},
+];
+
+// Agent 3D positions per state
+const POS = {
+  scout:   { desk:[-1.2,0,-0.6], meeting:[3.2,0,-4.7], upskill:[3.5,0,3.6], idle:[-1.2,0,-0.6] },
+  builder: { desk:[ 0.6,0, 0.3], meeting:[4.1,0,-5.1], upskill:[4.5,0,3.5], idle:[ 0.6,0, 0.3] },
+  chief:   { desk:[-0.2,0, 1.6], meeting:[4.9,0,-4.7], upskill:[3.5,0,4.3], idle:[-0.2,0, 1.6] },
+};
+
+const SCOUT_DOMAINS = ['fintech-api.io','legaltech.co','edtech-saas.net','logisticsapi.dev','cleantech-b2b.co','hr-automation.io','realestate-ai.com'];
+const WC_SKILLS = ['adaptive threshold tuning','git worktree isolation','boardroom framing','prompt compression v2','escalation grammar','viability pre-filter','confidence-weighted scoring','retry-on-429 strategy'];
+
+function ts()  { return new Date().toLocaleTimeString(); }
+function rnd(a,b){ return Math.floor(Math.random()*(b-a)+a); }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function fmt(tmpl, cyc) {
+  return tmpl.replace(/{N}/g,rnd(4,14)).replace(/{v}/g,rnd(72,96))
+    .replace(/{m}/g,'$'+rnd(1,9)+'.'+rnd(1,9)+'M').replace(/{t}/g,rnd(3,9))
+    .replace(/{c}/g,rnd(79,99)).replace(/{p}/g,rnd(22,44)).replace(/{f}/g,rnd(0,3))
+    .replace(/{n}/g,cyc+1).replace(/{D}/g,pick(SCOUT_DOMAINS));
+}
+function hl(s) {
+  return s.replace(/\b(✓|APPROVED|passed|committed|confirmed|ready|nominal|complete)\b/g,'<b style="color:#3fb950">$1</b>')
+    .replace(/\b(BLOCKED|DENIED|failed|rejected|dropped)\b/g,'<b style="color:#ff4444">$1</b>')
+    .replace(/\b(AWAITING|required|WARNING|flagged)\b/g,'<b style="color:#e3b341">$1</b>');
+}
+
+// ═══════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════
+let stageIdx=0, cycleCount=0, policyBlocks=0, busEvents=0, isPaused=false, bossApproval=false;
+let confVals={scout:78,builder:64,chief:91}, confTarget='scout';
+let openDD=null, scoutDomain=SCOUT_DOMAINS[0];
+let feedItems=[], wcLog=[], policyDocs=[], boardReports=[], adhocDocs=[];
+let vdeskPile=null;
+
+// ═══════════════════════════════════════════
+//  THREE.JS SCENE
+// ═══════════════════════════════════════════
+const canvas = document.getElementById('cv');
+const W = window.innerWidth, H = window.innerHeight;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0e1520);
+scene.fog = new THREE.Fog(0x0e1520, 22, 40);
+
+const camera = new THREE.PerspectiveCamera(55, W/H, 0.1, 200);
+camera.position.set(13, 9, 13);
+camera.lookAt(0, 0.8, 0);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.8, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 5;
+controls.maxDistance = 30;
+controls.minPolarAngle = 0.18;
+controls.maxPolarAngle = Math.PI/2 - 0.05;
+controls.rotateSpeed = 0.55;
+controls.update();
+
+// ── MATERIALS (stored for theme updates) ──
+const mats = {};
+
+// ── HELPERS ──
+function mkBox(w,h,d,col,x,y,z,rough=0.7,metal=0){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:col,roughness:rough,metalness:metal}));
+  m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; scene.add(m); return m;
+}
+function mkCyl(rt,rb,h,col,x,y,z,segs=14){
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,segs),new THREE.MeshStandardMaterial({color:col,roughness:0.5,metalness:0.2}));
+  m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; scene.add(m); return m;
+}
+function mkSph(r,col,x,y,z,emissive=false){
+  const mat=new THREE.MeshStandardMaterial({color:col,roughness:0.4,metalness:0.1});
+  if(emissive){mat.emissive=new THREE.Color(col);mat.emissiveIntensity=0.5}
+  const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,16),mat);
+  m.position.set(x,y,z); m.castShadow=true; scene.add(m); return m;
+}
+function mkPlane(w,d,col,x,y,z,opacity=1){
+  const mat=new THREE.MeshStandardMaterial({color:col,side:THREE.DoubleSide,depthWrite:false,transparent:opacity<1,opacity});
+  if(opacity<1){mat.emissive=new THREE.Color(col);mat.emissiveIntensity=0.4}
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),mat);
+  m.rotation.x=-Math.PI/2; m.position.set(x,y,z); scene.add(m); return m;
+}
+
+const ROOM=12, HALF=6, WALL_H=4.5;
+
+// FLOOR
+mats.floor = new THREE.MeshStandardMaterial({color:0x1e2b3c,roughness:0.88,metalness:0.04});
+const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(ROOM,ROOM,20,20), mats.floor);
+floorMesh.rotation.x=-Math.PI/2; floorMesh.receiveShadow=true; scene.add(floorMesh);
+
+// Grid
+scene.add(new THREE.GridHelper(ROOM,12,0x223344,0x1a2838));
+
+// WALLS
+mats.wall = new THREE.MeshStandardMaterial({color:0x243448,roughness:0.88});
+const wallN = new THREE.Mesh(new THREE.BoxGeometry(ROOM,WALL_H,0.15),mats.wall);
+wallN.position.set(0,WALL_H/2,-HALF); wallN.receiveShadow=true; scene.add(wallN);
+const wallW = new THREE.Mesh(new THREE.BoxGeometry(0.15,WALL_H,ROOM),mats.wall);
+wallW.position.set(-HALF,WALL_H/2,0); wallW.receiveShadow=true; scene.add(wallW);
+
+// Skirting
+const skirtMat=new THREE.MeshStandardMaterial({color:0x3a5070,roughness:0.7});
+[[0,0,-HALF,ROOM,0.12,0.09],[- HALF,0,0,0.09,0.12,ROOM]].forEach(([x,y,z,w,h,d])=>{
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),skirtMat);
+  m.position.set(x,0.06,z); scene.add(m);
+});
+
+// ZONE FLOOR MARKERS
+const zonePlanes = {};
+function addZonePlane(key,x,z,w,d,col){ zonePlanes[key]=mkPlane(w,d,col,x,0.008,z,0.18); }
+addZonePlane('boss', -4,-4, 3.2,3.2, 0xc9922a);
+addZonePlane('board', 4,-4, 3.6,3.0, 0x8822cc);
+addZonePlane('desk',  0, 0, 4.2,3.6, 0x2255cc);
+addZonePlane('wc',    4, 4, 2.6,2.6, 0x22aa55);
+
+// Zone rings
+function addRing(x,z,r,col){
+  const geo=new THREE.RingGeometry(r-.06,r+.06,36);
+  const mat=new THREE.MeshStandardMaterial({color:col,emissive:new THREE.Color(col),emissiveIntensity:1.4,side:THREE.DoubleSide,depthWrite:false});
+  const m=new THREE.Mesh(geo,mat); m.rotation.x=-Math.PI/2; m.position.set(x,0.012,z); scene.add(m); return m;
+}
+addRing(-4,-4,1.8,0xf0c040);
+addRing( 4,-4,2.0,0xaa44ff);
+addRing( 0, 0,2.2,0x4488ff);
+addRing( 4, 4,1.4,0x44cc77);
+
+// ── BOSS CORNER OFFICE ──
+mkBox(3.2,0.1,3.2,  0x2a4020, -4,0.05,-4, 0.9);  // platform
+mkBox(2.2,0.08,0.92,0x3a5828, -4,0.9, -4.2,0.6); // desk top
+[-4.9,-3.1].forEach(x=>[-4.55,-3.85].forEach(z=>mkBox(0.07,0.84,0.07,0x243818,x+0.1+(-4.9+x>-0.9?0:1.8)*0.5,0.42,z,0.8)));
+mkBox(0.55,0.07,0.5,  0x3d5a2c,-4,1.05,-3.6);       // seat
+mkBox(0.5,0.58,0.08,  0x3d5a2c,-4,1.38,-3.36);       // backrest
+mkBox(0.04,0.36,0.52, 0x1a2a40,-4,1.22,-4.46,0.3,0.6); // monitor
+mkBox(0.04,0.07,0.14, 0x243550,-4,0.95,-4.46);          // monitor stand
+// Crown orb
+{const mat=new THREE.MeshStandardMaterial({color:0xf0c040,metalness:0.8,roughness:0.2,emissive:new THREE.Color(0xc08010),emissiveIntensity:0.4});
+const orb=new THREE.Mesh(new THREE.SphereGeometry(0.14,12,12),mat);orb.position.set(-4.85,2.7,-4.85);scene.add(orb);}
+// Boss light strip on wall
+{const mat=new THREE.MeshStandardMaterial({color:0xc9922a,emissive:new THREE.Color(0xc9922a),emissiveIntensity:1.2});
+const s=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.04,0.04),mat);s.position.set(-4,0.99,-5.88);scene.add(s);}
+
+// ── AGENT DESKS ──
+const DESK_DATA=[
+  {x:-1.2,z:-0.6,col:0x1a3a5c},
+  {x: 0.6,z: 0.3,col:0x1a4028},
+  {x:-0.2,z: 1.6,col:0x38285a},
+];
+DESK_DATA.forEach(d=>{
+  mkBox(1.2,0.07,0.72,d.col,d.x,0.82,d.z,0.6);
+  [-0.48,0.48].forEach(ox=>[-0.3,0.3].forEach(oz=>mkBox(0.065,0.8,0.065,0x222a38,d.x+ox,0.41,d.z+oz,0.8)));
+  mkBox(0.04,0.3,0.4, 0x1a2a40,d.x,0.99,d.z-.22,0.3,0.5);
+  mkBox(0.04,0.06,0.12,0x243550,d.x,0.86,d.z-.22);
+  mkBox(0.5,0.07,0.46, 0x283550,d.x,0.94,d.z+.37);
+  mkBox(0.46,0.52,0.07,0x283550,d.x,1.2, d.z+.56);
+});
+
+// ── BOARDROOM ──
+{const geo=new THREE.CylinderGeometry(1.1,1.1,0.09,24);
+const mat=new THREE.MeshStandardMaterial({color:0x4a3878,roughness:0.4,metalness:0.15});
+const t=new THREE.Mesh(geo,mat);t.scale.set(1,1,1.55);t.position.set(4,0.82,-4);
+t.castShadow=true;t.receiveShadow=true;scene.add(t);}
+[[3.2,-4.6],[4,-5.25],[4.8,-4.6],[4.8,-3.4],[4,-2.75],[3.2,-3.4]].forEach(([x,z])=>{
+  mkCyl(0.045,0.045,0.8,0x1e1436,x,0.41,z,8);
+  mkBox(0.4,0.06,0.38,0x2a1e48,x,0.82,z);
+  mkBox(0.36,0.4,0.07,0x2a1e48,x,1.04,z+0.14);
+});
+// Boardroom accent strip on wall
+{const mat=new THREE.MeshStandardMaterial({color:0x6030a0,emissive:new THREE.Color(0x5025a0),emissiveIntensity:0.5});
+const s=new THREE.Mesh(new THREE.BoxGeometry(2.0,0.04,0.04),mat);s.position.set(4,2.2,-5.88);scene.add(s);}
+
+// ── WATER COOLER ──
+mkCyl(0.17,0.15,0.65,0x1a2840,4,0.33,4,12);
+mkCyl(0.09,0.09,0.22,0x0055aa,4,0.77,4,8);
+mkSph(0.19,0x3399ff,4,1.01,4,true);
+{const mat=new THREE.MeshStandardMaterial({color:0x00aaff,emissive:new THREE.Color(0x0088dd),emissiveIntensity:1.2});
+const s=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.04,0.04),mat);s.position.set(4,0.55,4.16);scene.add(s);}
+
+// ── LIGHTING ──
+scene.add(new THREE.AmbientLight(0x607090, 1.8));
+const sun=new THREE.DirectionalLight(0xffffff,1.6);
+sun.position.set(-4,10,-4); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.near=0.5; sun.shadow.camera.far=50;
+sun.shadow.camera.left=-10; sun.shadow.camera.right=10;
+sun.shadow.camera.top=10; sun.shadow.camera.bottom=-10;
+sun.shadow.bias=-0.001; scene.add(sun);
+const fill=new THREE.DirectionalLight(0xc0d8ff,0.9);
+fill.position.set(8,12,8); scene.add(fill);
+
+// Zone lights (reactive)
+function mkPL(x,y,z,col){const l=new THREE.PointLight(col,0,8,1.8);l.position.set(x,y,z);scene.add(l);return l}
+const ZL = {
+  boss:  mkPL(-4,2.5,-4,0xf0c040),
+  board: mkPL( 4,2.5,-4,0xaa44ff),
+  desk:  mkPL( 0,2.5, 0,0x4488ff),
+  wc:    mkPL( 4,2.5, 4,0x44cc77),
+};
+ZL.boss.intensity=1.2; ZL.desk.intensity=2.0;
+
+// Pendant lights
+[[- 4, 0],[4, 0],[0,-3],[0, 3],[4, 4]].forEach(([x,z],i)=>{
+  const l=new THREE.PointLight(i===0?0xffeedd:0xd8eeff,1.0,9,1.5);
+  l.position.set(x,3.8,z); scene.add(l);
+  const fix=new THREE.Mesh(new THREE.BoxGeometry(0.36,0.06,0.36),
+    new THREE.MeshStandardMaterial({color:0xffffff,emissive:new THREE.Color(0xd0e8ff),emissiveIntensity:1.6}));
+  fix.position.set(x,4.3,z); scene.add(fix);
+  const cord=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.5,4),
+    new THREE.MeshStandardMaterial({color:0x445060}));
+  cord.position.set(x,4.55,z); scene.add(cord);
+});
+
+// ── AGENTS ──
+const AGENT_THEME = {
+  default: {
+    scout:   [0x0055cc,0x1177ff,0x66bbff],
+    builder: [0x006622,0x119944,0x44ff88],
+    chief:   [0x660088,0x9922bb,0xdd66ff],
+  },
+  cyber:   {scout:[0x009988,0x00ddcc,0x00ffee],builder:[0x005588,0x0088bb,0x00ccff],chief:[0x880088,0xcc00cc,0xff44ff]},
+  heat:    {scout:[0xcc2200,0xff4422,0xff8866],builder:[0xcc6600,0xff8800,0xffcc44],chief:[0x880033,0xcc0055,0xff3388]},
+  ice:     {scout:[0x2255aa,0x4488dd,0x88ccff],builder:[0x224488,0x3366bb,0x66aaff],chief:[0x334488,0x5566cc,0x99aaff]},
+  ghost:   {scout:[0x333333,0x555555,0xaaaaaa],builder:[0x222222,0x444444,0x888888],chief:[0x2a2a2a,0x505050,0xcccccc]},
+  military:{scout:[0x2a4a10,0x448820,0x88cc44],builder:[0x334a08,0x557714,0x99cc33],chief:[0x1a3308,0x335511,0x66aa22]},
+};
+
+const agents3D = {};
+function buildAgent(id) {
+  const cols = AGENT_THEME.default[id];
+  const group = new THREE.Group();
+
+  const bodyMat=new THREE.MeshStandardMaterial({color:cols[0],roughness:0.4,metalness:0.3,emissive:new THREE.Color(cols[0]),emissiveIntensity:1.1});
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.18,0.62,14),bodyMat);
+  body.position.y=0.31; body.castShadow=true; group.add(body);
+
+  const headMat=new THREE.MeshStandardMaterial({color:cols[1],roughness:0.3,metalness:0.2,emissive:new THREE.Color(cols[1]),emissiveIntensity:0.8});
+  const head=new THREE.Mesh(new THREE.SphereGeometry(0.24,14,14),headMat);
+  head.position.y=0.79; head.castShadow=true; group.add(head);
+
+  const pipMat=new THREE.MeshStandardMaterial({color:cols[2],emissive:new THREE.Color(cols[2]),emissiveIntensity:4.0,roughness:0.1});
+  const pip=new THREE.Mesh(new THREE.SphereGeometry(0.09,10,10),pipMat);
+  pip.position.set(0.19,1.01,0); group.add(pip);
+
+  const aura=new THREE.PointLight(cols[2],2.0,2.8,2.0);
+  aura.position.y=0.8; group.add(aura);
+
+  group.castShadow=true;
+  scene.add(group);
+  const startPos=POS[id].desk;
+  group.position.set(startPos[0],0.85,startPos[2]);
+  agents3D[id]={group,bodyMat,headMat,pipMat,aura,target:new THREE.Vector3(startPos[0],0.85,startPos[2]),bob:Math.random()*Math.PI*2};
+}
+AGENTS.forEach(a=>buildAgent(a.id));
+
+// ── CLICK (raycast agents, zone estimates) ──
+const raycaster=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+canvas.addEventListener('click',e=>{
+  // Don't fire if user was dragging
+  mouse.x=(e.clientX/window.innerWidth)*2-1;
+  mouse.y=-(e.clientY/window.innerHeight)*2+1;
+  raycaster.setFromCamera(mouse,camera);
+  // Check agents
+  for(const ag of AGENTS){
+    const obj=agents3D[ag.id];
+    const hits=raycaster.intersectObjects(obj.group.children,false);
+    if(hits.length>0){openSkillModal(ag.id);return;}
+  }
+  // Zone hits by screen region
+  const nx=e.clientX/window.innerWidth, ny=e.clientY/window.innerHeight;
+  if(nx<0.22&&ny>0.06&&ny<0.5){openVDeskModal();return;}
+  if(nx>0.48&&ny>0.52&&nx<0.75&&ny<0.92){openWCModal();return;}
+});
+
+// resize
+window.addEventListener('resize',()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+// ═══════════════════════════════════════════
+//  THEME SYSTEM
+// ═══════════════════════════════════════════
+const THEME_3J = {
+  default:  {bg:0x0e1520,fog:0x0e1520,floor:0x1e2b3c,wall:0x243448},
+  cyber:    {bg:0x000e14,fog:0x000e14,floor:0x001520,wall:0x002030},
+  heat:     {bg:0x150500,fog:0x150500,floor:0x200800,wall:0x2a0e00},
+  ice:      {bg:0x060d14,fog:0x060d14,floor:0x0a1828,wall:0x0e2035},
+  ghost:    {bg:0x050505,fog:0x050505,floor:0x0d0d0d,wall:0x111111},
+  military: {bg:0x080c04,fog:0x080c04,floor:0x111608,wall:0x182010},
+};
+
+window.toggleThemePanel=e=>{e.stopPropagation();document.getElementById('th-panel').classList.toggle('open')};
+window.setTheme=name=>{
+  document.documentElement.setAttribute('data-theme',name==='default'?'':name);
+  const t3=THEME_3J[name]||THEME_3J.default;
+  scene.background.setHex(t3.bg);
+  scene.fog.color.setHex(t3.fog);
+  mats.floor.color.setHex(t3.floor);
+  mats.wall.color.setHex(t3.wall);
+  // recolor agents
+  const ac=AGENT_THEME[name]||AGENT_THEME.default;
+  AGENTS.forEach(ag=>{
+    const obj=agents3D[ag.id];
+    const cols=ac[ag.id];
+    obj.bodyMat.color.setHex(cols[0]); obj.bodyMat.emissive.setHex(cols[0]);
+    obj.headMat.color.setHex(cols[1]); obj.headMat.emissive.setHex(cols[1]);
+    obj.pipMat.color.setHex(cols[2]);  obj.pipMat.emissive.setHex(cols[2]);
+    obj.aura.color.setHex(cols[2]);
+  });
+  document.querySelectorAll('.th-opt').forEach(el=>el.classList.toggle('cur',el.dataset.t===name));
+  document.getElementById('th-panel').classList.remove('open');
+  pushFeed('boss','[BOSS] THEME','Display theme switched to: '+name.toUpperCase()+' · All systems nominal');
+};
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#th-dd')){const p=document.getElementById('th-panel');if(p)p.classList.remove('open');}
+  if(!e.target.closest('#footer')){if(openDD){openDD=null;renderFooter();}}
+});
+
+// ═══════════════════════════════════════════
+//  CONTROLS
+// ═══════════════════════════════════════════
+window.togglePause=()=>{
+  isPaused=!isPaused;
+  const btn=document.getElementById('pause-btn');
+  const stamp=document.getElementById('paused-stamp');
+  if(btn){btn.innerHTML=isPaused?'▶ RESUME <span style="font-size:7px;opacity:.35">[SPACE]</span>':'⏸ PAUSE <span style="font-size:7px;opacity:.35">[SPACE]</span>';btn.className=isPaused?'hbtn paused':'hbtn';}
+  if(stamp)stamp.className=isPaused?'paused-stamp show':'paused-stamp';
+};
+window.toggleBoss=()=>{
+  bossApproval=!bossApproval;
+  const tog=document.getElementById('boss-tog');
+  const lbl=document.getElementById('t-lbl');
+  if(tog)tog.className='boss-tog'+(bossApproval?' on':'');
+  if(lbl){lbl.textContent='BOSS APPROVAL '+(bossApproval?'ON':'OFF');}
+  pushFeed('boss','[BOSS] APPROVAL MODE','Boss approval '+(bossApproval?'ENABLED — boardroom + builds require sign-off':'DISABLED — agents running fully autonomously'));
+};
+document.addEventListener('keydown',e=>{
+  if(document.activeElement.tagName==='INPUT')return;
+  if(e.code==='Space'||e.key==='p'||e.key==='P'){e.preventDefault();togglePause();}
+  if(e.key==='Escape'){closeModal();}
+});
+
+// ═══════════════════════════════════════════
+//  FEED + RENDER UI
+// ═══════════════════════════════════════════
+function pushFeed(type,stage,detail,awaiting=false){
+  feedItems.unshift({id:Date.now()+Math.random(),ts:ts(),type,stage,detail,awaiting});
+  if(feedItems.length>80)feedItems.pop();
+  busEvents++;
+  renderFeed(); renderFooter();
+}
+function renderFeed(){
+  const el=document.getElementById('feed'); if(!el)return;
+  const s=STAGES[stageIdx];
+  const rps=document.getElementById('rp-stage');
+  if(rps){rps.textContent=s.label+' · '+(stageIdx+1)+'/6';rps.style.color=s.col;}
+  el.innerHTML=feedItems.map(f=>`<div class="fe ${f.type}">
+    <div class="fe-ts">${f.ts}</div>
+    <div class="fe-stage" style="color:${STAGES.find(x=>x.id===f.type)?.col||'#c9d1d9'}">${f.stage}</div>
+    <div class="fe-detail">${hl(f.detail)}</div>
+    ${f.awaiting?'<span class="fe-await">⏳ AWAITING BOSS APPROVAL</span>':''}
+  </div>`).join('');
+}
+function renderLoopStrip(){
+  const el=document.getElementById('loop-strip'); if(!el)return;
+  const s=STAGES[stageIdx];
+  el.innerHTML=STAGES.map((st,i)=>`<div class="ls${i===stageIdx?' on':''}" style="${i===stageIdx?'border-color:'+st.col+';color:'+st.col:''}" onclick="jumpStage(${i})">${st.label}</div>`).join('');
+}
+function renderHeader(){
+  const el=document.getElementById('stage-txt'); if(!el)return;
+  const s=STAGES[stageIdx];
+  el.textContent=s.label+' — '+s.id.toUpperCase(); el.style.color=s.col;
+}
+window.jumpStage=i=>{stageIdx=i;applyLocs();renderAll();};
+
+function renderFooter(){
+  const el=document.getElementById('footer'); if(!el)return;
+  const s=STAGES[stageIdx];
+  const stats=[
+    {id:'stage',lbl:'LOOP STAGE',   val:s.label,     col:s.col,              fill:(stageIdx+1)/6*100,   desc:'Current organism phase',        opts:STAGES.map(x=>({l:x.label,v:x.id})), sel:v=>{stageIdx=STAGES.findIndex(x=>x.id===v);applyLocs();renderAll();}},
+    {id:'cyc',  lbl:'FULL CYCLES',  val:cycleCount,  col:'#58a6ff',          fill:Math.min(cycleCount*5,100), desc:'Complete autonomous loops'},
+    {id:'bus',  lbl:'BUS EVENTS',   val:busEvents,   col:'#3fb950',          fill:Math.min(busEvents/200*100,100), desc:'Total EventBus messages'},
+    {id:'conf', lbl:'CONF·'+confTarget.toUpperCase(), val:confVals[confTarget]+'%', col:'#bc8cff', fill:confVals[confTarget], desc:'Agent confidence score', opts:AGENTS.map(a=>({l:a.label,v:a.id})), sel:v=>{confTarget=v;renderFooter();}},
+    {id:'pol',  lbl:'POLICY BLOCKS',val:policyBlocks,col:'#ff4444',          fill:Math.min(policyBlocks*8,100), desc:'Constitutional violations blocked'},
+  ];
+  el.innerHTML=stats.map(s=>`
+    <div class="fs" id="fs-${s.id}" onclick="fsClick('${s.id}',event)">
+      ${openDD===s.id&&s.opts?`<div class="dd open" onclick="event.stopPropagation()">${s.opts.map(o=>`<div class="dd-item${(s.id==='stage'?STAGES[stageIdx].id===o.v:confTarget===o.v)?' cur':''}" onclick="fsSel('${s.id}','${o.v}',event)">${o.l}${(s.id==='stage'?STAGES[stageIdx].id===o.v:confTarget===o.v)?'<span style="color:var(--b)">✓</span>':''}</div>`).join('')}</div>`:''}
+      <div class="fs-lbl">${s.lbl}${s.opts?'<span class="fs-caret">▲</span>':''}</div>
+      <div class="fs-val" style="color:${s.col}">${s.val}</div>
+      <div class="fs-bar"><div class="fs-fill" style="width:${s.fill}%;background:${s.col}"></div></div>
+      <div class="fs-desc">${s.desc}</div>
+    </div>`).join('');
+}
+window.fsClick=(id,e)=>{e.stopPropagation();const s=renderFooter.stats?.[id];const hasopts=['stage','conf'].includes(id);if(hasopts){openDD=openDD===id?null:id;renderFooter();}};
+window.fsSel=(id,val,e)=>{e.stopPropagation();if(id==='stage'){stageIdx=STAGES.findIndex(s=>s.id===val);applyLocs();renderAll();}else if(id==='conf'){confTarget=val;renderFooter();}openDD=null;renderFooter();};
+
+function renderAll(){renderFeed();renderFooter();renderLoopStrip();renderHeader();}
+
+// ═══════════════════════════════════════════
+//  AGENT MOVEMENT
+// ═══════════════════════════════════════════
+function applyLocs(){
+  const s=STAGES[stageIdx];
+  AGENTS.forEach(ag=>{
+    const loc=s.locs[ag.id];
+    const p=POS[ag.id][loc]||POS[ag.id].idle;
+    agents3D[ag.id].target.set(p[0],0.85,p[2]);
+  });
+  // Zone lights
+  const isBoard=s.locs.scout==='meeting'||s.locs.chief==='meeting';
+  const isWC   =s.locs.scout==='upskill'||s.locs.builder==='upskill';
+  ZL.board.intensity=isBoard?5.5:0.4;
+  ZL.wc.intensity   =isWC   ?5.5:0.3;
+  ZL.desk.intensity =2.0;
+  ZL.boss.intensity =1.2;
+}
+
+// ═══════════════════════════════════════════
+//  MAIN LOOP
+// ═══════════════════════════════════════════
+let lastAdv=Date.now();
+const STAGE_MS=4400;
+
+function advance(){
+  if(isPaused)return;
+  stageIdx=(stageIdx+1)%STAGES.length;
+  const s=STAGES[stageIdx];
+  if(stageIdx===0)cycleCount++;
+  confVals={scout:Math.min(98,Math.round(70+Math.random()*25)),builder:Math.min(95,Math.round(60+Math.random()*30)),chief:Math.min(99,Math.round(85+Math.random()*12))};
+  applyLocs();
+  s.events.forEach((ev,i)=>{
+    const await_=bossApproval&&((s.id==='boardroom'&&i===4)||(s.id==='qa'&&i===3));
+    setTimeout(()=>{if(!isPaused)pushFeed(s.id,'['+s.label+'] STAGE '+(stageIdx+1)+'/6',fmt(ev,cycleCount),await_);},i*680);
+  });
+  // Board notif
+  if(stageIdx===1&&bossApproval)setTimeout(()=>showBoardNotif(),1400);
+  // Build notif
+  if(stageIdx===3&&bossApproval)setTimeout(()=>showBuildNotif(),3000);
+  // WC log
+  if(stageIdx===4){
+    for(let i=0;i<rnd(3,7);i++){
+      const [a,b]=pick([['Scout','Builder'],['Builder','Scout'],['Scout','Chief']]);
+      const sk=pick(WC_SKILLS);
+      wcLog.unshift({agent:a,to:b,ts:ts(),skill:sk,text:a+'→'+b+': "'+sk+'" pattern shared · effectiveness '+((Math.random()*.3+.7).toFixed(2))+' · integrated'});
+    }
+    if(wcLog.length>100)wcLog.length=100;
+  }
+  // Post-board report
+  if(stageIdx===2){
+    boardReports.unshift({id:Date.now()+'b',ts:ts(),status:'pending',
+      title:'Post-Board Report — Cycle #'+(cycleCount+1),
+      body:'OUTCOME: Proposal APPROVED\nDOMAIN: '+pick(SCOUT_DOMAINS)+'\nATTENDEES: Scout, Chief\nDURATION: ~'+rnd(2,6)+' min\nCONFIDENCE: '+rnd(78,96)+'%\nNEXT: QA validation before deploy\nTOKENS: '+rnd(1200,4500)});
+    if(boardReports.length>20)boardReports.length=20;
+  }
+  // Policy block
+  if(Math.random()<0.09){
+    setTimeout(()=>{
+      policyBlocks++;
+      const origin=pick(['builder','scout']),target=pick(['chief','builder','scout'].filter(x=>x!==origin));
+      pushFeed('policy','[SAFEGUARDS] CONSTITUTIONAL BLOCK','Direct agent call BLOCKED · '+origin+' → '+target+' · Rule: 100% comms via EventBus · Stage: '+s.label);
+      policyDocs.unshift({id:Date.now()+'p',ts:ts(),status:'pending',
+        title:'Policy Block #'+policyBlocks,
+        body:'RULE VIOLATED: Direct agent-to-agent call\nOrigin: '+origin+' → Target: '+target+'\nInvariant: EventBus routing mandatory\nCycle: '+(cycleCount+1)+' · Stage: '+s.label+'\nAction: Intercepted + nullified by safeguards'});
+      if(policyDocs.length>20)policyDocs.length=20;
+    },rnd(800,3500));
+  }
+  // Adhoc
+  if(Math.random()<0.12){
+    adhocDocs.unshift({id:Date.now()+'a',ts:ts(),status:'pending',
+      title:'Adhoc Query #'+rnd(100,999),
+      body:pick(['Scout requests TAM threshold clarification for '+pick(SCOUT_DOMAINS),'Builder: isolate worktree per cycle or per agent?','Chief: trust score dropped to '+(Math.random()*.3+.5).toFixed(2)+' for Scout','Scout discovered ambiguous domain — needs operator classification'])});
+    if(adhocDocs.length>20)adhocDocs.length=20;
+  }
+  renderAll();
+}
+
+// ═══════════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════════
+function showBoardNotif(){
+  const id='notif-board';
+  if(document.getElementById(id))return;
+  const area=document.getElementById('notifs');
+  const prop=pick(SCOUT_DOMAINS);
+  area.innerHTML+=`<div id="${id}" class="notif" style="top:56px;right:298px;width:278px;pointer-events:all">
+    <div class="nc nc-board">
+      <div class="nc-head"><span style="font-size:22px">🏛️</span>
+        <div><div class="nc-title" style="color:var(--p)">BOARDROOM REQUEST</div>
+        <div class="nc-sub">${ts()} · Requires Boss approval</div></div>
+      </div>
+      <div class="nc-body"><b style="color:#bc8cff">Proposal #${cycleCount+1}: ${prop}</b>\nConf: ${rnd(72,96)}% · TAM: $${rnd(1,9)}.${rnd(1,9)}M · Urgency: ${pick(['HIGH','MEDIUM'])}\nChief requests board session — awaiting sign-off.</div>
+      <div class="nc-btns">
+        <button class="nb nb-p" onclick="approveBoard(true,true)">🟢 JOIN</button>
+        <button class="nb nb-g" onclick="approveBoard(true,false)">✓ APPROVE</button>
+        <button class="nb nb-r" onclick="approveBoard(false,false)">✗ DENY</button>
+      </div>
+    </div>
+  </div>`;
+}
+function showBuildNotif(){
+  const id='notif-build';
+  if(document.getElementById(id))return;
+  const area=document.getElementById('notifs');
+  area.innerHTML+=`<div id="${id}" class="notif" style="top:56px;left:50%;transform:translateX(-50%);width:320px;pointer-events:all">
+    <div class="nc nc-build">
+      <div class="nc-head"><span style="font-size:20px">⚙️</span>
+        <div><div class="nc-title" style="color:var(--g)">BUILD APPROVAL REQUIRED</div>
+        <div class="nc-sub">${ts()} · Cycle #${cycleCount+1}</div></div>
+      </div>
+      <div class="nc-body">Module: ${pick(SCOUT_DOMAINS)}\nTests: ${rnd(22,42)} passed · 0 critical failures\nQA confidence: ${rnd(79,97)}% · Deploy: ~${rnd(2,8)} min</div>
+      <div class="nc-btns">
+        <button class="nb nb-g" onclick="approveBuild(true)">✓ APPROVE BUILD</button>
+        <button class="nb nb-r" onclick="approveBuild(false)">✗ DENY BUILD</button>
+        <button class="nb nb-d" onclick="rmNotif('notif-build')">DISMISS</button>
+      </div>
+    </div>
+  </div>`;
+}
+window.approveBoard=(approved,join)=>{rmNotif('notif-board');pushFeed('boss','[BOSS] BOARDROOM',approved?(join?'Boss joined + approved — build directive issued':'Proposal approved · agents proceeding'):'DENIED — agents returning to desks');};
+window.approveBuild=(approved)=>{rmNotif('notif-build');pushFeed('boss','[BOSS] BUILD DECISION',approved?'Build APPROVED ✓ — deploying solution · systems green':'Build DENIED ✗ — rejected · Builder returning to drafts');};
+window.rmNotif=id=>{const el=document.getElementById(id);if(el)el.remove();};
+
+// ═══════════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════════
+window.closeModal=()=>{const m=document.getElementById('modals');if(m)m.innerHTML='';vdeskPile=null;};
+
+function openWCModal(){
+  const entries=wcLog.length===0
+    ?'<div style="color:var(--dim);text-align:center;padding:24px;font-size:9px">No discussions yet — agents gather during LEARN stage</div>'
+    :wcLog.map(m=>`<div class="wc-e"><div class="wc-eh"><span class="wc-ag">${m.agent} → ${m.to}</span><span class="wc-ts-s">${m.ts}</span></div><div class="wc-txt">${m.text}</div>${m.skill?`<span class="sk-tag">🏷 ${m.skill}</span>`:''}</div>`).join('');
+  document.getElementById('modals').innerHTML=`<div class="mbg" onclick="closeModal()">
+    <div class="modal modal-sm" onclick="event.stopPropagation()">
+      <div class="mh"><span class="mt" style="color:var(--g)">💧 WATER COOLER · LOG (${wcLog.length})</span><span class="mx" onclick="closeModal()">✕</span></div>
+      <div class="mb">${entries}</div>
+    </div></div>`;
+}
+
+function openSkillModal(agentId){
+  const ag=AGENTS.find(a=>a.id===agentId); if(!ag)return;
+  const st=STAGES[stageIdx].locs[agentId];
+  const scol={desk:'var(--b)',meeting:'var(--p)',upskill:'var(--g)',idle:'var(--dim)'}[st];
+  const em={scout:'👁️',builder:'🔧',chief:'👑'};
+  document.getElementById('modals').innerHTML=`<div class="mbg" onclick="closeModal()">
+    <div class="modal modal-sm" onclick="event.stopPropagation()">
+      <div class="mh"><span class="mt">${em[agentId]} ${ag.label} · SKILLS</span><span class="mx" onclick="closeModal()">✕</span></div>
+      <div class="mb">
+        <div style="display:flex;gap:12px;margin-bottom:14px;padding:10px;background:rgba(0,0,0,.3)">
+          <div style="font-size:30px">${em[agentId]}</div>
+          <div>
+            <div style="font-family:var(--orb);font-size:13px;color:var(--b);letter-spacing:2px">${ag.label}</div>
+            <div style="font-size:8px;color:var(--dim);margin-top:3px">${ag.role} · <span style="color:${scol}">${st.toUpperCase()}</span> · conf: ${confVals[agentId]}%</div>
+            <div style="font-size:8px;color:var(--dim)">Model: ${ag.model}</div>
+          </div>
+        </div>
+        <div class="sk-sec"><div class="sk-sec-t">FOUNDATIONAL — Deployed at Init</div>
+          ${ag.skills.init.map(s=>`<div class="sk-row"><span class="sk-ico">⚙️</span><div><span class="sk-name">${s}<span class="stag si">INIT</span></span></div></div>`).join('')}</div>
+        <div class="sk-sec"><div class="sk-sec-t">SELF-ACQUIRED — Learned Autonomously</div>
+          ${ag.skills.self.map(s=>`<div class="sk-row"><span class="sk-ico">🧠</span><div><span class="sk-name">${s}<span class="stag ss">SELF</span></span><span class="sk-sub">via memory propagation loop</span></div></div>`).join('')}</div>
+        <div class="sk-sec"><div class="sk-sec-t">PEER-SOURCED — Picked Up at Water Cooler</div>
+          ${ag.skills.peer.map(s=>`<div class="sk-row"><span class="sk-ico">🤝</span><div><span class="sk-name">${s}<span class="stag sp">PEER</span></span><span class="sk-sub">exchanged at Water Cooler session</span></div></div>`).join('')}</div>
+      </div>
+    </div></div>`;
+}
+
+function openVDeskModal(){renderVDesk();}
+function renderVDesk(){
+  const pending=arr=>arr.filter(d=>d.status==='pending').length;
+  const total=pending(policyDocs)+pending(boardReports)+pending(adhocDocs);
+  const piles=[{id:'policy',ico:'🚨',name:'POLICY BLOCKS',docs:policyDocs},{id:'board',ico:'🏛️',name:'BOARD REPORTS',docs:boardReports},{id:'adhoc',ico:'📌',name:'ADHOC QUERIES',docs:adhocDocs}];
+  const docList=vdeskPile?(()=>{
+    const pile=piles.find(p=>p.id===vdeskPile);
+    return`<div style="font-size:7.5px;color:var(--dim);letter-spacing:2px;margin-bottom:9px;border-bottom:1px solid rgba(240,192,64,.12);padding-bottom:6px">${pile.ico} ${pile.name}</div>
+      ${pile.docs.length===0?'<div style="color:var(--dim);text-align:center;padding:20px;font-size:9px">No documents yet</div>':''}
+      <div class="doc-list">${pile.docs.map(d=>`<div class="doc">
+        <div class="doc-h"><span class="doc-t">${d.title}</span><span class="doc-ts">${d.ts}</span></div>
+        <div class="doc-b">${d.body}</div>
+        <div class="doc-acts">${d.status==='pending'
+          ?`<button class="da da-g" onclick="docAct('${vdeskPile}','${d.id}','approved')">✓ APPROVE</button><button class="da da-r" onclick="docAct('${vdeskPile}','${d.id}','denied')">✗ DENY</button>`
+          :`<span class="da-done ${d.status==='approved'?'app':'den'}">${d.status==='approved'?'✓ APPROVED':'✗ DENIED'}</span>`}</div>
+      </div>`).join('')}</div>`;
+  })():'<div style="text-align:center;padding:28px;color:var(--dim);font-size:9px"><div style="font-size:26px;margin-bottom:10px;opacity:.4">📂</div>Select a pile to review</div>';
+
+  document.getElementById('modals').innerHTML=`<div class="mbg" onclick="closeModal()">
+    <div class="modal modal-lg" style="background:rgba(12,9,4,.97);border-color:rgba(201,146,42,.35)" onclick="event.stopPropagation()">
+      <div class="mh" style="border-color:rgba(201,146,42,.2)">
+        <span class="mt" style="color:var(--boss);font-family:var(--orb);letter-spacing:3px">👑 BOSS DESK <span style="font-size:9px;color:var(--a);font-family:var(--mono);margin-left:8px">${total} PENDING</span></span>
+        <span class="mx" onclick="closeModal()">✕</span>
+      </div>
+      <div class="mb">
+        <div class="vd-piles">${piles.map(p=>`<div class="vpile${vdeskPile===p.id?' sel':''}" onclick="setVPile('${p.id}')">
+          <div class="vp-ico">${p.ico}</div>
+          <div class="vp-name">${p.name}</div>
+          <div class="vp-cnt"><b>${pending(p.docs)}</b> pending</div>
+        </div>`).join('')}</div>
+        ${docList}
+      </div>
+    </div></div>`;
+}
+window.setVPile=id=>{vdeskPile=vdeskPile===id?null:id;renderVDesk();};
+window.docAct=(pile,docId,action)=>{
+  const map={policy:policyDocs,board:boardReports,adhoc:adhocDocs};
+  const doc=map[pile]?.find(d=>d.id==docId);
+  if(doc)doc.status=action;
+  pushFeed('boss','[BOSS] DESK',''+pile.toUpperCase()+' doc '+action.toUpperCase()+' · Ref #'+String(docId).slice(-6));
+  renderVDesk();
+};
+
+// ═══════════════════════════════════════════
+//  TIMESTAMP
+// ═══════════════════════════════════════════
+function updateTS(){
+  const n=new Date();
+  const e=document.getElementById('hud-ts'); if(e)e.textContent=n.toLocaleTimeString('en-US',{hour12:false})+' UTC';
+  const d=document.getElementById('hud-date'); if(d)d.textContent=n.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+}
+
+// Scout domain rotator
+setInterval(()=>{if(!isPaused)scoutDomain=pick(SCOUT_DOMAINS);},2800);
+
+// ═══════════════════════════════════════════
+//  RENDER LOOP
+// ═══════════════════════════════════════════
+const clock=new THREE.Clock();
+let frame=0;
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  frame++;
+  if(frame%60===0)updateTS();
+  if(!isPaused&&Date.now()-lastAdv>STAGE_MS){lastAdv=Date.now();advance();}
+  controls.update();
+  // Agent lerp + bob
+  AGENTS.forEach(ag=>{
+    const obj=agents3D[ag.id];
+    obj.group.position.lerp(obj.target,0.05);
+    obj.group.position.y=obj.target.y+(!isPaused?Math.sin(t*1.8+obj.bob)*0.04:0);
+    const dx=obj.target.x-obj.group.position.x, dz=obj.target.z-obj.group.position.z;
+    if(Math.abs(dx)>.06||Math.abs(dz)>.06)obj.group.rotation.y=Math.atan2(dx,dz);
+    obj.pipMat.emissiveIntensity=1.8+Math.sin(t*3+obj.bob)*0.9;
+  });
+  renderer.render(scene,camera);
+}
+
+// ═══════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════
+applyLocs();
+renderAll();
+updateTS();
+pushFeed('boss','[SYSTEM BOOT]','AppShak Cognitive Organism ONLINE · 3D CCTV corner-mount active · All agents deployed · Non-terminal directive confirmed');
+animate();
+</script>
+</body>
+</html>

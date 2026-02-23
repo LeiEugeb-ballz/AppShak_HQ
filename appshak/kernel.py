@@ -26,13 +26,20 @@ class AppShakKernel:
     EXTERNAL_ACTION_REQUEST_EVENT = EventType.EXTERNAL_ACTION_REQUEST.value
     CONSTITUTION_VIOLATION_EVENT = EventType.CONSTITUTION_VIOLATION.value
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(
+        self,
+        config: Dict[str, Any],
+        *,
+        event_bus: Optional[Any] = None,
+        tool_gateway: Optional[Any] = None,
+    ):
         self.config = config
         self.running = False
         self.heartbeat_interval = float(config.get("heartbeat_interval", 15))
         self.idle_poll_timeout = float(config.get("event_poll_timeout", 1.0))
 
-        self.event_bus = EventBus()
+        self.event_bus = event_bus if event_bus is not None else EventBus()
+        self.tool_gateway = tool_gateway
         self.global_memory = GlobalMemory(config)
         self.safeguards = SafeguardMonitor(config)
         self.event_bus.add_publish_hook(self._on_event_published)
