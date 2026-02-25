@@ -1,0 +1,4 @@
+{"status": "processed", "event_id": 2, "event_type": "WORKER_STARTED", "agent_id": "command"}
+{"status": "processed", "event_id": 3, "event_type": "WORKER_STARTED", "agent_id": "command"}
+{"status": "processed", "event_id": 4, "event_type": "WORKER_STARTED", "agent_id": "command"}
+{"status": "processed", "event_id": 74, "event_type": "WORKER_EXITED", "agent_id": "command"}

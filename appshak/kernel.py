@@ -11,6 +11,9 @@ from appshak.agents.chief import ChiefAgent
 from appshak.agents.scout import ScoutAgent
 from appshak.event_bus import EventBus, EventType
 from appshak.memory import GlobalMemory
+from appshak.plugins.interfaces import AppShakPlugin
+from appshak.plugins.loader import PluginLoadError, PluginLoader
+from appshak.plugins.runtime import KernelStateView
 from appshak.safeguards import SafeguardMonitor
 
 
@@ -32,6 +35,7 @@ class AppShakKernel:
         *,
         event_bus: Optional[Any] = None,
         tool_gateway: Optional[Any] = None,
+        plugin_loader: Optional[PluginLoader] = None,
     ):
         self.config = config
         self.running = False
@@ -43,6 +47,20 @@ class AppShakKernel:
         self.global_memory = GlobalMemory(config)
         self.safeguards = SafeguardMonitor(config)
         self.event_bus.add_publish_hook(self._on_event_published)
+        plugin_modules = config.get("plugin_modules", [])
+        plugin_config = config.get("plugin_config", {})
+        if isinstance(plugin_modules, (list, tuple, set)):
+            modules = list(plugin_modules)
+        else:
+            modules = []
+        self._plugin_loader = plugin_loader or PluginLoader(
+            modules,
+            plugin_config=plugin_config if isinstance(plugin_config, dict) else {},
+        )
+        loaded_plugins, load_errors = self._plugin_loader.load()
+        self.plugins: List[AppShakPlugin] = loaded_plugins
+        self.plugin_load_errors: List[PluginLoadError] = load_errors
+        self._plugin_state_view = KernelStateView(self)
 
         self.agents = {
             "recon": ScoutAgent(self),
@@ -73,11 +91,13 @@ class AppShakKernel:
                     )
                     break
 
+                await self._run_plugins(current_event=None)
                 event = await self.event_bus.get_next(timeout=self.idle_poll_timeout)
 
                 if event is None:
                     await self.agents["recon"].search_for_problems()
                 else:
+                    await self._run_plugins(current_event=event)
                     await self._route_event(event)
 
                 await self._post_cycle_maintenance()
@@ -295,6 +315,19 @@ class AppShakKernel:
             except Exception as exc:
                 await self._log_kernel_error(f"agent:{agent_id}", exc)
                 await asyncio.sleep(2)
+
+    async def _run_plugins(self, current_event: Optional[Any]) -> None:
+        if not self.plugins:
+            return
+        self._plugin_state_view.set_current_event(current_event)
+        for plugin in self.plugins:
+            try:
+                await plugin.dispatch(self._plugin_state_view)
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                plugin_name = getattr(plugin, "name", plugin.__class__.__name__)
+                await self._log_kernel_error(f"plugin:{plugin_name}", exc)
 
     async def _record_task_failures(self, results: Iterable[Any]) -> None:
         for result in results:

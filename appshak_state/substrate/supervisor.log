@@ -1,0 +1,5 @@
+2026-02-25 06:35:11,528 INFO SUPERVISOR_START agents=['recon', 'forge', 'command'] db=appshak_state\substrate\mailstore.db
+2026-02-25 06:35:11,623 INFO WORKER_STARTED agent=recon pid=12252
+2026-02-25 06:35:11,669 INFO WORKER_STARTED agent=forge pid=18844
+2026-02-25 06:35:11,723 INFO WORKER_STARTED agent=command pid=2932
+2026-02-25 06:37:12,090 INFO SUPERVISOR_STOP
