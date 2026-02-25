@@ -53,3 +53,80 @@
 2026-02-25 06:37:09,199 INFO EVENT_ACKED agent_id=command event_id=73
 2026-02-25 06:37:11,929 INFO EVENT_CLAIMED agent_id=command event_id=74 type=WORKER_EXITED
 2026-02-25 06:37:11,970 INFO EVENT_ACKED agent_id=command event_id=74
+2026-02-25 12:48:23,849 INFO WORKER_START agent_id=command consumer_id=worker:command:1772016503594 pid=9636 worktree=C:\Users\Me\Desktop\AppShak_HQ\workspaces\command db_path=appshak_state\substrate\mailstore.db
+2026-02-25 12:48:23,876 INFO EVENT_CLAIMED agent_id=command event_id=75 type=WORKER_EXITED
+2026-02-25 12:48:23,892 INFO EVENT_ACKED agent_id=command event_id=75
+2026-02-25 12:48:23,910 INFO EVENT_CLAIMED agent_id=command event_id=76 type=WORKER_EXITED
+2026-02-25 12:48:23,925 INFO EVENT_ACKED agent_id=command event_id=76
+2026-02-25 12:48:23,940 INFO EVENT_CLAIMED agent_id=command event_id=79 type=WORKER_STARTED
+2026-02-25 12:48:23,957 INFO EVENT_ACKED agent_id=command event_id=79
+2026-02-25 12:48:23,971 INFO EVENT_CLAIMED agent_id=command event_id=80 type=WORKER_STARTED
+2026-02-25 12:48:23,988 INFO EVENT_ACKED agent_id=command event_id=80
+2026-02-25 12:48:24,003 INFO EVENT_CLAIMED agent_id=command event_id=81 type=WORKER_STARTED
+2026-02-25 12:48:24,021 INFO EVENT_ACKED agent_id=command event_id=81
+2026-02-25 12:48:24,052 INFO EVENT_CLAIMED agent_id=command event_id=82 type=WORKER_HEARTBEAT_MISSED
+2026-02-25 12:48:24,072 INFO EVENT_ACKED agent_id=command event_id=82
+2026-02-25 12:48:24,126 INFO EVENT_CLAIMED agent_id=command event_id=83 type=WORKER_EXITED
+2026-02-25 12:48:25,643 INFO WORKER_START agent_id=command consumer_id=worker:command:1772016505439 pid=15924 worktree=C:\Users\Me\Desktop\AppShak_HQ\workspaces\command db_path=appshak_state\substrate\mailstore.db
+2026-02-25 12:48:25,714 INFO EVENT_CLAIMED agent_id=command event_id=84 type=WORKER_RESTART_SCHEDULED
+2026-02-25 12:48:25,735 INFO EVENT_ACKED agent_id=command event_id=84
+2026-02-25 12:48:25,750 INFO EVENT_CLAIMED agent_id=command event_id=85 type=WORKER_HEARTBEAT_MISSED
+2026-02-25 12:48:25,804 INFO EVENT_ACKED agent_id=command event_id=85
+2026-02-25 12:48:25,854 INFO EVENT_CLAIMED agent_id=command event_id=86 type=WORKER_EXITED
+2026-02-25 12:48:25,903 INFO EVENT_ACKED agent_id=command event_id=86
+2026-02-25 12:48:25,919 INFO EVENT_CLAIMED agent_id=command event_id=87 type=WORKER_RESTART_SCHEDULED
+2026-02-25 12:48:25,944 INFO EVENT_ACKED agent_id=command event_id=87
+2026-02-25 12:48:25,971 INFO EVENT_CLAIMED agent_id=command event_id=88 type=WORKER_RESTARTED
+2026-02-25 12:48:26,014 INFO EVENT_ACKED agent_id=command event_id=88
+2026-02-25 12:48:26,034 INFO EVENT_CLAIMED agent_id=command event_id=89 type=WORKER_RESTARTED
+2026-02-25 12:48:26,048 INFO EVENT_ACKED agent_id=command event_id=89
+2026-02-25 12:48:29,089 INFO EVENT_CLAIMED agent_id=command event_id=92 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:48:29,112 INFO EVENT_ACKED agent_id=command event_id=92
+2026-02-25 12:48:34,217 INFO EVENT_CLAIMED agent_id=command event_id=95 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:48:34,239 INFO EVENT_ACKED agent_id=command event_id=95
+2026-02-25 12:48:39,205 INFO EVENT_CLAIMED agent_id=command event_id=83 type=WORKER_EXITED
+2026-02-25 12:48:39,228 INFO EVENT_ACKED agent_id=command event_id=83
+2026-02-25 12:48:39,378 INFO EVENT_CLAIMED agent_id=command event_id=98 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:48:39,398 INFO EVENT_ACKED agent_id=command event_id=98
+2026-02-25 12:48:44,468 INFO EVENT_CLAIMED agent_id=command event_id=101 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:48:44,482 INFO EVENT_ACKED agent_id=command event_id=101
+2026-02-25 12:48:49,526 INFO EVENT_CLAIMED agent_id=command event_id=104 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:48:49,576 INFO EVENT_ACKED agent_id=command event_id=104
+2026-02-25 12:48:54,675 INFO EVENT_CLAIMED agent_id=command event_id=107 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:48:54,712 INFO EVENT_ACKED agent_id=command event_id=107
+2026-02-25 12:48:59,934 INFO EVENT_CLAIMED agent_id=command event_id=110 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:48:59,953 INFO EVENT_ACKED agent_id=command event_id=110
+2026-02-25 12:49:04,926 INFO EVENT_CLAIMED agent_id=command event_id=113 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:05,002 INFO EVENT_ACKED agent_id=command event_id=113
+2026-02-25 12:49:10,098 INFO EVENT_CLAIMED agent_id=command event_id=116 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:10,122 INFO EVENT_ACKED agent_id=command event_id=116
+2026-02-25 12:49:15,386 INFO EVENT_CLAIMED agent_id=command event_id=119 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:15,410 INFO EVENT_ACKED agent_id=command event_id=119
+2026-02-25 12:49:20,251 INFO EVENT_CLAIMED agent_id=command event_id=122 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:20,268 INFO EVENT_ACKED agent_id=command event_id=122
+2026-02-25 12:49:25,424 INFO EVENT_CLAIMED agent_id=command event_id=125 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:25,460 INFO EVENT_ACKED agent_id=command event_id=125
+2026-02-25 12:49:30,645 INFO EVENT_CLAIMED agent_id=command event_id=128 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:30,678 INFO EVENT_ACKED agent_id=command event_id=128
+2026-02-25 12:49:35,729 INFO EVENT_CLAIMED agent_id=command event_id=131 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:35,753 INFO EVENT_ACKED agent_id=command event_id=131
+2026-02-25 12:49:40,692 INFO EVENT_CLAIMED agent_id=command event_id=134 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:40,712 INFO EVENT_ACKED agent_id=command event_id=134
+2026-02-25 12:49:45,778 INFO EVENT_CLAIMED agent_id=command event_id=137 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:45,799 INFO EVENT_ACKED agent_id=command event_id=137
+2026-02-25 12:49:50,856 INFO EVENT_CLAIMED agent_id=command event_id=140 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:50,874 INFO EVENT_ACKED agent_id=command event_id=140
+2026-02-25 12:49:55,764 INFO EVENT_CLAIMED agent_id=command event_id=143 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:49:55,785 INFO EVENT_ACKED agent_id=command event_id=143
+2026-02-25 12:50:00,890 INFO EVENT_CLAIMED agent_id=command event_id=146 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:50:00,934 INFO EVENT_ACKED agent_id=command event_id=146
+2026-02-25 12:50:06,002 INFO EVENT_CLAIMED agent_id=command event_id=149 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:50:06,027 INFO EVENT_ACKED agent_id=command event_id=149
+2026-02-25 12:50:11,011 INFO EVENT_CLAIMED agent_id=command event_id=152 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:50:11,027 INFO EVENT_ACKED agent_id=command event_id=152
+2026-02-25 12:50:16,467 INFO EVENT_CLAIMED agent_id=command event_id=155 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:50:16,494 INFO EVENT_ACKED agent_id=command event_id=155
+2026-02-25 12:50:21,289 INFO EVENT_CLAIMED agent_id=command event_id=158 type=SUPERVISOR_HEARTBEAT
+2026-02-25 12:50:21,341 INFO EVENT_ACKED agent_id=command event_id=158
+2026-02-25 12:50:23,898 INFO EVENT_CLAIMED agent_id=command event_id=159 type=WORKER_EXITED
+2026-02-25 12:50:23,932 INFO EVENT_ACKED agent_id=command event_id=159
