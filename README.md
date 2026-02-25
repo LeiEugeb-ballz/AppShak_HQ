@@ -23,6 +23,12 @@ python -m appshak_substrate.run_kernel_durable --hours 1 --mailstore-db appshak_
 python -m appshak_substrate.run_swarm --agents recon forge command --durable --worktrees --duration-seconds 120
 ```
 
+## Run Observability Backend
+
+```bash
+python -m appshak_observability.server --mailstore-db appshak_state/substrate/mailstore.db
+```
+
 ## Run Chambers
 
 ```bash
