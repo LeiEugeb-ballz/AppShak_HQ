@@ -1,1 +1,35 @@
-﻿{"updated_at": null, "errors": [], "agent_namespaces": {}, "kernel_state": {}, "external_pipeline": {}}
+{
+  "updated_at": "2026-02-25T21:08:03Z",
+  "errors": [],
+  "agent_namespaces": {},
+  "kernel_state": {
+    "phase": "phase3_observability_backend",
+    "last_progress_checkpoint": {
+      "checkpoint_id": "phase3_observability_2026-02-25",
+      "timestamp_utc": "2026-02-25T21:08:03Z",
+      "branch_head": "6a99aa7",
+      "implemented_commit": "6333fe7",
+      "objective": "Read-only FastAPI observability backend with REST snapshot and WebSocket event streaming.",
+      "verification_summary": {
+        "targeted_observability_tests_passed": true,
+        "full_unittest_suite_passed": true,
+        "swarm_300s_run_completed": true,
+        "snapshot_endpoint_responding": true,
+        "websocket_stream_responding": true
+      },
+      "websocket_channels_confirmed": [
+        "worker_status_updates",
+        "restart_events",
+        "queue_depth",
+        "plugin_events",
+        "intent_dispatch_events",
+        "tool_execution_logs"
+      ],
+      "notes": [
+        "Standalone observability mode reports running=false because it is attached to durable bus state, not a live in-process kernel loop.",
+        "All checks were executed locally against appshak_state/substrate/mailstore.db."
+      ]
+    }
+  },
+  "external_pipeline": {}
+}

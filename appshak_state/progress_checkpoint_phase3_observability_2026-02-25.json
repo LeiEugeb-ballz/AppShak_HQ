@@ -1,0 +1,33 @@
+{
+  "checkpoint_id": "phase3_observability_2026-02-25",
+  "timestamp_utc": "2026-02-25T21:08:03Z",
+  "repo": "AppShak_HQ",
+  "branch_head": "6a99aa7",
+  "implemented_commit": "6333fe7",
+  "scope": "PHASE 3 observability backend",
+  "what_was_completed": [
+    "Added appshak_observability module with server.py, broadcaster.py, and models.py.",
+    "Exposed GET /api/snapshot using StateView.snapshot() contract only.",
+    "Exposed WS /ws/events with async event fanout from durable/read-only sources.",
+    "Added tests for snapshot schema and event streaming behavior."
+  ],
+  "runtime_validation": {
+    "swarm_command": "python -m appshak_substrate.run_swarm --agents recon forge command --durable --worktrees --duration-seconds 300",
+    "observability_command": "python -m appshak_observability.server --mailstore-db appshak_state/substrate/mailstore.db --port 8000",
+    "snapshot_endpoint_ok": true,
+    "websocket_stream_ok": true,
+    "swarm_300s_completed": true
+  },
+  "channels_confirmed": [
+    "worker_status_updates",
+    "restart_events",
+    "queue_depth",
+    "plugin_events",
+    "intent_dispatch_events",
+    "tool_execution_logs"
+  ],
+  "notes": [
+    "In standalone observability mode, snapshot.running can be false while queue depth and event stream remain active.",
+    "Checkpoint recorded per user request to preserve current state/progress."
+  ]
+}
