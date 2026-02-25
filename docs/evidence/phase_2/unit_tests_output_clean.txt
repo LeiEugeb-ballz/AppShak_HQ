@@ -1,0 +1,16 @@
+test_non_zero_dispatch_and_intent_store_file_created_when_queue_empty (test_intent_engine_plugin.TestIntentEnginePlugin.test_non_zero_dispatch_and_intent_store_file_created_when_queue_empty) ... ok
+test_proposal_gate_emits_invalid_when_declared_intents_missing (test_intent_engine_plugin.TestIntentEnginePlugin.test_proposal_gate_emits_invalid_when_declared_intents_missing) ... ok
+test_vote_modifier_uses_alignment_when_present (test_intent_engine_plugin.TestIntentEnginePlugin.test_vote_modifier_uses_alignment_when_present) ... ok
+test_vote_modifier_uses_point_one_when_alignment_missing (test_intent_engine_plugin.TestIntentEnginePlugin.test_vote_modifier_uses_point_one_when_alignment_missing) ... ok
+test_store_uses_dot_appshak_intents_json (test_intent_engine_plugin.TestIntentStore.test_store_uses_dot_appshak_intents_json) ... ok
+test_intent_engine_plugin_loads (test_kernel_plugins_integration.TestKernelPluginsIntegration.test_intent_engine_plugin_loads) ... ok
+test_missing_plugin_is_recorded_not_raised (test_kernel_plugins_integration.TestKernelPluginsIntegration.test_missing_plugin_is_recorded_not_raised) ... ok
+test_publish_consume_crash_recovery_no_duplicates (test_mailstore_durable.TestMailstoreDurable.test_publish_consume_crash_recovery_no_duplicates) ... ok
+test_loader_returns_errors_without_crashing (test_plugin_loader.TestPluginLoader.test_loader_returns_errors_without_crashing) ... ok
+test_restart_and_complete_routed_events (test_supervisor_workers.TestSupervisorWorkers.test_restart_and_complete_routed_events) ... ok
+test_worktree_creation_and_policy_enforcement (test_tool_gateway_enforcement.TestToolGatewayEnforcement.test_worktree_creation_and_policy_enforcement) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 10.802s
+
+OK

@@ -1,0 +1,13 @@
+test_loader_returns_errors_without_crashing (tests.test_plugin_loader.TestPluginLoader.test_loader_returns_errors_without_crashing) ... ok
+test_non_zero_dispatch_and_intent_store_file_created_when_queue_empty (tests.test_intent_engine_plugin.TestIntentEnginePlugin.test_non_zero_dispatch_and_intent_store_file_created_when_queue_empty) ... ok
+test_proposal_gate_emits_invalid_when_declared_intents_missing (tests.test_intent_engine_plugin.TestIntentEnginePlugin.test_proposal_gate_emits_invalid_when_declared_intents_missing) ... ok
+test_vote_modifier_uses_alignment_when_present (tests.test_intent_engine_plugin.TestIntentEnginePlugin.test_vote_modifier_uses_alignment_when_present) ... ok
+test_vote_modifier_uses_point_one_when_alignment_missing (tests.test_intent_engine_plugin.TestIntentEnginePlugin.test_vote_modifier_uses_point_one_when_alignment_missing) ... ok
+test_store_uses_dot_appshak_intents_json (tests.test_intent_engine_plugin.TestIntentStore.test_store_uses_dot_appshak_intents_json) ... ok
+test_intent_engine_plugin_loads (tests.test_kernel_plugins_integration.TestKernelPluginsIntegration.test_intent_engine_plugin_loads) ... ok
+test_missing_plugin_is_recorded_not_raised (tests.test_kernel_plugins_integration.TestKernelPluginsIntegration.test_missing_plugin_is_recorded_not_raised) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.184s
+
+OK

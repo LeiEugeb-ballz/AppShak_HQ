@@ -1,0 +1,3 @@
+Command: python -m appshak_substrate.run_swarm --agents recon forge command --durable --worktrees --duration-seconds 120
+stdout/stderr: (none)
+exit_code: 0
