@@ -1,0 +1,25 @@
+INFO:     Started server process [15412]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:50298 - "WebSocket /ws/events" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     127.0.0.1:65345 - "WebSocket /ws/events" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     127.0.0.1:65355 - "WebSocket /ws/events" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     127.0.0.1:65373 - "WebSocket /ws/events" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     127.0.0.1:65374 - "WebSocket /ws/events" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     127.0.0.1:65381 - "WebSocket /ws/events" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     127.0.0.1:65382 - "WebSocket /ws/events" [accepted]
+INFO:     connection open
+INFO:     connection closed
