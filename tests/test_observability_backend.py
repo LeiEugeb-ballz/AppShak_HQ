@@ -8,11 +8,13 @@ from types import SimpleNamespace
 
 from appshak.event_bus import EventBus
 from appshak.plugins.runtime import KernelStateView
+from appshak_projection.view_store import ProjectionViewStore
 from appshak_observability.broadcaster import ObservabilityBroadcaster
 from appshak_observability.models import (
     CHANNEL_INTENT_DISPATCH_EVENTS,
     CHANNEL_RESTART_EVENTS,
     CHANNEL_TOOL_EXECUTION_LOGS,
+    CHANNEL_VIEW_UPDATE,
     SnapshotResponse,
 )
 from appshak_observability.server import create_app
@@ -38,18 +40,34 @@ class _FakeStateView:
 
 class TestObservabilitySnapshotEndpoint(unittest.TestCase):
     def test_snapshot_endpoint_uses_stable_contract(self) -> None:
-        app = create_app(
-            state_view=_FakeStateView(),
-            snapshot_poll_interval=60.0,
-            durable_poll_interval=60.0,
-        )
-        routes = [route for route in app.routes if getattr(route, "path", "") == "/api/snapshot"]
-        self.assertEqual(len(routes), 1)
-        payload = _model_to_dict(asyncio.run(routes[0].endpoint()))
-        self.assertEqual(sorted(payload.keys()), ["current_event", "event_queue_size", "running", "timestamp"])
-        self.assertTrue(payload["running"])
-        self.assertEqual(payload["event_queue_size"], 7)
-        self.assertEqual(payload["current_event"]["type"], "AGENT_STATUS")
+        with tempfile.TemporaryDirectory(prefix="appshak_observability_snapshot_") as temp_dir:
+            projection_store = ProjectionViewStore(Path(temp_dir) / "view.json")
+            projection_store.save(
+                {
+                    "running": True,
+                    "event_queue_size": 7,
+                    "current_event": {
+                        "type": "AGENT_STATUS",
+                        "timestamp": "2026-02-25T00:00:00+00:00",
+                        "origin_id": "recon",
+                        "payload": {"status": "ok"},
+                    },
+                    "timestamp": "2026-02-25T00:00:01+00:00",
+                }
+            )
+            app = create_app(
+                state_view=_FakeStateView(),
+                projection_view_store=projection_store,
+                snapshot_poll_interval=60.0,
+                durable_poll_interval=60.0,
+            )
+            routes = [route for route in app.routes if getattr(route, "path", "") == "/api/snapshot"]
+            self.assertEqual(len(routes), 1)
+            payload = _model_to_dict(asyncio.run(routes[0].endpoint()))
+            self.assertEqual(sorted(payload.keys()), ["current_event", "event_queue_size", "running", "timestamp"])
+            self.assertTrue(payload["running"])
+            self.assertEqual(payload["event_queue_size"], 7)
+            self.assertEqual(payload["current_event"]["type"], "AGENT_STATUS")
 
     def test_snapshot_model_normalizes_invalid_payload(self) -> None:
         normalized = SnapshotResponse.from_snapshot(
@@ -146,6 +164,49 @@ class TestObservabilityBroadcaster(unittest.IsolatedAsyncioTestCase):
             finally:
                 broadcaster.unsubscribe(queue)
                 await broadcaster.stop()
+
+    async def test_streams_view_update_when_projection_changes(self) -> None:
+        class _MutableProjectionStore:
+            def __init__(self) -> None:
+                self.view = {
+                    "running": False,
+                    "event_queue_size": 0,
+                    "timestamp": "2026-02-25T00:00:01+00:00",
+                    "last_seen_event_id": 0,
+                    "last_seen_tool_audit_id": 0,
+                }
+
+            def load(self) -> dict:
+                return dict(self.view)
+
+        projection_store = _MutableProjectionStore()
+        bus = EventBus()
+        kernel = SimpleNamespace(running=True, event_bus=bus)
+        state_view = KernelStateView(kernel)
+        broadcaster = ObservabilityBroadcaster(
+            state_view=state_view,
+            event_bus=bus,
+            projection_view_store=projection_store,
+            snapshot_poll_interval=0.05,
+            durable_poll_interval=60.0,
+        )
+        await broadcaster.start()
+        queue = broadcaster.subscribe()
+        try:
+            await self._wait_for_channel(queue, CHANNEL_VIEW_UPDATE, timeout=2.0)
+            projection_store.view = {
+                "running": True,
+                "event_queue_size": 1,
+                "timestamp": "2026-02-25T00:00:02+00:00",
+                "last_seen_event_id": 1,
+                "last_seen_tool_audit_id": 0,
+            }
+            updated = await self._wait_for_channel(queue, CHANNEL_VIEW_UPDATE, timeout=2.0)
+            self.assertEqual(updated.channel, CHANNEL_VIEW_UPDATE)
+            self.assertEqual(updated.data["view"]["last_seen_event_id"], 1)
+        finally:
+            broadcaster.unsubscribe(queue)
+            await broadcaster.stop()
 
     async def _wait_for_channel(
         self,

@@ -10,6 +10,7 @@ from .models import (
     CHANNEL_QUEUE_DEPTH,
     CHANNEL_RESTART_EVENTS,
     CHANNEL_TOOL_EXECUTION_LOGS,
+    CHANNEL_VIEW_UPDATE,
     CHANNEL_WORKER_STATUS_UPDATES,
     SnapshotResponse,
     StreamEnvelope,
@@ -61,12 +62,14 @@ class ObservabilityBroadcaster:
         *,
         state_view: Any,
         event_bus: Optional[Any] = None,
+        projection_view_store: Optional[Any] = None,
         snapshot_poll_interval: float = 1.0,
         durable_poll_interval: float = 1.0,
         ingress_queue_size: int = 1024,
         subscriber_queue_size: int = 256,
     ) -> None:
         self._state_view = state_view
+        self._projection_view_store = projection_view_store
         self._event_bus = event_bus if event_bus is not None else self._resolve_event_bus(state_view)
         self._mail_store = getattr(self._event_bus, "mail_store", None) if self._event_bus is not None else None
         self._snapshot_poll_interval = max(0.1, float(snapshot_poll_interval))
@@ -78,6 +81,7 @@ class ObservabilityBroadcaster:
         self._running = False
         self._hook_registered = False
         self._last_queue_depth: Optional[int] = None
+        self._last_view_fingerprint: Optional[Tuple[int, int, str]] = None
         self._seen_order: deque[str] = deque(maxlen=5000)
         self._seen_lookup: Set[str] = set()
 
@@ -130,7 +134,8 @@ class ObservabilityBroadcaster:
     async def _snapshot_poll_loop(self) -> None:
         while self._running:
             try:
-                snapshot = SnapshotResponse.from_snapshot(self._state_view.snapshot())
+                raw_snapshot = await self._load_snapshot()
+                snapshot = SnapshotResponse.from_snapshot(raw_snapshot)
                 queue_depth = int(snapshot.event_queue_size)
                 if self._last_queue_depth != queue_depth:
                     self._last_queue_depth = queue_depth
@@ -145,11 +150,37 @@ class ObservabilityBroadcaster:
                             },
                         )
                     )
+                if self._projection_view_store is not None:
+                    view_payload = coerce_event_dict(raw_snapshot)
+                    view_fingerprint = self._view_fingerprint(view_payload)
+                    if self._last_view_fingerprint != view_fingerprint:
+                        self._last_view_fingerprint = view_fingerprint
+                        self._enqueue_ingress(
+                            StreamEnvelope.build(
+                                channel=CHANNEL_VIEW_UPDATE,
+                                source="projection_view",
+                                timestamp=view_payload.get("timestamp"),
+                                data={"view": view_payload},
+                            )
+                        )
             except asyncio.CancelledError:
                 raise
             except Exception:
                 pass
             await asyncio.sleep(self._snapshot_poll_interval)
+
+    async def _load_snapshot(self) -> Dict[str, Any]:
+        if self._projection_view_store is not None:
+            load = getattr(self._projection_view_store, "load", None)
+            if callable(load):
+                raw = await asyncio.to_thread(load)
+                return coerce_event_dict(raw)
+        if self._state_view is None:
+            return {}
+        snapshot = getattr(self._state_view, "snapshot", None)
+        if callable(snapshot):
+            return coerce_event_dict(snapshot())
+        return {}
 
     async def _durable_poll_loop(self) -> None:
         if self._mail_store is None:
@@ -338,4 +369,23 @@ class ObservabilityBroadcaster:
         return all(
             callable(getattr(self._mail_store, attr, None))
             for attr in ("list_events", "list_tool_audit")
+        )
+
+    @staticmethod
+    def _view_fingerprint(payload: Mapping[str, Any]) -> Tuple[int, int, str]:
+        last_seen_event_id = payload.get("last_seen_event_id")
+        last_seen_tool_audit_id = payload.get("last_seen_tool_audit_id")
+        timestamp = payload.get("timestamp")
+        try:
+            event_id = int(last_seen_event_id)
+        except Exception:
+            event_id = 0
+        try:
+            audit_id = int(last_seen_tool_audit_id)
+        except Exception:
+            audit_id = 0
+        return (
+            event_id,
+            audit_id,
+            str(timestamp) if isinstance(timestamp, str) else "",
         )
