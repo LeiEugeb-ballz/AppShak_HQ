@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 CHANNEL_WORKER_STATUS_UPDATES = "worker_status_updates"
 CHANNEL_RESTART_EVENTS = "restart_events"
 CHANNEL_QUEUE_DEPTH = "queue_depth"
+CHANNEL_VIEW_UPDATE = "view_update"
 CHANNEL_PLUGIN_EVENTS = "plugin_events"
 CHANNEL_INTENT_DISPATCH_EVENTS = "intent_dispatch_events"
 CHANNEL_TOOL_EXECUTION_LOGS = "tool_execution_logs"

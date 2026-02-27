@@ -8,6 +8,7 @@ from typing import Any, Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 from appshak.plugins.runtime import KernelStateView
+from appshak_projection.view_store import ProjectionViewStore
 from appshak_substrate.bus_adapter import DurableEventBus
 from appshak_substrate.mailstore_sqlite import SQLiteMailStore
 
@@ -26,15 +27,18 @@ class _KernelProxy:
 def create_app(
     *,
     state_view: Any,
+    projection_view_store: Optional[ProjectionViewStore] = None,
     event_bus: Optional[Any] = None,
     broadcaster: Optional[ObservabilityBroadcaster] = None,
     snapshot_poll_interval: float = 1.0,
     durable_poll_interval: float = 1.0,
 ) -> FastAPI:
     resolved_event_bus = event_bus if event_bus is not None else _extract_event_bus(state_view)
+    resolved_projection_store = projection_view_store or ProjectionViewStore()
     stream_bridge = broadcaster or ObservabilityBroadcaster(
         state_view=state_view,
         event_bus=resolved_event_bus,
+        projection_view_store=resolved_projection_store,
         snapshot_poll_interval=snapshot_poll_interval,
         durable_poll_interval=durable_poll_interval,
     )
@@ -54,11 +58,12 @@ def create_app(
         lifespan=_lifespan,
     )
     app.state.state_view = state_view
+    app.state.projection_view_store = resolved_projection_store
     app.state.broadcaster = stream_bridge
 
     @app.get("/api/snapshot", response_model=SnapshotResponse)
     async def snapshot() -> SnapshotResponse:
-        return SnapshotResponse.from_snapshot(state_view.snapshot())
+        return SnapshotResponse.from_snapshot(resolved_projection_store.load())
 
     @app.websocket("/ws/events")
     async def ws_events(websocket: WebSocket) -> None:
@@ -79,6 +84,7 @@ def create_app(
 def build_standalone_app(
     *,
     mailstore_db: str | Path,
+    projection_view_path: str | Path = "appshak_state/projection/view.json",
     snapshot_poll_interval: float = 1.0,
     durable_poll_interval: float = 1.0,
 ) -> FastAPI:
@@ -90,8 +96,10 @@ def build_standalone_app(
     )
     kernel_proxy = _KernelProxy(event_bus=event_bus, running=False)
     state_view = KernelStateView(kernel_proxy)
+    projection_store = ProjectionViewStore(projection_view_path)
     return create_app(
         state_view=state_view,
+        projection_view_store=projection_store,
         event_bus=event_bus,
         snapshot_poll_interval=snapshot_poll_interval,
         durable_poll_interval=durable_poll_interval,
@@ -118,6 +126,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--host", type=str, default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8010)
     parser.add_argument("--mailstore-db", type=str, default="appshak_state/substrate/mailstore.db")
+    parser.add_argument("--projection-view", type=str, default="appshak_state/projection/view.json")
     parser.add_argument("--snapshot-poll-interval", type=float, default=1.0)
     parser.add_argument("--durable-poll-interval", type=float, default=1.0)
     parser.add_argument("--log-level", type=str, default="info")
@@ -129,6 +138,7 @@ def main() -> None:
     args = parser.parse_args()
     app = build_standalone_app(
         mailstore_db=args.mailstore_db,
+        projection_view_path=args.projection_view,
         snapshot_poll_interval=args.snapshot_poll_interval,
         durable_poll_interval=args.durable_poll_interval,
     )
