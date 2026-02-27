@@ -1,34 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { EventConsole } from './components/EventConsole'
+import { StatusPanel } from './components/StatusPanel'
+import { useEventStream } from './hooks/useEventStream'
+import { useSnapshot } from './hooks/useSnapshot'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { snapshot, isOnline, error: snapshotError, lastUpdated } = useSnapshot()
+  const {
+    events,
+    connectionState,
+    error: streamError,
+    lastEventAt,
+  } = useEventStream()
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <main className="dashboard">
+      <header className="dashboard__header">
+        <h1>AppShak Observability</h1>
+        <p>Backend: http://127.0.0.1:8010</p>
+      </header>
+      <div className="dashboard__grid">
+        <StatusPanel
+          snapshot={snapshot}
+          isOnline={isOnline}
+          error={snapshotError}
+          lastUpdated={lastUpdated}
+        />
+        <EventConsole
+          events={events}
+          connectionState={connectionState}
+          error={streamError}
+          lastEventAt={lastEventAt}
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </main>
   )
 }
 

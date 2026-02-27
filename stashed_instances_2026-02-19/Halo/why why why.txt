@@ -1,0 +1,54 @@
+why why why:
+
+
+PROBLEMS = [
+    {"domain": "e-commerce", "problem": "Cart abandonment rate at 72%", "severity": "high", "opportunity_value": 0.85},
+    {"domain": "healthcare", "problem": "Patient wait-time tracking is manual", "severity": "medium", "opportunity_value": 0.7},
+    {"domain": "logistics", "problem": "Last-mile delivery cost optimization needed", "severity": "high", "opportunity_value": 0.9},
+    {"domain": "education", "problem": "Student engagement drops after 15 min in online lectures", "severity": "medium", "opportunity_value": 0.65},
+    {"domain": "fintech", "problem": "KYC onboarding takes 3+ days average", "severity": "high", "opportunity_value": 0.88},
+    {"domain": "agriculture", "problem": "Crop disease detection relies on visual inspection", "severity": "medium", "opportunity_value": 0.72},
+    {"domain": "real-estate", "problem": "Property valuation models are outdated by 6 months", "severity": "low", "opportunity_value": 0.5},
+    {"domain": "energy", "problem": "Solar panel output prediction accuracy is 68%", "severity": "high", "opportunity_value": 0.82},
+    {"domain": "retail", "problem": "Inventory forecasting error rate at 23%", "severity": "medium", "opportunity_value": 0.68},
+    {"domain": "transport", "problem": "Fleet route optimization saves only 8% fuel", "severity": "high", "opportunity_value": 0.78},
+    {"domain": "manufacturing", "problem": "Predictive maintenance false positive rate at 35%", "severity": "high", "opportunity_value": 0.8},
+    {"domain": "insurance", "problem": "Claims processing takes 14 days average", "severity": "medium", "opportunity_value": 0.75},
+]
+
+
+History Features:
+
+Press h to open the History panel
+3 Tabs to filter:
+Boardroom - only Boardroom discussions
+Water Cooler - only water cooler chats
+All Events - everything
+Click any event to see full conversation details
+Back button to return to timeline
+Stores up to 500 events for replay
+Keyboard Shortcuts:
+
+i - Inbox (approvals)
+h - History
+u - User location
+m - Meeting modal
+ESC - Close panels
+The history records all events (Boardroom, Water Cooler, Proposals, etc.) so you can go back and review any conversation that happened.
+
+Run the server again with:
+
+uvicorn appshak_office.server:app --host 0.0.0.0 --port 8001
+Then access http://localhost:8001 and press h to see the full history.
+
+
+
+Proposals - When Builder creates a proposal, it goes to inbox - OK, THEN IF I APPROVE, CHIEF DRIVE IT TO COMPLETE. DELIGATING TASKS AND DEPLOYENT
+External Actions - Any action that calls external APIs requires approval - ALL ETERNAL INSTANES, CALLS, MSGS, PINGS, EVERYTHING..
+Domains - Can pause all domain scanning, LIST OF PAUSE, PER AGENT, AND MASTER PAUSE
+
+UI  - LOOKSS GOOD, IDIDNT SEE MOVEMENT WHEN BAORDROOM NEEDED TO BE HELD, ISSUE SOME DELAY ON TRASNITIOS, LIKE CHANGE TO BAORDROOM, WATER DESK.
+
+also, MY BLOCCK, ME....STATION IN CORENER OFFICE...AGENTS ARE ABLE TO REQUEST ACESSS TO ME AT ANY TIME.. PUT BAORDROOM, IN MIDDLE, AND WATER COOLER AGAINST WALL
+
+IF AGENT DECIDES TO GO TO WATE COOLER, INITIATE A LONG DELAY TO MAKE THE GUI AGENT MOVE THERE AS IF WALKING...WHEN AT COOLER, DELAY MESSAGES, FOR HUMAN ONVERSATIN EFFET, THE CAN WALK BACK, SAME WITH BAORDROOM. I WANT A HEADLESS OPTION FOR MEE=Y CLOCK, WHEN ENABLED, OR CLIKED, I CAN USE MY KEYBAORD TO MOVE IT AROUND AND WHEN I TOUCH AN AGENT, OR ANOTHER BLOK, FULL DETAILS TO BE SHOWN, LIKE A SUYMMARY OF THAT ENTITY. EG: IF I TOUH SCOUT - LITTLE SUMMARY WINDOW APPEARS WITH AL STATS, WITH AGENT COMMUNITION CHANNEL, SO I CAN SAY HI AND AND TALK TO AGENT....EG: IF I TOUCH COOLER, ALL HISTORY TO POP UP, MOST REENT FIRST ETC

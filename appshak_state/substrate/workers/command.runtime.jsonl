@@ -50,3 +50,14 @@
 {"status": "processed", "event_id": 355, "event_type": "WORKER_STARTED", "agent_id": "command"}
 {"status": "processed", "event_id": 356, "event_type": "WORKER_STARTED", "agent_id": "command"}
 {"status": "processed", "event_id": 357, "event_type": "WORKER_STARTED", "agent_id": "command"}
+{"status": "processed", "event_id": 535, "event_type": "WORKER_EXITED", "agent_id": "command"}
+{"status": "processed", "event_id": 536, "event_type": "WORKER_EXITED", "agent_id": "command"}
+{"status": "processed", "event_id": 537, "event_type": "WORKER_EXITED", "agent_id": "command"}
+{"status": "processed", "event_id": 536, "event_type": "WORKER_EXITED", "agent_id": "command"}
+{"status": "processed", "event_id": 540, "event_type": "WORKER_STARTED", "agent_id": "command"}
+{"status": "processed", "event_id": 541, "event_type": "WORKER_STARTED", "agent_id": "command"}
+{"status": "processed", "event_id": 542, "event_type": "WORKER_STARTED", "agent_id": "command"}
+{"status": "processed", "event_id": 543, "event_type": "WORKER_HEARTBEAT_MISSED", "agent_id": "command"}
+{"status": "processed", "event_id": 544, "event_type": "WORKER_EXITED", "agent_id": "command"}
+{"status": "processed", "event_id": 545, "event_type": "WORKER_RESTART_SCHEDULED", "agent_id": "command"}
+{"status": "processed", "event_id": 546, "event_type": "WORKER_RESTARTED", "agent_id": "command"}
