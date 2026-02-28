@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 
-const EVENTS_URL = 'ws://127.0.0.1:8010/ws/events'
+function resolveEventsUrl() {
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${wsProtocol}//${window.location.host}/ws/events`
+}
+
+const EVENTS_URL = resolveEventsUrl()
 const RECONNECT_DELAY_MS = 2000
 const MAX_EVENTS = 200
 

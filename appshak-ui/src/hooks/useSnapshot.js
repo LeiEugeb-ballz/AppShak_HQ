@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const SNAPSHOT_URL = 'http://127.0.0.1:8010/api/snapshot'
+const SNAPSHOT_URL = '/api/snapshot'
 const POLL_INTERVAL_MS = 2000
 
 function normalizeSnapshot(raw) {

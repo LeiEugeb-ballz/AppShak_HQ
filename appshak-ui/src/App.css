@@ -4,6 +4,10 @@
 }
 
 .dashboard__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
@@ -17,6 +21,36 @@
   margin: 0.35rem 0 0;
   color: #9ea8be;
   font-size: 0.92rem;
+}
+
+.dashboard__nav {
+  display: inline-flex;
+  gap: 0.45rem;
+  padding: 0.2rem;
+  border-radius: 10px;
+  border: 1px solid #2c394b;
+  background: #101720;
+}
+
+.dashboard__nav-link {
+  color: #aebad1;
+  text-decoration: none;
+  font-size: 0.84rem;
+  padding: 0.38rem 0.74rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.dashboard__nav-link:hover {
+  border-color: #3a4961;
+  color: #e5edff;
+}
+
+.dashboard__nav-link--active {
+  border-color: #4b6a92;
+  background: #1a2a3f;
+  color: #f3f8ff;
 }
 
 .dashboard__grid {
@@ -178,7 +212,92 @@
   border-color: #505a6b;
 }
 
+.office-view {
+  display: grid;
+  gap: 1rem;
+}
+
+.office-view__meta {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.office-view__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  color: #b7c5df;
+  font-size: 0.8rem;
+}
+
+.office-view__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.1rem;
+  color: #c9d6ec;
+  font-size: 0.83rem;
+}
+
+.office-view__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.office-view__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.office-view__dot--green {
+  background: #3ad98a;
+}
+
+.office-view__dot--red {
+  background: #e45c6c;
+}
+
+.office-view__dot--blue {
+  background: #5f9dff;
+}
+
+.office-view__error {
+  color: #e1a5af;
+  font-size: 0.78rem;
+}
+
+.office-view__canvas-shell {
+  position: relative;
+  border: 1px solid #2a3447;
+  border-radius: 14px;
+  background: #070c12;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(109, 134, 168, 0.15);
+}
+
+.office-view__canvas {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  min-height: 440px;
+}
+
 @media (max-width: 960px) {
+  .dashboard__header {
+    flex-direction: column;
+  }
+
+  .dashboard__nav {
+    width: 100%;
+  }
+
+  .dashboard__nav-link {
+    flex: 1;
+    text-align: center;
+  }
+
   .dashboard__grid {
     grid-template-columns: 1fr;
   }
@@ -189,5 +308,10 @@
 
   .event-row__head {
     grid-template-columns: 1fr;
+  }
+
+  .office-view__canvas {
+    height: 58vh;
+    min-height: 360px;
   }
 }
