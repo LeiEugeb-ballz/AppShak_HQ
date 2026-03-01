@@ -26,7 +26,7 @@ python -m appshak_substrate.run_swarm --agents recon forge command --durable --w
 ## Phase 3.1 - Observability Backend
 
 ```bash
-python -m appshak_observability.server --mailstore-db appshak_state/substrate/mailstore.db
+python -m appshak_observability.server --host 127.0.0.1 --port 8010 --mailstore-db appshak_state/substrate/mailstore.db
 ```
 
 ## Phase 3.4 - Projection Semantic Enrichment
@@ -63,6 +63,106 @@ UI data sources:
 - `ws://127.0.0.1:8010/ws/events`
 
 For local dev with Vite proxy, `/api/*` and `/ws/*` are forwarded to `127.0.0.1:8010`.
+
+## Phase 3 End-to-End Startup
+
+Run each service in a separate terminal from repo root.
+
+1. Swarm runtime:
+
+```bash
+python -m appshak_substrate.run_swarm --agents recon forge command --durable --worktrees --duration-seconds 60
+```
+
+2. Projection materializer:
+
+```bash
+python -m appshak_projection.run_projector --mailstore-db appshak_state/substrate/mailstore.db --view-path appshak_state/projection/view.json --poll-interval 1
+```
+
+3. Observability backend:
+
+```bash
+python -m appshak_observability.server --host 127.0.0.1 --port 8010 --mailstore-db appshak_state/substrate/mailstore.db
+```
+
+4. UI:
+
+```bash
+cd appshak-ui
+npm install
+npm run dev
+```
+
+5. Open:
+
+- `http://localhost:5173/#/summary`
+- `http://localhost:5173/#/office`
+
+## Ports
+
+- Observability backend: `127.0.0.1:8010`
+- UI dev server (Vite): `localhost:5173`
+- UI proxy routes: `/api/*`, `/ws/*` -> `127.0.0.1:8010`
+
+## Required Directories
+
+- `appshak_state/substrate/` (durable runtime files)
+- `appshak_state/projection/` (projection view store)
+- `workspaces/` (when using `--worktrees`)
+
+## Snapshot Contract Sample
+
+`GET /api/snapshot` returns projection view JSON.
+
+```json
+{
+  "schema_version": 1,
+  "timestamp": "2026-03-01T10:58:27.390399+00:00",
+  "last_updated_at": "2026-03-01T10:58:27.390399+00:00",
+  "running": true,
+  "event_queue_size": 21,
+  "current_event": {
+    "type": "SUPERVISOR_HEARTBEAT",
+    "origin_id": "supervisor",
+    "timestamp": "2026-03-01T10:58:24.908754+00:00"
+  },
+  "event_type_counts": {
+    "SUPERVISOR_START": 9,
+    "SUPERVISOR_STOP": 7
+  },
+  "tool_audit_counts": {
+    "allowed": 1,
+    "denied": 0
+  },
+  "workers": {
+    "command": {
+      "present": true,
+      "state": "ACTIVE",
+      "last_event_type": "SUPERVISOR_HEARTBEAT",
+      "last_event_at": "2026-03-01T10:58:24.908754+00:00",
+      "restart_count": 7,
+      "missed_heartbeat_count": 7,
+      "last_seen_event_id": 872
+    }
+  },
+  "derived": {
+    "office_mode": "RUNNING",
+    "stress_level": 0.84
+  }
+}
+```
+
+## Troubleshooting
+
+- `ECONNREFUSED 127.0.0.1:8010` from Vite:
+  Observability backend is not running or wrong port. Start backend on `8010`.
+- `stream: disconnected` or `SIGNAL LOST` in Office View:
+  Ensure both projector and observability backend are running.
+- Snapshot appears stale:
+  Check projector process and confirm `appshak_state/projection/view.json` timestamp is advancing.
+- Worktree errors in swarm startup:
+  Ensure repo root has `workspaces/` writable and run with `--worktrees`.
 
 ## Chambers
 
