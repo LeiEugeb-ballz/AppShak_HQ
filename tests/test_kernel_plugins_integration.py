@@ -45,6 +45,12 @@ class TestKernelPluginsIntegration(unittest.IsolatedAsyncioTestCase):
 
             self.assertEqual(len(kernel.plugin_load_errors), 0)
             self.assertGreaterEqual(len(kernel.plugins), 1)
+            intent_plugin = next(
+                (plugin for plugin in kernel.plugins if getattr(plugin, "name", "") == "intent_engine"),
+                None,
+            )
+            self.assertIsNotNone(intent_plugin)
+            self.assertEqual(intent_plugin.intent_store.path, intent_store)
 
             runner = asyncio.create_task(kernel.start())
             await asyncio.sleep(0.05)
@@ -53,6 +59,7 @@ class TestKernelPluginsIntegration(unittest.IsolatedAsyncioTestCase):
                 runner.cancel()
                 await asyncio.gather(runner, return_exceptions=True)
 
+            intent_plugin.intent_store.load_intents()
             self.assertTrue(intent_store.exists())
 
 
