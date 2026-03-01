@@ -42,6 +42,43 @@ Projection view now includes:
 - `workers`: per-worker semantic state (`present`, `state`, `last_event_type`, `last_event_at`, `restart_count`, `missed_heartbeat_count`, `last_seen_event_id`)
 - `derived`: computed office metadata (`office_mode`, `stress_level`)
 
+## Phase 3.5-3.9 - Governance Cognition Formalization
+
+`appshak_governance/` is projection-driven and deterministic. It does not import substrate, supervisor, or SQLite.
+
+Implemented governance components:
+
+- Agent Registry: `agent_id`, `role`, `authority_level`, `reputation_score`, `trust_weights`, `version`, `last_updated`
+- Relationship Weight Engine:
+  - deterministic success increase
+  - deterministic failure decay
+  - escalation penalty
+  - bounded trust/reputation values
+  - fixed authority scaling bands
+- Boardroom Arbitration:
+  - `decision_score = reasoning_score * authority_level * trust_weight`
+  - static threshold constant: `0.35`
+- Water Cooler Propagation:
+  - deterministic idle trigger (`office_mode == PAUSED` and `stress_level <= 0.2`)
+  - structured lesson schema
+  - registry lesson injection + propagation metric
+- Trust Stability Metric:
+  - rolling variance window (`size=5`)
+  - logged only (not used as control input)
+- Governance Audit Ledger:
+  - immutable append-only log
+  - trust changes, arbitration outcomes, registry updates, stability snapshots
+  - full registry reconstruction + hash-chain validation
+- Deterministic Replay Harness:
+  - replay sequence hash equality
+  - zero tolerance for variance
+
+Run governance tests:
+
+```bash
+python -m unittest tests.test_governance_layer -v
+```
+
 ## Phase 3.2/3.3 - Observability UI (Summary + Office View)
 
 From the repo root:
