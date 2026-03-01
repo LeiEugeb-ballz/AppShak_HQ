@@ -42,6 +42,21 @@ Projection view now includes:
 - `workers`: per-worker semantic state (`present`, `state`, `last_event_type`, `last_event_at`, `restart_count`, `missed_heartbeat_count`, `last_seen_event_id`)
 - `derived`: computed office metadata (`office_mode`, `stress_level`)
 
+## Phase 3.5 - Governance Formalization Layer
+
+Governance logic now lives in `appshak_governance/` and is projection-driven only.
+
+- `AgentRegistry`: versioned agent state (`agent_id`, `role`, `authority_level`, `trust_weights`, `reputation_score`)
+- `RelationshipWeightEngine`: deterministic trust/reputation updates from observable outcomes
+- `BoardroomArbitrator`: weighted consensus with `decision_score = reasoning_score * authority_level * trust_weight`
+- `TrustStabilityMetric`: trust variance over version history
+
+Run governance tests:
+
+```bash
+python -m unittest tests.test_governance_layer -v
+```
+
 ## Phase 3.2/3.3 - Observability UI (Summary + Office View)
 
 From the repo root:
