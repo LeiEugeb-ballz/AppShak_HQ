@@ -100,10 +100,24 @@ export class OfficeAnimator {
 
     this.prevView = null
     if (initialView) {
-      this.ingestView(initialView)
-      this.queue = []
-      this.activeAction = null
+      this.resetToView(initialView)
     }
+  }
+
+  resetToView(rawView) {
+    const next = normalizeIncomingView(rawView)
+    this.prevView = next
+    this.queue = []
+    this.activeAction = null
+    this.pulses = []
+    this.state.targetStress = queueToStress(next.eventQueueSize)
+    this.state.stressLevel = this.state.targetStress
+    this.state.targetLight = next.running ? 0.78 : 0.36
+    this.state.lightLevel = this.state.targetLight
+    this.state.ambientPulse = 0
+    const supervisorTarget = zonePoint(next.running ? 'supervisorDesk' : 'supervisorIdle')
+    this.avatars.supervisor.x = supervisorTarget.x
+    this.avatars.supervisor.y = supervisorTarget.y
   }
 
   ingestView(rawView) {

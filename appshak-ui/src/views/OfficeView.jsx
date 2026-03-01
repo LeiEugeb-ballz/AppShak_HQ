@@ -80,10 +80,18 @@ export function OfficeView() {
     const onResize = () => {
       renderer.resize()
     }
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') {
+        return
+      }
+      animatorRef.current?.resetToView(latestRef.current.view)
+    }
     window.addEventListener('resize', onResize)
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
       window.removeEventListener('resize', onResize)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       window.cancelAnimationFrame(frameRef.current)
       renderer.destroy()
     }
