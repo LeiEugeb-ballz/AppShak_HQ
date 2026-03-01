@@ -3,25 +3,23 @@ from __future__ import annotations
 import argparse
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
-from appshak.plugins.runtime import KernelStateView
 from appshak_projection.view_store import ProjectionViewStore
-from appshak_substrate.bus_adapter import DurableEventBus
-from appshak_substrate.mailstore_sqlite import SQLiteMailStore
 
 from .broadcaster import ObservabilityBroadcaster
-from .models import SnapshotResponse
 
 
-class _KernelProxy:
-    """Minimal kernel-shaped adapter for standalone observability runtime."""
+class _ProjectionStateView:
+    """Minimal state-view facade backed by the projection store."""
 
-    def __init__(self, *, event_bus: Any, running: bool = False) -> None:
-        self.event_bus = event_bus
-        self.running = bool(running)
+    def __init__(self, projection_store: ProjectionViewStore) -> None:
+        self._projection_store = projection_store
+
+    def snapshot(self) -> Dict[str, Any]:
+        return dict(self._projection_store.load())
 
 
 def create_app(
@@ -33,11 +31,11 @@ def create_app(
     snapshot_poll_interval: float = 1.0,
     durable_poll_interval: float = 1.0,
 ) -> FastAPI:
-    resolved_event_bus = event_bus if event_bus is not None else _extract_event_bus(state_view)
+    del event_bus  # Observability is projection-first; websocket emits projection updates only.
     resolved_projection_store = projection_view_store or ProjectionViewStore()
     stream_bridge = broadcaster or ObservabilityBroadcaster(
         state_view=state_view,
-        event_bus=resolved_event_bus,
+        event_bus=None,
         projection_view_store=resolved_projection_store,
         snapshot_poll_interval=snapshot_poll_interval,
         durable_poll_interval=durable_poll_interval,
@@ -53,7 +51,7 @@ def create_app(
 
     app = FastAPI(
         title="AppShak Observability Backend",
-        description="Read-only backend for kernel snapshot and live event telemetry.",
+        description="Read-only backend for projection snapshot and view update stream.",
         version="3.0.0",
         lifespan=_lifespan,
     )
@@ -61,9 +59,9 @@ def create_app(
     app.state.projection_view_store = resolved_projection_store
     app.state.broadcaster = stream_bridge
 
-    @app.get("/api/snapshot", response_model=SnapshotResponse)
-    async def snapshot() -> SnapshotResponse:
-        return SnapshotResponse.from_snapshot(resolved_projection_store.load())
+    @app.get("/api/snapshot")
+    async def snapshot() -> Dict[str, Any]:
+        return dict(resolved_projection_store.load())
 
     @app.websocket("/ws/events")
     async def ws_events(websocket: WebSocket) -> None:
@@ -88,27 +86,16 @@ def build_standalone_app(
     snapshot_poll_interval: float = 1.0,
     durable_poll_interval: float = 1.0,
 ) -> FastAPI:
-    mail_store = SQLiteMailStore(mailstore_db)
-    event_bus = DurableEventBus(
-        mail_store=mail_store,
-        consumer_id="observability",
-        include_unrouted=True,
-    )
-    kernel_proxy = _KernelProxy(event_bus=event_bus, running=False)
-    state_view = KernelStateView(kernel_proxy)
+    del mailstore_db  # Retained CLI compatibility; projection path is the runtime source.
     projection_store = ProjectionViewStore(projection_view_path)
+    state_view = _ProjectionStateView(projection_store)
     return create_app(
         state_view=state_view,
         projection_view_store=projection_store,
-        event_bus=event_bus,
+        event_bus=None,
         snapshot_poll_interval=snapshot_poll_interval,
         durable_poll_interval=durable_poll_interval,
     )
-
-
-def _extract_event_bus(state_view: Any) -> Optional[Any]:
-    kernel = getattr(state_view, "_kernel", None)
-    return getattr(kernel, "event_bus", None)
 
 
 def _model_to_dict(model: object) -> dict:
