@@ -2,7 +2,7 @@
 
 - Date: 2026-03-01
 - Branch: `phase3/governance-complete-20260301`
-- Commit: `see branch HEAD`
+- Commit: `76be52b`
 
 ## Scope
 
