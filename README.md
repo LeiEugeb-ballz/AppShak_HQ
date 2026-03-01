@@ -79,6 +79,55 @@ Run governance tests:
 python -m unittest tests.test_governance_layer -v
 ```
 
+## Phase 4 - Integrity + Stability + Inspection (Always-On)
+
+New modules:
+
+- `appshak_integrity/`:
+  deterministic integrity reports over projection + governance outputs
+- `appshak_stability/`:
+  long-duration stability harness with checkpointing (`6h`, `12h`, `24h`)
+- `appshak_inspection/`:
+  deterministic inspection index for entity/office timelines
+
+Generate an integrity report (default `7d` window):
+
+```bash
+python -m appshak_integrity.run_report --window 7d
+```
+
+Build inspection index from current projection + governance outputs:
+
+```bash
+python -m appshak_inspection.run_index
+```
+
+Run stability harness:
+
+```bash
+python -m appshak_stability.run --duration-hours 6
+python -m appshak_stability.run --duration-hours 12
+python -m appshak_stability.run --duration-hours 24
+```
+
+Observability inspection APIs:
+
+- `GET /api/inspect/entities`
+- `GET /api/inspect/entity/{entity_id}`
+- `GET /api/inspect/entity/{entity_id}/timeline?limit=...&cursor=...`
+- `GET /api/inspect/office/timeline?limit=...&cursor=...`
+- `GET /api/integrity/latest`
+- `GET /api/integrity/history?limit=...&cursor=...`
+- `GET /api/stability/runs`
+- `GET /api/stability/run/{run_id}`
+- `GET /api/health`
+
+Observability websocket channels:
+
+- `view_update` (existing)
+- `inspect_update`
+- `integrity_update`
+
 ## Phase 3.2/3.3 - Observability UI (Summary + Office View)
 
 From the repo root:
@@ -116,3 +165,62 @@ Each chamber prints `PASS` or `FAIL` and exits non-zero on failure.
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
+
+## Always-On Inspection Runbook
+
+Keep services running in separate terminals and inspect live while tests execute.
+
+Terminal A - swarm runtime:
+
+```bash
+python -m appshak_substrate.run_swarm --agents recon forge command --durable --worktrees --duration-seconds 1200
+```
+
+Terminal B - projection:
+
+```bash
+python -m appshak_projection.run_projector --mailstore-db appshak_state/substrate/mailstore.db --view-path appshak_state/projection/view.json --poll-interval 1
+```
+
+Terminal C - integrity report loop (manual cadence):
+
+```bash
+python -m appshak_integrity.run_report --window 7d
+```
+
+Terminal D - inspection index build loop (manual cadence):
+
+```bash
+python -m appshak_inspection.run_index
+```
+
+Terminal E - observability backend:
+
+```bash
+python -m appshak_observability.server --host 127.0.0.1 --port 8010 --projection-view appshak_state/projection/view.json
+```
+
+Terminal F - UI:
+
+```bash
+cd appshak-ui
+npm install
+npm run dev
+```
+
+Terminal G - stability harness:
+
+```bash
+python -m appshak_stability.run --duration-hours 6
+```
+
+Terminal H - tests while dashboard is open:
+
+```bash
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Open:
+
+- `http://localhost:5173/#/summary`
+- `http://localhost:5173/#/office`
