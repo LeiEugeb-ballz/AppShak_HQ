@@ -5,6 +5,8 @@ from collections import deque
 from typing import Any, Dict, Mapping, Optional, Set, Tuple
 
 from .models import (
+    CHANNEL_INSPECT_UPDATE,
+    CHANNEL_INTEGRITY_UPDATE,
     CHANNEL_INTENT_DISPATCH_EVENTS,
     CHANNEL_PLUGIN_EVENTS,
     CHANNEL_QUEUE_DEPTH,
@@ -63,6 +65,8 @@ class ObservabilityBroadcaster:
         state_view: Any,
         event_bus: Optional[Any] = None,
         projection_view_store: Optional[Any] = None,
+        inspection_loader: Optional[Any] = None,
+        integrity_loader: Optional[Any] = None,
         snapshot_poll_interval: float = 1.0,
         durable_poll_interval: float = 1.0,
         ingress_queue_size: int = 1024,
@@ -70,6 +74,8 @@ class ObservabilityBroadcaster:
     ) -> None:
         self._state_view = state_view
         self._projection_view_store = projection_view_store
+        self._inspection_loader = inspection_loader
+        self._integrity_loader = integrity_loader
         self._event_bus = event_bus if event_bus is not None else self._resolve_event_bus(state_view)
         self._mail_store = getattr(self._event_bus, "mail_store", None) if self._event_bus is not None else None
         self._snapshot_poll_interval = max(0.1, float(snapshot_poll_interval))
@@ -82,6 +88,8 @@ class ObservabilityBroadcaster:
         self._hook_registered = False
         self._last_queue_depth: Optional[int] = None
         self._last_view_fingerprint: Optional[Tuple[int, int, str]] = None
+        self._last_inspection_fingerprint: Optional[Tuple[str, str]] = None
+        self._last_integrity_fingerprint: Optional[Tuple[str, str]] = None
         self._seen_order: deque[str] = deque(maxlen=5000)
         self._seen_lookup: Set[str] = set()
 
@@ -163,6 +171,8 @@ class ObservabilityBroadcaster:
                                 data={"view": view_payload},
                             )
                         )
+                await self._emit_inspection_update_if_changed()
+                await self._emit_integrity_update_if_changed()
             except asyncio.CancelledError:
                 raise
             except Exception:
@@ -388,4 +398,64 @@ class ObservabilityBroadcaster:
             event_id,
             audit_id,
             str(timestamp) if isinstance(timestamp, str) else "",
+        )
+
+    async def _emit_inspection_update_if_changed(self) -> None:
+        if self._inspection_loader is None:
+            return
+        load = getattr(self._inspection_loader, "load_latest", None)
+        if not callable(load):
+            return
+        payload = await asyncio.to_thread(load)
+        data = coerce_event_dict(payload)
+        fingerprint = self._inspection_fingerprint(data)
+        if self._last_inspection_fingerprint == fingerprint:
+            return
+        self._last_inspection_fingerprint = fingerprint
+        self._enqueue_ingress(
+            StreamEnvelope.build(
+                channel=CHANNEL_INSPECT_UPDATE,
+                source="inspection_index",
+                timestamp=data.get("generated_at"),
+                data={"index": data},
+            )
+        )
+
+    async def _emit_integrity_update_if_changed(self) -> None:
+        if self._integrity_loader is None:
+            return
+        load = getattr(self._integrity_loader, "load_latest", None)
+        if not callable(load):
+            return
+        payload = await asyncio.to_thread(load)
+        data = coerce_event_dict(payload)
+        fingerprint = self._integrity_fingerprint(data)
+        if self._last_integrity_fingerprint == fingerprint:
+            return
+        self._last_integrity_fingerprint = fingerprint
+        self._enqueue_ingress(
+            StreamEnvelope.build(
+                channel=CHANNEL_INTEGRITY_UPDATE,
+                source="integrity_reports",
+                timestamp=data.get("generated_at"),
+                data={"report": data},
+            )
+        )
+
+    @staticmethod
+    def _inspection_fingerprint(payload: Mapping[str, Any]) -> Tuple[str, str]:
+        generated_at = payload.get("generated_at")
+        index_hash = payload.get("index_hash")
+        return (
+            str(generated_at) if isinstance(generated_at, str) else "",
+            str(index_hash) if isinstance(index_hash, str) else "",
+        )
+
+    @staticmethod
+    def _integrity_fingerprint(payload: Mapping[str, Any]) -> Tuple[str, str]:
+        generated_at = payload.get("generated_at")
+        report_hash = payload.get("report_hash")
+        return (
+            str(generated_at) if isinstance(generated_at, str) else "",
+            str(report_hash) if isinstance(report_hash, str) else "",
         )

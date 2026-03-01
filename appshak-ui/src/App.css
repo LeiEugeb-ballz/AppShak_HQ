@@ -284,6 +284,83 @@
   min-height: 440px;
 }
 
+.office-view__inspection-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.office-view__entity-list-panel,
+.office-view__entity-detail-panel,
+.office-view__timeline-panel,
+.office-view__integrity-panel {
+  min-height: 260px;
+}
+
+.office-view__entity-list {
+  display: grid;
+  gap: 0.45rem;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.office-view__entity-button {
+  border: 1px solid #34445e;
+  background: #0f1621;
+  color: #d9e3f6;
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  display: grid;
+  gap: 0.1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.office-view__entity-button--active {
+  border-color: #5f86bd;
+  background: #182436;
+}
+
+.office-view__details {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.office-view__detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.office-view__detail-label {
+  color: #97a8c5;
+}
+
+.office-view__detail-value {
+  color: #e4edff;
+  overflow-wrap: anywhere;
+}
+
+.office-view__timeline-list {
+  max-height: 300px;
+  overflow: auto;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.office-view__load-more {
+  margin-top: 0.7rem;
+  border: 1px solid #3b4f6d;
+  background: #131e2d;
+  color: #d9e3f8;
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
 @media (max-width: 960px) {
   .dashboard__header {
     flex-direction: column;
@@ -313,5 +390,9 @@
   .office-view__canvas {
     height: 58vh;
     min-height: 360px;
+  }
+
+  .office-view__inspection-grid {
+    grid-template-columns: 1fr;
   }
 }

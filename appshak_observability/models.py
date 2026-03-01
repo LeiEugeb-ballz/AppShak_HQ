@@ -12,6 +12,8 @@ CHANNEL_VIEW_UPDATE = "view_update"
 CHANNEL_PLUGIN_EVENTS = "plugin_events"
 CHANNEL_INTENT_DISPATCH_EVENTS = "intent_dispatch_events"
 CHANNEL_TOOL_EXECUTION_LOGS = "tool_execution_logs"
+CHANNEL_INSPECT_UPDATE = "inspect_update"
+CHANNEL_INTEGRITY_UPDATE = "integrity_update"
 
 
 def utc_now_iso() -> str:
