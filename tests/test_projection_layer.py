@@ -129,6 +129,115 @@ class TestProjectionProjector(unittest.TestCase):
             self.assertEqual(projected["tool_audit_counts"]["allowed"], 1)
             self.assertEqual(projected["tool_audit_counts"]["denied"], 2)
 
+    def test_worker_state_transitions_started_restarting_restarted_exited(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="appshak_projection_workers_") as temp_dir:
+            db_path = Path(temp_dir) / "mailstore.db"
+            view_path = Path(temp_dir) / "view.json"
+            mail_store = SQLiteMailStore(db_path)
+            view_store = ProjectionViewStore(view_path)
+            projector = ProjectionProjector(mail_store=mail_store, view_store=view_store)
+
+            mail_store.append_event(
+                SubstrateEvent(type="WORKER_STARTED", origin_id="supervisor", payload={"agent_id": "recon"})
+            )
+            after_started = projector.project_once()
+            recon_worker = after_started["workers"]["recon"]
+            self.assertTrue(recon_worker["present"])
+            self.assertEqual(recon_worker["state"], "ACTIVE")
+            self.assertEqual(recon_worker["restart_count"], 0)
+            self.assertEqual(recon_worker["last_event_type"], "WORKER_STARTED")
+            self.assertIsInstance(recon_worker["last_event_at"], str)
+            self.assertEqual(recon_worker["last_seen_event_id"], 1)
+
+            mail_store.append_event(
+                SubstrateEvent(type="WORKER_RESTART_SCHEDULED", origin_id="supervisor", payload={"agent_id": "recon"})
+            )
+            after_restart_scheduled = projector.project_once()
+            recon_worker = after_restart_scheduled["workers"]["recon"]
+            self.assertEqual(recon_worker["state"], "RESTARTING")
+            self.assertEqual(recon_worker["last_event_type"], "WORKER_RESTART_SCHEDULED")
+            self.assertEqual(recon_worker["last_seen_event_id"], 2)
+
+            mail_store.append_event(
+                SubstrateEvent(type="WORKER_RESTARTED", origin_id="supervisor", payload={"agent_id": "recon"})
+            )
+            after_restarted = projector.project_once()
+            recon_worker = after_restarted["workers"]["recon"]
+            self.assertTrue(recon_worker["present"])
+            self.assertEqual(recon_worker["state"], "ACTIVE")
+            self.assertEqual(recon_worker["restart_count"], 1)
+            self.assertEqual(recon_worker["last_event_type"], "WORKER_RESTARTED")
+            self.assertEqual(recon_worker["last_seen_event_id"], 3)
+
+            mail_store.append_event(
+                SubstrateEvent(type="WORKER_EXITED", origin_id="supervisor", payload={"agent_id": "recon"})
+            )
+            after_exited = projector.project_once()
+            recon_worker = after_exited["workers"]["recon"]
+            self.assertFalse(recon_worker["present"])
+            self.assertEqual(recon_worker["state"], "OFFLINE")
+            self.assertEqual(recon_worker["last_event_type"], "WORKER_EXITED")
+            self.assertEqual(recon_worker["last_seen_event_id"], 4)
+
+    def test_worker_heartbeat_missed_increments_and_offline_threshold(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="appshak_projection_heartbeat_") as temp_dir:
+            db_path = Path(temp_dir) / "mailstore.db"
+            view_path = Path(temp_dir) / "view.json"
+            mail_store = SQLiteMailStore(db_path)
+            view_store = ProjectionViewStore(view_path)
+            projector = ProjectionProjector(mail_store=mail_store, view_store=view_store)
+
+            mail_store.append_event(
+                SubstrateEvent(type="WORKER_STARTED", origin_id="supervisor", payload={"agent_id": "forge"})
+            )
+            projector.project_once()
+
+            mail_store.append_event(
+                SubstrateEvent(type="WORKER_HEARTBEAT_MISSED", origin_id="supervisor", payload={"agent_id": "forge"})
+            )
+            after_first_miss = projector.project_once()
+            forge_worker = after_first_miss["workers"]["forge"]
+            self.assertEqual(forge_worker["missed_heartbeat_count"], 1)
+            self.assertNotEqual(forge_worker["state"], "OFFLINE")
+            self.assertEqual(forge_worker["last_event_type"], "WORKER_HEARTBEAT_MISSED")
+            self.assertEqual(forge_worker["last_seen_event_id"], 2)
+
+            mail_store.append_event(
+                SubstrateEvent(type="WORKER_HEARTBEAT_MISSED", origin_id="supervisor", payload={"agent_id": "forge"})
+            )
+            after_second_miss = projector.project_once()
+            forge_worker = after_second_miss["workers"]["forge"]
+            self.assertEqual(forge_worker["missed_heartbeat_count"], 2)
+            self.assertEqual(forge_worker["state"], "OFFLINE")
+            self.assertFalse(forge_worker["present"])
+            self.assertEqual(forge_worker["last_seen_event_id"], 3)
+
+    def test_derived_stress_level_normalization(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="appshak_projection_derived_") as temp_dir:
+            db_path = Path(temp_dir) / "mailstore.db"
+            view_path = Path(temp_dir) / "view.json"
+            mail_store = SQLiteMailStore(db_path)
+            view_store = ProjectionViewStore(view_path)
+            projector = ProjectionProjector(mail_store=mail_store, view_store=view_store)
+
+            for _ in range(10):
+                mail_store.append_event(SubstrateEvent(type="INTENT_DISPATCH", origin_id="intent", payload={}))
+            low_stress = projector.project_once()
+            self.assertEqual(low_stress["event_queue_size"], 10)
+            self.assertEqual(low_stress["derived"]["office_mode"], "PAUSED")
+            self.assertAlmostEqual(low_stress["derived"]["stress_level"], 0.4, places=6)
+
+            for _ in range(20):
+                mail_store.append_event(SubstrateEvent(type="INTENT_DISPATCH", origin_id="intent", payload={}))
+            high_stress = projector.project_once()
+            self.assertEqual(high_stress["event_queue_size"], 30)
+            self.assertAlmostEqual(high_stress["derived"]["stress_level"], 1.0, places=6)
+
+            mail_store.append_event(SubstrateEvent(type="SUPERVISOR_START", origin_id="supervisor", payload={}))
+            running = projector.project_once()
+            self.assertTrue(running["running"])
+            self.assertEqual(running["derived"]["office_mode"], "RUNNING")
+
 
 if __name__ == "__main__":
     unittest.main()

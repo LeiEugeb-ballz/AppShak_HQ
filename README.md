@@ -29,6 +29,19 @@ python -m appshak_substrate.run_swarm --agents recon forge command --durable --w
 python -m appshak_observability.server --mailstore-db appshak_state/substrate/mailstore.db
 ```
 
+## Phase 3.4 - Projection Semantic Enrichment
+
+Run the projection materializer:
+
+```bash
+python -m appshak_projection.run_projector --mailstore-db appshak_state/substrate/mailstore.db --view-path appshak_state/projection/view.json --poll-interval 1
+```
+
+Projection view now includes:
+
+- `workers`: per-worker semantic state (`present`, `state`, `last_event_type`, `last_event_at`, `restart_count`, `missed_heartbeat_count`, `last_seen_event_id`)
+- `derived`: computed office metadata (`office_mode`, `stress_level`)
+
 ## Phase 3.2/3.3 - Observability UI (Summary + Office View)
 
 From the repo root:
@@ -48,6 +61,8 @@ UI data sources:
 
 - `GET http://127.0.0.1:8010/api/snapshot`
 - `ws://127.0.0.1:8010/ws/events`
+
+For local dev with Vite proxy, `/api/*` and `/ws/*` are forwarded to `127.0.0.1:8010`.
 
 ## Chambers
 

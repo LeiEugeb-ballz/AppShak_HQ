@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Mapping, Optional
 
 PROJECTION_SCHEMA_VERSION = 1
+_WORKER_STATES = {"IDLE", "ACTIVE", "RESTARTING", "OFFLINE"}
 
 
 def utc_now_iso() -> str:
@@ -24,6 +25,8 @@ def default_projection_view() -> Dict[str, Any]:
         "events_processed": 0,
         "event_type_counts": {},
         "tool_audit_counts": {"allowed": 0, "denied": 0},
+        "workers": {},
+        "derived": {"office_mode": "PAUSED", "stress_level": 0.0},
     }
 
 
@@ -64,6 +67,11 @@ def normalize_projection_view(raw: Any) -> Dict[str, Any]:
 
     current_event = source.get("current_event")
     base["current_event"] = _normalize_event(current_event)
+    base["workers"] = _normalize_workers(source.get("workers"))
+    base["derived"] = _derive_projection_fields(
+        running=base["running"],
+        event_queue_size=base["event_queue_size"],
+    )
 
     return base
 
@@ -97,3 +105,60 @@ def _as_int(value: Any, *, default: int) -> int:
         return int(value)
     except Exception:
         return default
+
+
+def _normalize_workers(raw: Any) -> Dict[str, Dict[str, Any]]:
+    if not isinstance(raw, Mapping):
+        return {}
+
+    workers: Dict[str, Dict[str, Any]] = {}
+    for worker_id_raw, worker_state_raw in raw.items():
+        worker_id = str(worker_id_raw).strip().lower()
+        if not worker_id:
+            continue
+        workers[worker_id] = _normalize_worker_state(worker_state_raw)
+    return workers
+
+
+def _normalize_worker_state(raw: Any) -> Dict[str, Any]:
+    source = raw if isinstance(raw, Mapping) else {}
+
+    present = bool(source.get("present", False))
+    state_raw = source.get("state")
+    state = str(state_raw).strip().upper() if state_raw is not None else "IDLE"
+    if state not in _WORKER_STATES:
+        state = "IDLE"
+
+    last_event_type_raw = source.get("last_event_type")
+    last_event_type = (
+        str(last_event_type_raw).strip().upper()
+        if isinstance(last_event_type_raw, str) and last_event_type_raw.strip()
+        else None
+    )
+
+    last_event_at_raw = source.get("last_event_at")
+    last_event_at = str(last_event_at_raw) if isinstance(last_event_at_raw, str) and last_event_at_raw.strip() else None
+
+    return {
+        "present": present,
+        "state": state,
+        "last_event_type": last_event_type,
+        "last_event_at": last_event_at,
+        "restart_count": max(0, _as_int(source.get("restart_count"), default=0)),
+        "missed_heartbeat_count": max(0, _as_int(source.get("missed_heartbeat_count"), default=0)),
+        "last_seen_event_id": max(0, _as_int(source.get("last_seen_event_id"), default=0)),
+    }
+
+
+def _derive_projection_fields(
+    *,
+    running: bool,
+    event_queue_size: int,
+) -> Dict[str, Any]:
+    office_mode = "RUNNING" if bool(running) else "PAUSED"
+    stress_level = min(max(0.0, float(event_queue_size)) / 25.0, 1.0)
+
+    return {
+        "office_mode": office_mode,
+        "stress_level": stress_level,
+    }
