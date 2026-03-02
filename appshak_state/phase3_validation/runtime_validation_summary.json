@@ -1,0 +1,203 @@
+{
+  "timestamp": "2026-03-01T10:58:13Z",
+  "logs": {
+    "swarm_stdout": "appshak_state\\phase3_validation\\swarm_20260301_125813.stdout.log",
+    "swarm_stderr": "appshak_state\\phase3_validation\\swarm_20260301_125813.stderr.log",
+    "projector_stdout": "appshak_state\\phase3_validation\\projector_20260301_125813.stdout.log",
+    "projector_stderr": "appshak_state\\phase3_validation\\projector_20260301_125813.stderr.log",
+    "observability_stdout": "appshak_state\\phase3_validation\\observability_20260301_125813.stdout.log",
+    "observability_stderr": "appshak_state\\phase3_validation\\observability_20260301_125813.stderr.log"
+  },
+  "pids": {
+    "swarm": 11680,
+    "projector": 11944,
+    "observability": 5908
+  },
+  "snapshot_initial": {
+    "schema_version": 1,
+    "timestamp": "2026-03-01T10:58:15.033508+00:00",
+    "last_updated_at": "2026-03-01T10:58:15.033508+00:00",
+    "last_seen_event_id": 860,
+    "last_seen_tool_audit_id": 1,
+    "running": true,
+    "event_queue_size": 27,
+    "current_event": {
+      "type": "WORKER_RESTART_SCHEDULED",
+      "timestamp": "2026-03-01T10:58:14.712974+00:00",
+      "origin_id": "supervisor",
+      "payload": {
+        "agent_id": "forge",
+        "correlation_id": "WORKER_RESTART_SCHEDULED:forge:1772362694684",
+        "event_id": 860,
+        "exit_code": 1,
+        "idempotency_key": "control:WORKER_RESTART_SCHEDULED:forge:1772362694684",
+        "prime_directive_justification": "Supervisor control events maintain resilient, safe swarm operation.",
+        "reason": "heartbeat_missed",
+        "restart_count": 1,
+        "restart_in_seconds": 1.0,
+        "target_agent": "command"
+      }
+    },
+    "events_processed": 860,
+    "event_type_counts": {
+      "INTENT_DISPATCH": 1,
+      "PROPOSAL_INVALID": 1,
+      "SUPERVISOR_HEARTBEAT": 744,
+      "SUPERVISOR_START": 9,
+      "SUPERVISOR_STOP": 7,
+      "TEST_QUEUE_DEPTH": 3,
+      "WORKER_EXITED": 33,
+      "WORKER_HEARTBEAT_MISSED": 12,
+      "WORKER_RESTARTED": 11,
+      "WORKER_RESTART_SCHEDULED": 12,
+      "WORKER_STARTED": 27
+    },
+    "tool_audit_counts": {
+      "allowed": 1,
+      "denied": 0
+    },
+    "workers": {
+      "command": {
+        "present": false,
+        "state": "RESTARTING",
+        "last_event_type": "WORKER_RESTART_SCHEDULED",
+        "last_event_at": "2026-03-01T10:58:14.712974+00:00",
+        "restart_count": 4,
+        "missed_heartbeat_count": 6,
+        "last_seen_event_id": 860
+      },
+      "forge": {
+        "present": false,
+        "state": "IDLE",
+        "last_event_type": "SUPERVISOR_HEARTBEAT",
+        "last_event_at": "2026-03-01T04:56:45.555491+00:00",
+        "restart_count": 0,
+        "missed_heartbeat_count": 0,
+        "last_seen_event_id": 845
+      },
+      "recon": {
+        "present": false,
+        "state": "IDLE",
+        "last_event_type": "SUPERVISOR_HEARTBEAT",
+        "last_event_at": "2026-03-01T04:56:45.459301+00:00",
+        "restart_count": 0,
+        "missed_heartbeat_count": 0,
+        "last_seen_event_id": 844
+      }
+    },
+    "derived": {
+      "office_mode": "RUNNING",
+      "stress_level": 1.0
+    }
+  },
+  "snapshot_final": {
+    "schema_version": 1,
+    "timestamp": "2026-03-01T10:58:27.390399+00:00",
+    "last_updated_at": "2026-03-01T10:58:27.390399+00:00",
+    "last_seen_event_id": 872,
+    "last_seen_tool_audit_id": 1,
+    "running": true,
+    "event_queue_size": 21,
+    "current_event": {
+      "type": "SUPERVISOR_HEARTBEAT",
+      "timestamp": "2026-03-01T10:58:24.908754+00:00",
+      "origin_id": "supervisor",
+      "payload": {
+        "agent_id": "command",
+        "correlation_id": "supervisor_heartbeat:command:1772362704",
+        "event_id": 872,
+        "heartbeat_at": "2026-03-01T10:58:24.895602+00:00",
+        "idempotency_key": "control:supervisor_heartbeat:command:1772362704",
+        "prime_directive_justification": "Supervisor heartbeat preserves worker liveness and durable orchestration.",
+        "target_agent": "command"
+      }
+    },
+    "events_processed": 872,
+    "event_type_counts": {
+      "INTENT_DISPATCH": 1,
+      "PROPOSAL_INVALID": 1,
+      "SUPERVISOR_HEARTBEAT": 750,
+      "SUPERVISOR_START": 9,
+      "SUPERVISOR_STOP": 7,
+      "TEST_QUEUE_DEPTH": 3,
+      "WORKER_EXITED": 34,
+      "WORKER_HEARTBEAT_MISSED": 13,
+      "WORKER_RESTARTED": 14,
+      "WORKER_RESTART_SCHEDULED": 13,
+      "WORKER_STARTED": 27
+    },
+    "tool_audit_counts": {
+      "allowed": 1,
+      "denied": 0
+    },
+    "workers": {
+      "command": {
+        "present": true,
+        "state": "ACTIVE",
+        "last_event_type": "SUPERVISOR_HEARTBEAT",
+        "last_event_at": "2026-03-01T10:58:24.908754+00:00",
+        "restart_count": 7,
+        "missed_heartbeat_count": 7,
+        "last_seen_event_id": 872
+      },
+      "forge": {
+        "present": false,
+        "state": "IDLE",
+        "last_event_type": "SUPERVISOR_HEARTBEAT",
+        "last_event_at": "2026-03-01T10:58:24.818455+00:00",
+        "restart_count": 0,
+        "missed_heartbeat_count": 0,
+        "last_seen_event_id": 871
+      },
+      "recon": {
+        "present": false,
+        "state": "IDLE",
+        "last_event_type": "SUPERVISOR_HEARTBEAT",
+        "last_event_at": "2026-03-01T10:58:24.703579+00:00",
+        "restart_count": 0,
+        "missed_heartbeat_count": 0,
+        "last_seen_event_id": 870
+      }
+    },
+    "derived": {
+      "office_mode": "RUNNING",
+      "stress_level": 0.84
+    }
+  },
+  "runtime_checks": {
+    "required_fields_ok": true,
+    "running_became_true": true,
+    "event_counts_increase_ok": true,
+    "workers_update_present": true,
+    "process_health_ok": true,
+    "initial_last_seen_event_id": 860,
+    "final_last_seen_event_id": 872,
+    "initial_event_type_counts": {
+      "INTENT_DISPATCH": 1,
+      "PROPOSAL_INVALID": 1,
+      "SUPERVISOR_HEARTBEAT": 744,
+      "SUPERVISOR_START": 9,
+      "SUPERVISOR_STOP": 7,
+      "TEST_QUEUE_DEPTH": 3,
+      "WORKER_EXITED": 33,
+      "WORKER_HEARTBEAT_MISSED": 12,
+      "WORKER_RESTARTED": 11,
+      "WORKER_RESTART_SCHEDULED": 12,
+      "WORKER_STARTED": 27
+    },
+    "final_event_type_counts": {
+      "INTENT_DISPATCH": 1,
+      "PROPOSAL_INVALID": 1,
+      "SUPERVISOR_HEARTBEAT": 750,
+      "SUPERVISOR_START": 9,
+      "SUPERVISOR_STOP": 7,
+      "TEST_QUEUE_DEPTH": 3,
+      "WORKER_EXITED": 34,
+      "WORKER_HEARTBEAT_MISSED": 13,
+      "WORKER_RESTARTED": 14,
+      "WORKER_RESTART_SCHEDULED": 13,
+      "WORKER_STARTED": 27
+    }
+  },
+  "runtime_pass": true
+}

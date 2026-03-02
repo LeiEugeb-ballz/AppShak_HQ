@@ -433,3 +433,80 @@
 2026-02-26 07:41:03,312 INFO EVENT_ACKED agent_id=forge event_id=716
 2026-02-26 07:41:08,405 INFO EVENT_CLAIMED agent_id=forge event_id=719 type=SUPERVISOR_HEARTBEAT
 2026-02-26 07:41:08,431 INFO EVENT_ACKED agent_id=forge event_id=719
+2026-03-01 06:53:53,740 INFO WORKER_START agent_id=forge consumer_id=worker:forge:1772340833409 pid=13972 worktree=C:\Users\Me\Desktop\AppShak_HQ\workspaces\forge db_path=appshak_state\substrate\mailstore.db
+2026-03-01 06:53:56,472 INFO WORKER_START agent_id=forge consumer_id=worker:forge:1772340836079 pid=14724 worktree=C:\Users\Me\Desktop\AppShak_HQ\workspaces\forge db_path=appshak_state\substrate\mailstore.db
+2026-03-01 06:53:56,965 INFO EVENT_CLAIMED agent_id=forge event_id=746 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:53:57,006 INFO EVENT_ACKED agent_id=forge event_id=746
+2026-03-01 06:54:02,115 INFO EVENT_CLAIMED agent_id=forge event_id=749 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:02,157 INFO EVENT_ACKED agent_id=forge event_id=749
+2026-03-01 06:54:07,278 INFO EVENT_CLAIMED agent_id=forge event_id=752 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:07,299 INFO EVENT_ACKED agent_id=forge event_id=752
+2026-03-01 06:54:12,297 INFO EVENT_CLAIMED agent_id=forge event_id=755 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:12,332 INFO EVENT_ACKED agent_id=forge event_id=755
+2026-03-01 06:54:17,410 INFO EVENT_CLAIMED agent_id=forge event_id=758 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:17,427 INFO EVENT_ACKED agent_id=forge event_id=758
+2026-03-01 06:54:22,471 INFO EVENT_CLAIMED agent_id=forge event_id=761 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:22,511 INFO EVENT_ACKED agent_id=forge event_id=761
+2026-03-01 06:54:27,664 INFO EVENT_CLAIMED agent_id=forge event_id=764 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:27,694 INFO EVENT_ACKED agent_id=forge event_id=764
+2026-03-01 06:54:32,708 INFO EVENT_CLAIMED agent_id=forge event_id=767 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:32,763 INFO EVENT_ACKED agent_id=forge event_id=767
+2026-03-01 06:54:37,924 INFO EVENT_CLAIMED agent_id=forge event_id=770 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:37,975 INFO EVENT_ACKED agent_id=forge event_id=770
+2026-03-01 06:54:43,111 INFO EVENT_CLAIMED agent_id=forge event_id=773 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:43,145 INFO EVENT_ACKED agent_id=forge event_id=773
+2026-03-01 06:54:48,169 INFO EVENT_CLAIMED agent_id=forge event_id=776 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:48,211 INFO EVENT_ACKED agent_id=forge event_id=776
+2026-03-01 06:54:53,154 INFO EVENT_CLAIMED agent_id=forge event_id=779 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:53,216 INFO EVENT_ACKED agent_id=forge event_id=779
+2026-03-01 06:54:58,360 INFO EVENT_CLAIMED agent_id=forge event_id=782 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:54:58,396 INFO EVENT_ACKED agent_id=forge event_id=782
+2026-03-01 06:55:03,330 INFO EVENT_CLAIMED agent_id=forge event_id=785 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:03,374 INFO EVENT_ACKED agent_id=forge event_id=785
+2026-03-01 06:55:08,543 INFO EVENT_CLAIMED agent_id=forge event_id=788 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:08,578 INFO EVENT_ACKED agent_id=forge event_id=788
+2026-03-01 06:55:13,555 INFO EVENT_CLAIMED agent_id=forge event_id=791 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:13,590 INFO EVENT_ACKED agent_id=forge event_id=791
+2026-03-01 06:55:18,874 INFO EVENT_CLAIMED agent_id=forge event_id=794 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:18,909 INFO EVENT_ACKED agent_id=forge event_id=794
+2026-03-01 06:55:24,093 INFO EVENT_CLAIMED agent_id=forge event_id=797 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:24,145 INFO EVENT_ACKED agent_id=forge event_id=797
+2026-03-01 06:55:29,075 INFO EVENT_CLAIMED agent_id=forge event_id=800 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:29,115 INFO EVENT_ACKED agent_id=forge event_id=800
+2026-03-01 06:55:34,241 INFO EVENT_CLAIMED agent_id=forge event_id=803 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:34,269 INFO EVENT_ACKED agent_id=forge event_id=803
+2026-03-01 06:55:39,320 INFO EVENT_CLAIMED agent_id=forge event_id=806 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:39,452 INFO EVENT_ACKED agent_id=forge event_id=806
+2026-03-01 06:55:44,422 INFO EVENT_CLAIMED agent_id=forge event_id=809 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:44,438 INFO EVENT_ACKED agent_id=forge event_id=809
+2026-03-01 06:55:49,499 INFO EVENT_CLAIMED agent_id=forge event_id=812 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:49,582 INFO EVENT_ACKED agent_id=forge event_id=812
+2026-03-01 06:55:54,643 INFO EVENT_CLAIMED agent_id=forge event_id=815 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:54,671 INFO EVENT_ACKED agent_id=forge event_id=815
+2026-03-01 06:55:59,678 INFO EVENT_CLAIMED agent_id=forge event_id=818 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:55:59,696 INFO EVENT_ACKED agent_id=forge event_id=818
+2026-03-01 06:56:04,920 INFO EVENT_CLAIMED agent_id=forge event_id=821 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:04,958 INFO EVENT_ACKED agent_id=forge event_id=821
+2026-03-01 06:56:09,982 INFO EVENT_CLAIMED agent_id=forge event_id=824 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:10,008 INFO EVENT_ACKED agent_id=forge event_id=824
+2026-03-01 06:56:15,073 INFO EVENT_CLAIMED agent_id=forge event_id=827 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:15,130 INFO EVENT_ACKED agent_id=forge event_id=827
+2026-03-01 06:56:20,276 INFO EVENT_CLAIMED agent_id=forge event_id=830 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:20,299 INFO EVENT_ACKED agent_id=forge event_id=830
+2026-03-01 06:56:25,309 INFO EVENT_CLAIMED agent_id=forge event_id=833 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:25,357 INFO EVENT_ACKED agent_id=forge event_id=833
+2026-03-01 06:56:30,450 INFO EVENT_CLAIMED agent_id=forge event_id=836 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:30,466 INFO EVENT_ACKED agent_id=forge event_id=836
+2026-03-01 06:56:35,513 INFO EVENT_CLAIMED agent_id=forge event_id=839 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:35,584 INFO EVENT_ACKED agent_id=forge event_id=839
+2026-03-01 06:56:40,653 INFO EVENT_CLAIMED agent_id=forge event_id=842 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:40,682 INFO EVENT_ACKED agent_id=forge event_id=842
+2026-03-01 06:56:45,632 INFO EVENT_CLAIMED agent_id=forge event_id=845 type=SUPERVISOR_HEARTBEAT
+2026-03-01 06:56:45,667 INFO EVENT_ACKED agent_id=forge event_id=845
+2026-03-01 12:58:14,575 INFO WORKER_START agent_id=forge consumer_id=worker:forge:1772362694235 pid=11352 worktree=C:\Users\Me\Desktop\AppShak_HQ\workspaces\forge db_path=appshak_state\substrate\mailstore.db
+2026-03-01 12:58:16,223 INFO WORKER_START agent_id=forge consumer_id=worker:forge:1772362695971 pid=12080 worktree=C:\Users\Me\Desktop\AppShak_HQ\workspaces\forge db_path=appshak_state\substrate\mailstore.db
+2026-03-01 12:58:18,810 INFO WORKER_START agent_id=forge consumer_id=worker:forge:1772362698528 pid=6516 worktree=C:\Users\Me\Desktop\AppShak_HQ\workspaces\forge db_path=appshak_state\substrate\mailstore.db
+2026-03-01 12:58:19,765 INFO EVENT_CLAIMED agent_id=forge event_id=868 type=SUPERVISOR_HEARTBEAT
+2026-03-01 12:58:19,790 INFO EVENT_ACKED agent_id=forge event_id=868
+2026-03-01 12:58:24,914 INFO EVENT_CLAIMED agent_id=forge event_id=871 type=SUPERVISOR_HEARTBEAT
+2026-03-01 12:58:24,941 INFO EVENT_ACKED agent_id=forge event_id=871

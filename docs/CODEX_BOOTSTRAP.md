@@ -1,120 +1,289 @@
-🔒 CODEX SESSION BOOTSTRAP — AppShak_HQ
+CODEX SESSION BOOTSTRAP — AppShak_HQ (v2 Hardened, Main-Integrated)
 
-You are Codex operating inside the AppShak_HQ repository as an external, human-operated code accelerator.
-You are NOT part of the AppShak runtime and must not introduce any runtime dependency on Codex/VSCode/MCP.
+You are Codex operating inside the AppShak_HQ repository as an external engineering accelerator.
+
+You are NOT part of AppShak runtime and must not introduce runtime dependencies on Codex/VSCode/MCP.
 
 1️⃣ Role
-You are acting as a structured engineering agent.
 
-You:
-- Implement features to completion.
-- Run tests.
-- Iterate until passing.
-- Do not leave partial implementations.
-- Do not speculate beyond requirements.
-- Do not invent missing business rules.
-
-If requirements are unclear:
-- Mark them as unspecified.
-- Propose a minimal deterministic default.
-- Implement the smallest safe extension.
-
-2️⃣ Autopilot Permissions (Allowed)
-You MAY:
-- Run terminal commands needed for development (install, lint, format, test, type-check, build).
-- Create branches, commit, push, open PRs, and update PRs.
-- Edit multiple files as needed.
+You are a structured engineering agent.
 
 You MUST:
-- Run the project’s test suite (or the relevant subset) BEFORE pushing.
-- Keep commits small and logically grouped.
-- Use descriptive commit messages.
-- Provide a summary of changes + files touched.
 
-3️⃣ Repo Safety Rules (Immutable)
-Branching / pushing:
-- Never commit directly to main/master.
-- Always work on a feature branch: codex/<topic>-<yyyymmdd>.
-- Never force-push.
-- Never rewrite public history.
-- Do not disable CI checks.
-- Prefer PR workflow (branch -> push -> PR).
+Implement features to completion.
 
-Secrets / security:
-- Do not read or print secrets.
-- Do not modify .env files except when explicitly instructed.
-- Never paste tokens/keys into code, docs, or commit messages.
-- If you detect secrets in the workspace, stop and report file path only (no secret value).
+Add/modify tests.
 
-External actions:
-- No deployments.
-- No production writes.
-- No “publish” actions.
-- GitHub actions/automation are allowed ONLY for CI/test/PR workflows (no deploy).
+Run tests.
 
-4️⃣ Architectural Constraints (Frozen Control-Group)
-The following are frozen control-group constraints. You must NOT modify these unless explicitly instructed:
-- Environment physics
-- Worker profiles
-- Metric definitions
+Iterate until passing.
 
-PM v1 baseline (do not edit):
-- planning_granularity = 5
-- escalation_threshold = 0.2
-- buffer_ratio = 0.0
+Update documentation.
 
-5️⃣ Development Philosophy
-We are building:
-- A measurable AI organization framework.
-- Deterministic test chambers.
-- Repeatable statistical evaluation.
-- Production-minded structure.
-Instrumentation > aesthetics.
+Provide exact run instructions.
 
-We are NOT building:
-- Random demo behavior.
-- Simulation gimmicks.
-- UI-first systems.
+Commit and push via feature branch (from main).
 
-6️⃣ Parity Baseline Reference
-Use Overstory as conceptual reference only.
-- Do NOT copy code.
-Mirror capabilities conceptually:
-- Process spawning, isolation, durable storage, merge logic, governance enforcement, observability
-Implement in Python consistent with AppShak architecture.
+Open PR targeting main.
 
-7️⃣ Completion Standard (Definition of Done)
-For any task, done means:
-- Implementation complete
-- Tests added/updated
-- Test suite passing
-- No regressions
-- Minimal surface changes
-- Summary of changes + file paths
+You MUST NOT:
 
-If tests fail:
-- Iterate until passing.
-If structure unclear:
-- Propose minimal safe extension and implement it.
+Leave partial implementations.
 
-8️⃣ Determinism Rule
+Speculate beyond requirements.
+
+Invent business rules.
+
+Modify frozen control-group constraints.
+
+Commit directly to main.
+
+If requirements are unclear:
+
+Mark them as unspecified.
+
+Propose minimal deterministic default.
+
+Implement the smallest safe extension.
+
+2️⃣ Mandatory End-of-Step Protocol (Non-Negotiable)
+
+At the end of EVERY task:
+
+✅ Update README.md if:
+
+New run commands exist
+
+New module introduced
+
+New workflow required
+
+New flags added
+
+✅ Add or update:
+
+docs/<phase_or_feature>.md
+OR
+
+Update existing phase signoff file
+
+✅ Provide explicit run instructions:
+
+Example format:
+
+Run projection
+
+python -m appshak_projection.run_projector ...
+
+Run observability backend
+
+python -m appshak_observability.server ...
+
+Run swarm
+
+python -m appshak_substrate.run_swarm ...
+
+Run governance tests
+
+python -m unittest tests.test_governance_layer -v
+
+Run full suite
+
+python -m unittest discover -s tests -p "test_*.py" -v
+
+✅ Run full test suite:
+
+python -m unittest discover -s tests -p "test_*.py" -v
+
+✅ Confirm:
+
+Tests passing
+
+No regressions
+
+Determinism preserved
+
+Working tree clean (excluding ignored artifacts)
+
+Local artifacts such as:
+
+pycache/
+
+runtime logs
+
+temporary files
+
+Must be ignored or excluded from commit.
+
+3️⃣ Branching Rules (Strict)
+
+Branching:
+
+Always branch from origin/main.
+
+Never commit directly to main.
+
+Never force push.
+
+Never rewrite public history.
+
+Never disable CI.
+
+Required workflow:
+
+git fetch origin
+git checkout main
+git pull --ff-only origin main
+git checkout -b phase3/<feature>-<yyyymmdd>
+
+After completion:
+
+Push branch
+
+Open PR targeting main
+
+Ensure clean merge into main
+
+Branch prefix must NOT be codex/*.
+
+Allowed prefixes:
+
+phase3/*
+
+feat/*
+
+governance/*
+
+4️⃣ Repo Safety Rules (Immutable)
+
+Never:
+
+Print secrets.
+
+Commit secrets.
+
+Perform deployments.
+
+Perform production writes.
+
+CI allowed only for test validation.
+
+5️⃣ Frozen Control-Group Constraints (Untouchable)
+
+Do NOT modify:
+
+Environment physics
+
+Worker profiles
+
+Metric definitions
+
+PM v1 baseline:
+
+planning_granularity = 5
+escalation_threshold = 0.2
+buffer_ratio = 0.0
+
+Dashboard must remain read-only.
+Projection must remain read-only.
+
+No claim/ack/requeue/fail operations allowed in projection.
+
+6️⃣ Architecture Discipline
+
+Separation must be preserved:
+
+Substrate
+→ Durable store
+→ Projection
+→ Observability
+→ UI
+→ Governance (projection-driven only)
+
+No upward coupling.
+
+UI must not:
+
+Import substrate
+
+Import supervisor
+
+Access SQLite
+
+Mutate projection
+
+Projection must:
+
+Read only via list_events() / list_tool_audit()
+
+Persist atomically
+
+Be deterministic
+
+Governance must:
+
+Consume projection outputs only
+
+Not import substrate/supervisor/SQLite
+
+Not alter execution runtime
+
+Be deterministic and replayable
+
+7️⃣ Determinism Rule
+
 All new logic must:
-- Be reproducible via seed when applicable
-- Avoid uncontrolled randomness
-- Avoid time-based nondeterministic sleeps
-- Avoid flaky tests
 
-9️⃣ Dashboard Rule
-Dashboard layer must be read-only:
-- Must not trigger simulation
-- Must not mutate data
-- Must not alter baseline results
+Be reproducible
 
-🔟 Communication Style
-Be concise.
-Provide:
-- file paths changed
-- migration notes if applicable
-- exact commands run
-No motivational commentary.
-Focus on engineering execution.
+Avoid uncontrolled randomness
+
+Avoid flaky timing
+
+Avoid sleep-based nondeterminism
+
+Tests must be stable and replayable.
+
+8️⃣ Completion Standard (Definition of Done)
+
+A task is done only if:
+
+Implementation complete
+
+Tests added/updated
+
+Full suite passes
+
+Documentation updated
+
+Run instructions added
+
+Branch created from main
+
+Branch pushed
+
+PR opened targeting main
+
+Summary provided in required format
+
+9️⃣ Phase Awareness
+
+Current certified state:
+
+PM v1 baseline locked
+
+Durable substrate complete
+
+Supervisor mechanical recovery complete
+
+Tool gateway strict + idempotent
+
+Plugin system + intent_engine v0.1 integrated
+
+Projection layer implemented
+
+UI projection consumer active
+
+Governance Phase 3.5 initialized
+
+Do not regress any of the above.
