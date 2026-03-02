@@ -1,0 +1,66 @@
+[
+  {
+    "entities_count": 6,
+    "health_status": "ok",
+    "last_inspection_index_time": "2026-03-01T22:00:43.437768+00:00",
+    "last_integrity_report_time": "2026-03-01T22:00:43.725848+00:00",
+    "last_snapshot_time": "2026-03-01T22:01:02.860668+00:00",
+    "timestamp": "2026-03-01T22:01:03.123918+00:00"
+  },
+  {
+    "entities_count": 6,
+    "health_status": "ok",
+    "last_inspection_index_time": "2026-03-01T22:01:03.904867+00:00",
+    "last_integrity_report_time": "2026-03-01T22:01:04.100670+00:00",
+    "last_snapshot_time": "2026-03-01T22:01:18.277328+00:00",
+    "timestamp": "2026-03-01T22:01:18.317045+00:00"
+  },
+  {
+    "entities_count": 6,
+    "health_status": "ok",
+    "last_inspection_index_time": "2026-03-01T22:01:24.418158+00:00",
+    "last_integrity_report_time": "2026-03-01T22:01:24.467875+00:00",
+    "last_snapshot_time": "2026-03-01T22:01:32.595598+00:00",
+    "timestamp": "2026-03-01T22:01:33.463093+00:00"
+  },
+  {
+    "entities_count": 6,
+    "health_status": "ok",
+    "last_inspection_index_time": "2026-03-01T22:01:44.871936+00:00",
+    "last_integrity_report_time": "2026-03-01T22:01:44.859147+00:00",
+    "last_snapshot_time": "2026-03-01T22:01:47.969291+00:00",
+    "timestamp": "2026-03-01T22:01:48.600315+00:00"
+  },
+  {
+    "entities_count": 6,
+    "health_status": "ok",
+    "last_inspection_index_time": "2026-03-01T22:01:44.871936+00:00",
+    "last_integrity_report_time": "2026-03-01T22:01:44.859147+00:00",
+    "last_snapshot_time": "2026-03-01T22:02:03.320131+00:00",
+    "timestamp": "2026-03-01T22:02:03.733274+00:00"
+  },
+  {
+    "entities_count": 6,
+    "health_status": "ok",
+    "last_inspection_index_time": "2026-03-01T22:02:05.363280+00:00",
+    "last_integrity_report_time": "2026-03-01T22:02:05.266429+00:00",
+    "last_snapshot_time": "2026-03-01T22:02:18.644739+00:00",
+    "timestamp": "2026-03-01T22:02:18.865005+00:00"
+  },
+  {
+    "entities_count": 6,
+    "health_status": "ok",
+    "last_inspection_index_time": "2026-03-01T22:02:25.799283+00:00",
+    "last_integrity_report_time": "2026-03-01T22:02:25.661284+00:00",
+    "last_snapshot_time": "2026-03-01T22:02:33.976767+00:00",
+    "timestamp": "2026-03-01T22:02:33.979937+00:00"
+  },
+  {
+    "entities_count": 6,
+    "health_status": "ok",
+    "last_inspection_index_time": "2026-03-01T22:02:46.248156+00:00",
+    "last_integrity_report_time": "2026-03-01T22:02:46.079065+00:00",
+    "last_snapshot_time": "2026-03-01T22:02:48.295911+00:00",
+    "timestamp": "2026-03-01T22:02:49.134253+00:00"
+  }
+]

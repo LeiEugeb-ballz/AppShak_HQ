@@ -1,0 +1,120 @@
+{
+  "cursor_state": {
+    "entity_timeline_default_limit": 25,
+    "office_timeline_default_limit": 50
+  },
+  "entities": {
+    "boardroom": {
+      "entity_type": "area",
+      "id": "boardroom",
+      "occupants": [],
+      "recent_occupancy_transitions": [],
+      "timeline_total": 0
+    },
+    "command_desk": {
+      "entity_type": "area",
+      "id": "command_desk",
+      "occupants": [],
+      "recent_occupancy_transitions": [],
+      "timeline_total": 0
+    },
+    "forge_desk": {
+      "entity_type": "area",
+      "id": "forge_desk",
+      "occupants": [],
+      "recent_occupancy_transitions": [],
+      "timeline_total": 0
+    },
+    "recon_desk": {
+      "entity_type": "area",
+      "id": "recon_desk",
+      "occupants": [],
+      "recent_occupancy_transitions": [],
+      "timeline_total": 0
+    },
+    "supervisor_control_desk": {
+      "entity_type": "area",
+      "id": "supervisor_control_desk",
+      "occupants": [],
+      "recent_occupancy_transitions": [],
+      "timeline_total": 1
+    },
+    "water_cooler": {
+      "entity_type": "area",
+      "id": "water_cooler",
+      "occupants": [],
+      "recent_occupancy_transitions": [],
+      "timeline_total": 0
+    }
+  },
+  "entity_ids": [
+    "boardroom",
+    "command_desk",
+    "forge_desk",
+    "recon_desk",
+    "supervisor_control_desk",
+    "water_cooler"
+  ],
+  "generated_at": "2026-03-01T22:01:24.418158+00:00",
+  "index_hash": "ac042ba55e5f09aa65c4897de4465817ff70383d1a32569fbfc43a9b5d03d4dc",
+  "integrity_summary": {
+    "arbitration_efficiency": {
+      "approval_rate": 0.0,
+      "arbitration_efficiency_score": 0.0,
+      "convergence_speed": {
+        "mean_revisions": 0.0,
+        "unit": "event_steps"
+      },
+      "count": 0,
+      "mean_decision_score_delta_per_revision": 0.0,
+      "resolution_time": {
+        "mean": 0.0,
+        "unit": "event_steps"
+      },
+      "revisions_before_execute_distribution": {}
+    },
+    "propagation": {
+      "cross_agent_reuse_count": 0,
+      "lessons_total": 0,
+      "mode": "signature_fallback",
+      "propagation_depth": 0,
+      "signature_rule": "signature = (source_event_type, source_event_id, source_agent)",
+      "time_to_reuse": {
+        "mean": 0.0,
+        "unit": "event_steps"
+      }
+    },
+    "report_hash": "bdd5a185d1f5355d904c22c1baad33134a32f2f76b72f38c003e17ce338ed4b1",
+    "trust_trend": {
+      "anomaly_flags": {
+        "slope_band_exceeded": false,
+        "variance_band_exceeded": false
+      },
+      "rolling_slope": 0.0,
+      "rolling_variance": 0.0
+    }
+  },
+  "office_timeline": [
+    {
+      "area_id": "supervisor_control_desk",
+      "entity_ids": [
+        "supervisor"
+      ],
+      "entry_type": "SUPERVISOR_STOP",
+      "event_id": 724,
+      "payload": {
+        "origin_id": "supervisor",
+        "payload": {
+          "correlation_id": "SUPERVISOR_STOP:all:1772084473",
+          "event_id": 724,
+          "idempotency_key": "control:SUPERVISOR_STOP:all:1772084473",
+          "prime_directive_justification": "Supervisor control events maintain resilient, safe swarm operation."
+        },
+        "timestamp": "2026-02-26T05:41:13.201984+00:00",
+        "type": "SUPERVISOR_STOP"
+      },
+      "source": "projection_snapshot",
+      "timestamp": "2026-02-26T05:41:13.201984+00:00"
+    }
+  ]
+}

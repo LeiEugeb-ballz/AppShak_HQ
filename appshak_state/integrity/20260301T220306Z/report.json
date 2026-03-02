@@ -1,0 +1,63 @@
+{
+  "arbitration": {
+    "approval_rate": 0.0,
+    "arbitration_efficiency_score": 0.0,
+    "convergence_speed": {
+      "mean_revisions": 0.0,
+      "unit": "event_steps"
+    },
+    "count": 0,
+    "mean_decision_score_delta_per_revision": 0.0,
+    "resolution_time": {
+      "mean": 0.0,
+      "unit": "event_steps"
+    },
+    "revisions_before_execute_distribution": {}
+  },
+  "diagnostics": {
+    "determinism_checks": {
+      "chain_valid": false,
+      "replay_hash_equal": false
+    },
+    "generated_at": "2026-03-01T22:03:06.499986+00:00",
+    "integrity_summary": "measurement_only",
+    "last_governance_ledger_time": null,
+    "last_snapshot_time": "2026-03-01T22:03:05.741731+00:00",
+    "stability_warnings": [
+      "governance_ledger_empty"
+    ]
+  },
+  "efficiency": {
+    "governance_cycles_per_execution_event": 0.0,
+    "label": "proxy",
+    "retries_per_success": 0.0,
+    "tool_invocations_per_success": 0.0
+  },
+  "generated_at": "2026-03-01T22:03:06.499986+00:00",
+  "propagation": {
+    "cross_agent_reuse_count": 0,
+    "lessons_total": 0,
+    "mode": "signature_fallback",
+    "propagation_depth": 0,
+    "signature_rule": "signature = (source_event_type, source_event_id, source_agent)",
+    "time_to_reuse": {
+      "mean": 0.0,
+      "unit": "event_steps"
+    }
+  },
+  "report_hash": "cd51319be7cfd83352ff5316786014c80e45d2cd87fedb1bc41268c3d539393f",
+  "trust": {
+    "change_count": 0,
+    "governance_drift_indicator": 0,
+    "trend": {
+      "anomaly_flags": {
+        "slope_band_exceeded": false,
+        "variance_band_exceeded": false
+      },
+      "rolling_slope": 0.0,
+      "rolling_variance": 0.0
+    },
+    "trust_volatility_score": 0.0
+  },
+  "window": "7d"
+}
