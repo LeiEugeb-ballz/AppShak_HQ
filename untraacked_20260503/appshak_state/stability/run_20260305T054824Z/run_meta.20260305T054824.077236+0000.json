@@ -1,0 +1,11 @@
+{
+  "checkpoint_every_cycles": 5,
+  "completed_at": null,
+  "duration_hours": 6.0,
+  "incident": null,
+  "poll_interval_seconds": 60.0,
+  "run_id": "run_20260305T054824Z",
+  "started_at": "2026-03-05T05:48:24.077236+00:00",
+  "status": "running",
+  "updated_at": "2026-03-05T05:48:24.077236+00:00"
+}

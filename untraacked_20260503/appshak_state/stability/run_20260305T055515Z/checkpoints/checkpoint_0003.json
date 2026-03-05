@@ -1,0 +1,16 @@
+{
+  "checkpoint_id": 3,
+  "cycle": 2,
+  "governance_replay_hash_checkpoint": "",
+  "inspection_timestamp": "2026-03-05T05:57:02.332650+00:00",
+  "integrity_report_hash": "aa2f099fdb50c6e48a3e5c8de8b1b40fae1f8dcc8530b974d2eddf0f9ebf97ba",
+  "integrity_timestamp": "2026-03-05T05:57:02.935079+00:00",
+  "ledger_reconstruction_hash_checkpoint": "1888baee9e75c995402bb0c318dbef25d4efcdeeed541e0abcb809c33c86f14e",
+  "projection_timestamp": "2026-03-05T05:57:14.602755+00:00",
+  "run_id": "run_20260305T055515Z",
+  "timestamp": "2026-03-05T05:57:15.044526+00:00",
+  "watchdog": {
+    "reason": "running=false while queue remains non-zero",
+    "status": "incident"
+  }
+}

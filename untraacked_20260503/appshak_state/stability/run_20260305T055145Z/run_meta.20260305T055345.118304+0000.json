@@ -1,0 +1,15 @@
+{
+  "checkpoint_every_cycles": 5,
+  "completed_at": "2026-03-05T05:53:45.118304+00:00",
+  "duration_hours": 6.0,
+  "incident": {
+    "cycle": 2,
+    "reason": "running=false while queue remains non-zero",
+    "type": "watchdog_queue_stall"
+  },
+  "poll_interval_seconds": 60.0,
+  "run_id": "run_20260305T055145Z",
+  "started_at": "2026-03-05T05:51:45.106280+00:00",
+  "status": "halted",
+  "updated_at": "2026-03-05T05:53:45.118304+00:00"
+}
