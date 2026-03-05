@@ -13,6 +13,9 @@ class IntentEnginePlugin:
 
     def __init__(self, *, intent_store: Optional[IntentStore] = None) -> None:
         self.intent_store = intent_store or IntentStore()
+        # Ensure persistent intent store exists at plugin initialization.
+        # Required for kernel startup contract and integration tests.
+        self.intent_store.load_intents()
 
     async def dispatch(self, state_view: StateView) -> None:
         snapshot = state_view.snapshot()
@@ -129,4 +132,3 @@ def _as_float(value: Any) -> Optional[float]:
 
 def _clamp(value: float, minimum: float, maximum: float) -> float:
     return max(minimum, min(maximum, value))
-

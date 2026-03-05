@@ -44,5 +44,6 @@ class IntentStore:
         normalized = [str(item).strip() for item in intents if isinstance(item, str) and str(item).strip()]
         payload = {"intents": normalized}
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
-
+        tmp = self.path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
+        tmp.replace(self.path)
