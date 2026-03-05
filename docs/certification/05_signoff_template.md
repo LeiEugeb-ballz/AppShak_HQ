@@ -29,6 +29,20 @@
    - Status: PASS / FAIL
    - Evidence:
 
+## Tested Scope (Executed in This Run)
+
+1. Command(s) executed:
+2. Module coverage proven by execution:
+3. Runtime duration actually achieved:
+4. Artifacts produced:
+
+## Could-Be-Tested Scope (Planned but Not Executed Here)
+
+1. Deferred command(s):
+2. Deferred module/runtime gates:
+3. Reason deferred:
+4. Planned next execution window:
+
 ## Blocking Issues
 
 1. Issue:

@@ -11,6 +11,20 @@ Use this file to index all artifacts for a certification run.
 - Operator:
 - Ports used:
 
+## Tested vs Deferred Scope
+
+### Tested (Executed Now)
+
+1. Test command(s) actually run:
+2. Runtime checks actually run:
+3. Gate(s) completed:
+
+### Deferred (Could Be Tested)
+
+1. Deferred command(s):
+2. Deferred runtime gate(s):
+3. Deferral reason:
+
 ## Automated Test Evidence
 
 1. Full suite stdout/stderr:
