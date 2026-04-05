@@ -404,7 +404,7 @@ def build_manifest(output_dir: Path, validation: dict, preflight: dict, run_meta
         file_hashes[fname] = sha or "FILE_NOT_FOUND"
 
     manifest = {
-        "schema_version": "3B.2",
+        "schema_version": "3B.3",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "run_meta": run_meta,
         "verdict": "PASS" if validation["overall_pass"] else "FAIL",
@@ -496,11 +496,11 @@ def main() -> None:
         "start_time": run_start.isoformat(),
         "planned_hours": hours,
         "quick_mode": args.quick,
-        "harness_version": "3B.2",
+        "harness_version": "3B.3",
     }
 
     log("=" * 60)
-    log("AppShak Phase 3B Certification Harness v3B.2")
+    log("AppShak Phase 3B Certification Harness v3B.3")
     log(f"Mode: {'QUICK (5min)' if args.quick else f'FULL ({hours}h)'}")
     log(f"Output: {output_dir.resolve()}")
     log("=" * 60)
@@ -525,7 +525,7 @@ def main() -> None:
     log("STEP 3/7 — Starting background services")
     procs = ProcessGroup()
 
-    swarm_duration = int(hours * 3600 + 180)  # swarm runs slightly longer than stability
+    swarm_duration = int(hours * 3600 + 600)  # 10min buffer so swarm never gets killed mid-queue
     procs.start([
         sys.executable, "-m", "appshak_substrate.run_swarm",
         "--agents", *AGENTS,
@@ -582,6 +582,13 @@ def main() -> None:
     with open(output_dir / "stability_result.json", "w") as f:
         json.dump(stability_result, f, indent=2)
     log(f"Stability run complete. Status: {stability_result.get('status', 'unknown')} | Passed: {stability_result.get('passed')}")
+
+    # ── Queue drain wait ───────────────────────────────────────
+    # Give the swarm supervisor time to finish draining its event queue
+    # before we send SIGTERM. This prevents watchdog_queue_stall on Windows
+    # where terminate() is not graceful. 30s is enough for normal queue sizes.
+    log("Waiting 30s for queue drain before stopping services...")
+    time.sleep(30)
 
     # ── Stop background services ───────────────────────────────
     procs.stop_all()

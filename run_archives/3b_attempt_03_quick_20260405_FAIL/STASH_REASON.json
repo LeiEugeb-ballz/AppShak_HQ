@@ -1,0 +1,19 @@
+{
+  "attempt": 3,
+  "run_date": "2026-04-05T07:12:24Z",
+  "mode": "QUICK 5min",
+  "harness_version": "3B.2",
+  "verdict": "FAIL",
+  "failed_criteria": ["no_crash_watchdog_ok", "integrity_fields_present", "decisions_traceable", "replay_deterministic"],
+  "root_cause_analysis": {
+    "no_crash_watchdog_ok": "Harness was still old 3B.1 on local machine — git pull not run before this attempt. Stashed as evidence of attempt.",
+    "note": "Evidence files confirm same 3B.1 schema_version — this run used the unpatched harness. Not a new failure, confirms git pull is required."
+  },
+  "fixes_applied_in": "3B.3 — CERTIFICATION_HARNESS.py",
+  "fix_summary": [
+    "Swarm duration extended from +180s to +600s buffer (10min)",
+    "Added 30s queue drain wait after stability run before stopping services",
+    "This prevents watchdog_queue_stall on Windows where SIGTERM is not graceful"
+  ],
+  "preserved_for_audit": true
+}
