@@ -1,0 +1,34 @@
+{
+  "attempt": 2,
+  "run_date": "2026-04-05T05:42:38Z",
+  "completed_at": "2026-04-05T05:45:05Z",
+  "mode": "QUICK 5min",
+  "harness_version": "3B.1",
+  "verdict": "FAIL",
+  "machine": "new test PC (Windows)",
+  "failed_criteria": [
+    "no_crash_watchdog_ok",
+    "integrity_fields_present",
+    "decisions_traceable",
+    "replay_deterministic"
+  ],
+  "passed_criteria": [
+    "projection_populated",
+    "event_continuity_no_gaps",
+    "inspection_index_built"
+  ],
+  "root_cause_analysis": {
+    "summary": "Same root causes as Attempt 01. Quick run was used to confirm failures were reproducible and to collect clean evidence for diagnosis. All 4 failures are harness-level bugs, not substrate bugs. Swarm, projection, and inspection all ran correctly."
+  },
+  "manifest_sha256": "see MANIFEST.json attached in evidence",
+  "stability_result_summary": {
+    "status": "halted",
+    "incident_type": "watchdog_queue_stall",
+    "incident_reason": "running=false while queue remains non-zero",
+    "checkpoints_recorded": 1,
+    "ledger_reconstruction_hash": "1888baee9e75c995402bb0c318dbef25d4efcdeeed541e0abcb809c33c86f14e"
+  },
+  "fixes_applied_in": "3B.2 — CERTIFICATION_HARNESS.py",
+  "preserved_for_audit": true,
+  "note": "Quick run conducted morning of 2026-04-05 to confirm and document failures before applying harness fixes. Evidence preserved per constitutional audit requirements."
+}

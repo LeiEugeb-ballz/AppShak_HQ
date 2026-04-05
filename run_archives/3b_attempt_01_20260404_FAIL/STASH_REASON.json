@@ -1,0 +1,36 @@
+{
+  "attempt": 1,
+  "run_date": "2026-04-04T17:20:10Z",
+  "completed_at": "2026-04-05T05:39:43Z",
+  "mode": "FULL 6h",
+  "harness_version": "3B.1",
+  "verdict": "FAIL",
+  "machine": "new test PC (Windows)",
+  "failed_criteria": [
+    "no_crash_watchdog_ok",
+    "integrity_fields_present",
+    "decisions_traceable",
+    "replay_deterministic"
+  ],
+  "passed_criteria": [
+    "projection_populated",
+    "event_continuity_no_gaps",
+    "inspection_index_built"
+  ],
+  "root_cause_analysis": {
+    "no_crash_watchdog_ok": "Stability runner reported status=halted with incident type=watchdog_queue_stall (running=false while queue remains non-zero). Swarm exited before draining its event queue. Harness also failed to parse the 'status' field correctly — it looked for 'passed' key which did not exist in the runner output.",
+    "integrity_fields_present": "Harness called appshak_integrity.run_report with --output-dir flag. Correct flag is --out-root. Module rejected the argument and produced no report files.",
+    "decisions_traceable": "Governance engine was never started as a background process. Ledger remained at 0 entries because no process was writing to it during the run.",
+    "replay_deterministic": "Flows from no_crash_watchdog_ok and decisions_traceable failures. No governance data = no replay hash in checkpoints."
+  },
+  "fixes_applied_in": "3B.2 — CERTIFICATION_HARNESS.py",
+  "fix_summary": [
+    "Fixed --output-dir to --out-root for integrity report command",
+    "Added governance engine bootstrap step before swarm launch",
+    "Fixed stability result parser to read 'status' and 'incident' fields correctly",
+    "Added automatic stash of previous run before overwriting evidence",
+    "Added dead-process check after background services launch"
+  ],
+  "preserved_for_audit": true,
+  "note": "Run was killed manually overnight. Evidence captured and stashed for full audit trail per constitutional governance requirements."
+}
