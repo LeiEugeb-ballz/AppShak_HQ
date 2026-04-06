@@ -1,3 +1,7 @@
+Unread Message:
+
+
+
 #!/usr/bin/env python
 """
 AppShak Phase 3B — Certification Harness
@@ -227,6 +231,16 @@ class ProcessGroup:
         for label, p in self._procs:
             if p.poll() is not None:
                 dead.append(f"{label} (exit={p.returncode})")
+                # Dump the captured output so we can see WHY it died
+                try:
+                    output = p.stdout.read() if p.stdout else ""
+                    if output.strip():
+                        log(f"  --- {label} output ---", "ERROR")
+                        for line in output.strip().splitlines():
+                            log(f"  {line}", "ERROR")
+                        log(f"  --- end {label} output ---", "ERROR")
+                except Exception:
+                    pass
         return dead
 
     def stop_all(self) -> None:
