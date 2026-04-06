@@ -79,7 +79,15 @@ class WorkspaceManager:
     def _ensure_clean(self, worktree_path: Path) -> None:
         result = self._run_git("-C", str(worktree_path), "status", "--porcelain")
         if result.stdout.strip():
-            raise RuntimeError(f"Worktree '{worktree_path}' is not clean.")
+            # On Windows, CRLF normalisation can make freshly-created worktrees
+            # appear dirty.  Force-reset and re-check before giving up.
+            self._run_git("-C", str(worktree_path), "reset", "--hard")
+            self._run_git("-C", str(worktree_path), "clean", "-fdx")
+            result2 = self._run_git("-C", str(worktree_path), "status", "--porcelain")
+            if result2.stdout.strip():
+                raise RuntimeError(
+                    f"Worktree '{worktree_path}' is not clean even after reset: {result2.stdout.strip()}"
+                )
 
     def _assert_git_repo(self) -> None:
         dot_git = self.repo_root / ".git"
