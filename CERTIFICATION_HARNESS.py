@@ -641,7 +641,7 @@ def main() -> None:
     run_meta["end_time"] = run_end.isoformat()
     run_meta["elapsed_seconds"] = (run_end - run_start).total_seconds()
 
-    with open(output_dir / "run_log.txt", "w") as f:
+    with open(output_dir / "run_log.txt", "w", encoding="utf-8") as f:
         f.write("AppShak Phase 3B Certification Run Log\n")
         f.write(f"Harness version: 3B.2\n")
         f.write(f"Started:  {run_meta['start_time']}\n")
