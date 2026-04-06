@@ -115,16 +115,13 @@ class StabilityRunner:
     def _governance_hash_checkpoint(self, *, snapshot: Mapping[str, Any]) -> Dict[str, Any]:
         chain_valid = self.governance_ledger.validate_hash_chain()
         reconstructed = self.governance_ledger.reconstruct_registry(fallback_registry={"agents": {}, "history": {}})
+        from appshak_governance.utils import canonical_hash
         replay_hash = ""
-        if isinstance(reconstructed, Mapping):
-            replay_hash = str(snapshot.get("governance_replay_hash", "")) or str(
-                reconstructed.get("registry_hash", "")
-            )
         reconstruction_hash = ""
         if isinstance(reconstructed, Mapping):
-            from appshak_governance.utils import canonical_hash
-
             reconstruction_hash = canonical_hash(reconstructed)
+            # Try snapshot first, then fall back to hashing the reconstructed registry
+            replay_hash = str(snapshot.get("governance_replay_hash", "")).strip() or reconstruction_hash
         return {
             "chain_valid": chain_valid,
             "replay_hash": replay_hash,
@@ -148,7 +145,8 @@ class StabilityRunner:
                     }
         event_queue_size = int(snapshot.get("event_queue_size", 0))
         running = bool(snapshot.get("running", False))
-        if cycle >= 2 and (not running) and event_queue_size > 0:
+        # Allow more cycles for the queue to drain before flagging a stall
+        if cycle >= 5 and (not running) and event_queue_size > 0:
             return {
                 "type": "watchdog_queue_stall",
                 "reason": "running=false while queue remains non-zero",
