@@ -1,7 +1,3 @@
-Unread Message:
-
-
-
 #!/usr/bin/env python
 """
 AppShak Phase 3B — Certification Harness
