@@ -55,6 +55,10 @@ class WorkspaceManager:
                     )
             if self.reset_on_ensure:
                 self.reset_worktree(normalized)
+            # Always reset on first creation to avoid CRLF false-dirty on Windows
+            else:
+                self._run_git("-C", str(path), "reset", "--hard")
+                self._run_git("-C", str(path), "clean", "-fd")
             self._ensure_clean(path)
             result[normalized] = path
         return result
