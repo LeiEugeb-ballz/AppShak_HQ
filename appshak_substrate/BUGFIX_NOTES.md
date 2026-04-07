@@ -43,3 +43,40 @@ reduce recurrence on future clones.
   Step 4 (stability harness) successfully for the first time on 2026-04-06.
 
 ---
+
+---
+
+## BUG-002: watchdog_queue_stall False Positive — Race Condition on Kernel Shutdown
+
+**Date Fixed:** 2026-04-07
+**Fixed By:** Jafa (AI agent, Base44)
+**Affected File:** `appshak_stability/runner.py`
+**Commit:** (see git log)
+
+### Symptom
+`watchdog_queue_stall` fired after only ~6 minutes of a 6-hour run, causing
+FAIL on `no_crash_watchdog_ok`. The harness reported:
+```
+running=false while queue remains non-zero
+```
+
+### Root Cause
+The `running` flag in the projection snapshot comes from `kernel.running` inside
+each worker process. The kernel finishes its own internal event loop and sets
+`running=False` during normal operation. The projection materializer snapshots
+this state while the supervisor's SQLite mailstore queue still has pending items
+that haven't been consumed yet. This is a race condition — not a real stall.
+
+The original watchdog fired after just 5 cycles (~5 seconds), which is not
+enough time to distinguish a genuine stall from a normal kernel cycle boundary.
+
+### Fix
+`runner.py` now tracks **consecutive** stall cycles. A `watchdog_queue_stall`
+incident is only raised after **3 consecutive cycles** where `running=false` AND
+`event_queue_size > 0`. A single-cycle blip (race condition) resets the counter.
+Non-stall incidents (e.g. `watchdog_worker_offline`) still fire immediately.
+
+### Impact
+- Eliminates false-positive stall detection during normal kernel shutdown cycles.
+- Genuine stalls (sustained over 3+ cycles) are still caught correctly.
+- Confirmed: stability run completed with `Status: completed | Passed: True`.

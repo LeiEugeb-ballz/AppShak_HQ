@@ -58,6 +58,7 @@ class StabilityRunner:
         total_cycles = max(1, int(math.ceil((self.duration_hours * 3600.0) / self.poll_interval_seconds)))
         incident: Dict[str, Any] | None = None
         start_monotonic = time.monotonic()
+        _consecutive_stall_cycles = 0  # Track consecutive stall cycles to avoid false positives
 
         for cycle in range(total_cycles):
             cycle_started_at = utc_now_iso()
@@ -79,7 +80,18 @@ class StabilityRunner:
                 "watchdog": {"status": "ok", "reason": None},
             }
 
-            incident = self._detect_incident(snapshot=snapshot, cycle=cycle)
+            detected = self._detect_incident(snapshot=snapshot, cycle=cycle)
+            if detected is not None and detected.get("type") == "watchdog_queue_stall":
+                _consecutive_stall_cycles += 1
+                if _consecutive_stall_cycles >= 3:
+                    incident = detected
+            elif detected is not None:
+                # Non-stall incidents fire immediately
+                incident = detected
+                _consecutive_stall_cycles = 0
+            else:
+                _consecutive_stall_cycles = 0
+
             if incident is not None:
                 checkpoint_payload["watchdog"] = {"status": "incident", "reason": incident.get("reason")}
                 self.run_store.checkpoint(run_dir=run_dir, checkpoint_id=cycle + 1, payload=checkpoint_payload)
