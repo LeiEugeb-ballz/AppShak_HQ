@@ -80,3 +80,41 @@ Non-stall incidents (e.g. `watchdog_worker_offline`) still fire immediately.
 - Eliminates false-positive stall detection during normal kernel shutdown cycles.
 - Genuine stalls (sustained over 3+ cycles) are still caught correctly.
 - Confirmed: stability run completed with `Status: completed | Passed: True`.
+
+---
+
+## BUG-003: watchdog_queue_stall — Supervisor Control Events Counted as Pending Work
+
+**Date Fixed:** 2026-04-08
+**Fixed By:** Jafa (AI agent, Base44)
+**Affected File:** `appshak_projection/projector.py`
+**Commit:** (see git log)
+
+### Symptom
+`watchdog_queue_stall` continued to fire even after the 3-cycle grace period fix
+(BUG-002). The run halted after ~480 seconds of a 6-hour run.
+
+### Root Cause
+The projection materializer computes `event_queue_size` by counting ALL events in
+the mailstore with status `PENDING`. When the supervisor shuts down, it publishes
+`SUPERVISOR_STOP` and `SUPERVISOR_HEARTBEAT` control events to the mailstore.
+These events have status `PENDING` and are never claimed/acked by workers (because
+workers are shutting down). They remain in the mailstore as PENDING indefinitely.
+
+The watchdog sees `running=false` (from `SUPERVISOR_STOP` event) + `queue > 0`
+(from those same unclaimed control events) and fires the stall alarm — even though
+no real work is pending.
+
+### Fix
+`projector.py` now excludes known supervisor/kernel control event types from the
+`pending_count` calculation:
+- `SUPERVISOR_STOP`, `SUPERVISOR_START`, `SUPERVISOR_HEARTBEAT`
+- `KERNEL_START`, `KERNEL_SHUTDOWN`, `KERNEL_HEARTBEAT`
+
+These are infrastructure lifecycle events, not work items. Only agent-directed
+work events count toward `event_queue_size`.
+
+### Impact
+- `event_queue_size` now accurately reflects actual pending work.
+- Watchdog stall detection is no longer triggered by shutdown bookkeeping.
+- Previous BUG-002 grace-period fix (3 cycles) remains in place as a safety net.

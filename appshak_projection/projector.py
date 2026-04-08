@@ -26,7 +26,18 @@ class ProjectionProjector:
         view = normalize_projection_view(self._view_store.load())
 
         events = self._safe_list_events()
-        pending_count = sum(1 for event in events if _event_status(event) == "PENDING")
+        # Exclude supervisor control events from pending count — they are never
+        # claimed by workers and should not be counted as "work in the queue".
+        # This prevents false watchdog_queue_stall alerts on shutdown.
+        _CONTROL_TYPES = frozenset({
+            "SUPERVISOR_STOP", "SUPERVISOR_START", "SUPERVISOR_HEARTBEAT",
+            "KERNEL_START", "KERNEL_SHUTDOWN", "KERNEL_HEARTBEAT",
+        })
+        pending_count = sum(
+            1 for event in events
+            if _event_status(event) == "PENDING"
+            and str(getattr(event, "type", "")).strip().upper() not in _CONTROL_TYPES
+        )
         max_event_id, latest_event = _max_event(events)
 
         cursor_event_id = int(view.get("last_seen_event_id", 0))
