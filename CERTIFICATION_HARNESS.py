@@ -115,9 +115,13 @@ def file_sha256(path: str) -> str | None:
         return None
 
 
-def ensure_state_dirs() -> None:
-    """Ensure all required state directories exist."""
-    dirs = [
+def ensure_state_dirs(clean: bool = False) -> None:
+    """Ensure all required state directories exist. If clean=True, wipe runtime
+    state first so each certification run starts from a completely fresh baseline.
+    The workspaces dir is NOT wiped — worktrees are expensive to recreate.
+    """
+    import shutil
+    runtime_dirs = [
         "appshak_state/substrate",
         "appshak_state/projection",
         "appshak_state/governance",
@@ -125,9 +129,15 @@ def ensure_state_dirs() -> None:
         "appshak_state/inspection",
         "appshak_state/stability",
         "appshak_state/agents",
-        "workspaces",
     ]
-    for d in dirs:
+    if clean:
+        for d in runtime_dirs:
+            p = Path(d)
+            if p.exists():
+                shutil.rmtree(p)
+                log(f"  Wiped stale state: {d}")
+    all_dirs = runtime_dirs + ["workspaces"]
+    for d in all_dirs:
         os.makedirs(d, exist_ok=True)
 
 
@@ -499,7 +509,8 @@ def main() -> None:
     stash_previous_run(output_dir)
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    ensure_state_dirs()
+    log("Wiping stale appshak_state/ before fresh run...")
+    ensure_state_dirs(clean=True)
 
     run_start = datetime.now(timezone.utc)
     run_meta = {
