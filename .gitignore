@@ -1,5 +1,21 @@
+# Python cache
 __pycache__/
 *.pyc
+
+# Runtime state
+appshak_state/
+
+# Certification output
+certification_evidence/
+
+# OS / misc
+.DS_Store
+Thumbs.db
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 .appshak/
 appshak_state/
-certification_evidence_*/
+certification_evidence*
