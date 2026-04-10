@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.appshak/
+appshak_state/
+certification_evidence_*/
