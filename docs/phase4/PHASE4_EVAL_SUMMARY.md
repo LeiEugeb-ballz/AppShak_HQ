@@ -3,7 +3,7 @@
 ## Run Metadata
 - Run ID: phase4_8b1f1e81c2c37cce
 - Timestamp: 2026-04-18T10:45:00+00:00
-- Duration: 5.517s
+- Duration: 5.458s
 
 ## Pipeline Status
 - Projection Input: OK
@@ -27,8 +27,15 @@
 ## Determinism Check
 - Replay Match: YES
 - Hash Comparison:
-  - Original: inspection=2d50760e37b7e80c668a8a173c13d6cf724d9fb4371323f42003611b096a8be2; integrity=f5bebe0745a1ad3d5b5368ec896dc2434827e7cf13b077e493d8b5eb1386e198
-  - Replay: inspection=2d50760e37b7e80c668a8a173c13d6cf724d9fb4371323f42003611b096a8be2; integrity=f5bebe0745a1ad3d5b5368ec896dc2434827e7cf13b077e493d8b5eb1386e198
+  - Original: inspection=3d96ab852979fe87edbfe56ec972dc43aa6debbf81cd43bd889ee115dbbd2414; integrity=1983a60a4c78da424ccedbd20d698bf81b2ae1859f0accc6789598b5bdabf8af
+  - Replay: inspection=3d96ab852979fe87edbfe56ec972dc43aa6debbf81cd43bd889ee115dbbd2414; integrity=1983a60a4c78da424ccedbd20d698bf81b2ae1859f0accc6789598b5bdabf8af
+
+## Audit Hardening
+- State Graph Snapshot Hash: afedf56425b9169703f4e8471f859a833b77d894b6fcabeb605e654356acf57f
+- Run/Commit Binding Hash: 3a2042c17fa4e85f27c5dbd57f0030c451505bd9ef90c7f9cdc12b079033a654
+- Bound Commit SHA: 2d5308dfa00ff22b8451d95166ec0b1c5630be0a
+- Bound Run ID: phase4_8b1f1e81c2c37cce
+- AUDIT HARDENING STATE: COMPLETE
 
 ## Test Results
 - test_phase4_integrity_and_inspection: PASS
@@ -38,6 +45,6 @@
 - Status: PASS
 
 ## Notes
-- Observations: Phase 4 pipeline wrote inspection and integrity artifacts with deterministic replay hash parity.
+- Observations: Phase 4 pipeline wrote deterministic replay artifacts with audit binding.
 - Weak Points: No critical weak points detected in current run.
-- Next Actions: Proceed to certification signoff and attach this report to evidence index.
+- Next Actions: Proceed with immutable baseline signoff (v2 audit hardening aligned).

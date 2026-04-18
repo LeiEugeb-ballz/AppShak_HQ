@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import time
 from typing import Any, Dict, List, Mapping
 
@@ -150,6 +151,26 @@ class AutonomyLoopEngine:
         elapsed = time.monotonic() - started
         watchdog_status = "timeout" if elapsed > self.stability.watchdog_timeout_seconds else "ok"
         watchdog_reason = "" if watchdog_status == "ok" else "watchdog_cycle_timeout_exceeded"
+        commit_sha = _resolve_commit_sha()
+        state_graph_snapshot_hash = canonical_hash(
+            {
+                "snapshot": dict(snapshot),
+                "scout": scout_stage,
+                "boardroom": boardroom_stage,
+                "builder": builder_stage,
+                "external_action": action_result,
+                "retry": retry_stage,
+                "event_log": event_log,
+                "cycle_id": cycle_id,
+                "cycle_index": cycle_index,
+            }
+        )
+        run_commit_binding_hash = canonical_hash(
+            {
+                "run_id": str(phase4_snapshot.run_id),
+                "commit_sha": commit_sha,
+            }
+        )
 
         runtime_context = {
             "autonomy": {
@@ -166,6 +187,13 @@ class AutonomyLoopEngine:
             "watchdog": {
                 "status": watchdog_status,
                 "reason": watchdog_reason,
+            },
+            "audit_binding": {
+                "state_graph_snapshot_hash": state_graph_snapshot_hash,
+                "run_id": str(phase4_snapshot.run_id),
+                "commit_sha": commit_sha,
+                "run_commit_binding_hash": run_commit_binding_hash,
+                "audit_hardening_state": "COMPLETE_V2",
             },
             "event_log": event_log,
         }
@@ -184,6 +212,7 @@ class AutonomyLoopEngine:
             "summary": optimization_summary,
         }
         pipeline_result["runtime"] = runtime_context
+        pipeline_result["audit_binding"] = dict(runtime_context.get("audit_binding", {}))
 
         if watchdog_status == "ok":
             self.stability.mark_cycle_stable(
@@ -413,3 +442,19 @@ def _read(payload: Mapping[str, Any], *keys: str) -> Any:
             return None
         value = value.get(key)
     return value
+
+
+def _resolve_commit_sha() -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except Exception:
+        return "unknown"
+    if result.returncode != 0:
+        return "unknown"
+    value = result.stdout.strip()
+    return value if value else "unknown"

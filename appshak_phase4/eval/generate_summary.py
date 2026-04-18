@@ -92,6 +92,18 @@ def generate_summary_markdown(
         and replay["inspection_hash"] == original_inspection_hash
         and replay["integrity_hash"] == original_integrity_hash
     )
+    audit_binding = _read_path(inspection, "phase4", "runtime", "audit_binding")
+    if not isinstance(audit_binding, Mapping):
+        audit_binding = {}
+    state_graph_snapshot_hash = str(audit_binding.get("state_graph_snapshot_hash", "")).strip()
+    run_commit_binding_hash = str(audit_binding.get("run_commit_binding_hash", "")).strip()
+    bound_commit_sha = str(audit_binding.get("commit_sha", "")).strip()
+    bound_run_id = str(audit_binding.get("run_id", "")).strip()
+    audit_hardening_state = (
+        "COMPLETE"
+        if state_graph_snapshot_hash and run_commit_binding_hash and bound_commit_sha and bound_run_id
+        else "INCOMPLETE"
+    )
 
     if run_tests:
         phase4_test = _run_pytest("tests/test_phase4_integrity_and_inspection.py")
@@ -121,6 +133,7 @@ def generate_summary_markdown(
         violations=violations,
         phase4_test=phase4_test,
         projection_test=projection_test,
+        audit_hardening_state=audit_hardening_state,
     )
 
     markdown = "\n".join(
@@ -156,6 +169,13 @@ def generate_summary_markdown(
             "- Hash Comparison:",
             f"  - Original: {original_hash}",
             f"  - Replay: {replay_hash}",
+            "",
+            "## Audit Hardening",
+            f"- State Graph Snapshot Hash: {state_graph_snapshot_hash or 'missing'}",
+            f"- Run/Commit Binding Hash: {run_commit_binding_hash or 'missing'}",
+            f"- Bound Commit SHA: {bound_commit_sha or 'missing'}",
+            f"- Bound Run ID: {bound_run_id or 'missing'}",
+            f"- AUDIT HARDENING STATE: {audit_hardening_state}",
             "",
             "## Test Results",
             f"- test_phase4_integrity_and_inspection: {phase4_test}",
@@ -237,11 +257,12 @@ def _notes_block(
     violations: List[Any],
     phase4_test: str,
     projection_test: str,
+    audit_hardening_state: str,
 ) -> Dict[str, str]:
     observations = (
-        "Phase 4 pipeline wrote inspection and integrity artifacts with deterministic replay hash parity."
-        if replay_match
-        else "Replay hash mismatch detected between original and replay artifacts."
+        "Phase 4 pipeline wrote deterministic replay artifacts with audit binding."
+        if replay_match and audit_hardening_state == "COMPLETE"
+        else "Replay parity or audit binding is incomplete."
     )
     weak_points = []
     if anomalies:
@@ -252,10 +273,12 @@ def _notes_block(
         weak_points.append("phase4 test module failing")
     if projection_test != "PASS":
         weak_points.append("projection layer test module failing")
+    if audit_hardening_state != "COMPLETE":
+        weak_points.append("audit hardening fields missing")
     weak_points_text = ", ".join(weak_points) if weak_points else "No critical weak points detected in current run."
 
-    if phase4_test == "PASS" and projection_test == "PASS" and replay_match:
-        next_actions = "Proceed to certification signoff and attach this report to evidence index."
+    if phase4_test == "PASS" and projection_test == "PASS" and replay_match and audit_hardening_state == "COMPLETE":
+        next_actions = "Proceed with immutable baseline signoff (v2 audit hardening aligned)."
     else:
         next_actions = "Resolve failing checks, rerun generator, and re-evaluate certification readiness."
     return {
