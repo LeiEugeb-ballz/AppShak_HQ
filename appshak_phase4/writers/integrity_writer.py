@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Mapping
 
 from appshak_integrity.report import build_integrity_report
 from appshak_integrity.store import IntegrityReportStore
@@ -15,7 +15,12 @@ class IntegrityWriter:
     def __init__(self, store: IntegrityReportStore | None = None) -> None:
         self._store = store or IntegrityReportStore()
 
-    def write(self, validated: ValidationResult) -> Dict[str, Path]:
+    def write(
+        self,
+        validated: ValidationResult,
+        *,
+        runtime_context: Mapping[str, Any] | None = None,
+    ) -> Dict[str, Path]:
         projection_snapshot = phase4_to_projection_snapshot(validated.snapshot)
         report = build_integrity_report(
             window="phase4",
@@ -32,6 +37,7 @@ class IntegrityWriter:
             "run_id": validated.integrity.run_id,
             "consistency_score": float(validated.integrity.consistency_score),
             "violations": [dict(item) for item in validated.integrity.violations],
+            "runtime": dict(runtime_context) if isinstance(runtime_context, Mapping) else {},
         }
         report["consistency_score"] = float(validated.integrity.consistency_score)
         report["violations"] = [dict(item) for item in validated.integrity.violations]

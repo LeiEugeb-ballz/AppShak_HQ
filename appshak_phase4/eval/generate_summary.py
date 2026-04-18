@@ -77,7 +77,11 @@ def generate_summary_markdown(
         violations = []
     violation_lines = _render_issue_lines(violations)
 
-    replay = _build_replay_hashes(snapshot)
+    runtime_context = _read_path(inspection, "phase4", "runtime")
+    replay = _build_replay_hashes(
+        snapshot=snapshot,
+        runtime_context=runtime_context if isinstance(runtime_context, Mapping) else None,
+    )
     original_inspection_hash = str(inspection.get("index_hash", "")).strip()
     original_integrity_hash = str(integrity.get("report_hash", "")).strip()
     original_hash = f"inspection={original_inspection_hash}; integrity={original_integrity_hash}"
@@ -174,14 +178,21 @@ def generate_summary_markdown(
     return markdown
 
 
-def _build_replay_hashes(snapshot: Mapping[str, Any]) -> Dict[str, str]:
+def _build_replay_hashes(
+    *,
+    snapshot: Mapping[str, Any],
+    runtime_context: Mapping[str, Any] | None = None,
+) -> Dict[str, str]:
     with tempfile.TemporaryDirectory(prefix="phase4_eval_replay_") as temp_dir:
         root = Path(temp_dir)
         orchestrator = Phase4Orchestrator(
             inspection_writer=InspectionWriter(InspectionIndexStore(root / "inspection")),
             integrity_writer=IntegrityWriter(IntegrityReportStore(root / "integrity")),
         )
-        orchestrator.run_phase4_cycle(replay_snapshot=dict(snapshot))
+        orchestrator.run_phase4_cycle(
+            replay_snapshot=dict(snapshot),
+            runtime_context=dict(runtime_context) if isinstance(runtime_context, Mapping) else None,
+        )
         replay_inspection = InspectionIndexStore(root / "inspection").load_latest()
         replay_integrity = IntegrityReportStore(root / "integrity").load_latest()
         return {

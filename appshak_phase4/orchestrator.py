@@ -29,6 +29,7 @@ class Phase4Orchestrator:
         *,
         replay_snapshot: Mapping[str, Any] | None = None,
         replay_path: str | Path | None = None,
+        runtime_context: Mapping[str, Any] | None = None,
     ) -> Dict[str, Any]:
         projection_snapshot = self.extractor.get_snapshot(
             replay_snapshot=replay_snapshot,
@@ -38,8 +39,8 @@ class Phase4Orchestrator:
         normalized = self.normalizer.normalize(phase4_snapshot)
         validated = self.validator.validate(normalized)
 
-        inspection_saved = self.inspection_writer.write(validated)
-        integrity_saved = self.integrity_writer.write(validated)
+        inspection_saved = self.inspection_writer.write(validated, runtime_context=runtime_context)
+        integrity_saved = self.integrity_writer.write(validated, runtime_context=runtime_context)
         return {
             "run_id": normalized.run_id,
             "timestamp": normalized.timestamp,
@@ -47,6 +48,7 @@ class Phase4Orchestrator:
             "integrity_pointer_path": str(integrity_saved.get("latest_path", "")),
             "inspection_record": validated.inspection.to_dict(),
             "integrity_record": validated.integrity.to_dict(),
+            "runtime_context": dict(runtime_context) if isinstance(runtime_context, Mapping) else {},
         }
 
 
@@ -54,9 +56,11 @@ def run_phase4_cycle(
     *,
     replay_snapshot: Mapping[str, Any] | None = None,
     replay_path: str | Path | None = None,
+    runtime_context: Mapping[str, Any] | None = None,
 ) -> Dict[str, Any]:
     orchestrator = Phase4Orchestrator()
     return orchestrator.run_phase4_cycle(
         replay_snapshot=replay_snapshot,
         replay_path=replay_path,
+        runtime_context=runtime_context,
     )

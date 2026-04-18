@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Mapping
 
 from appshak_inspection.indexer import build_inspection_index
 from appshak_inspection.store import InspectionIndexStore
@@ -15,7 +15,12 @@ class InspectionWriter:
     def __init__(self, store: InspectionIndexStore | None = None) -> None:
         self._store = store or InspectionIndexStore()
 
-    def write(self, validated: ValidationResult) -> Dict[str, Path]:
+    def write(
+        self,
+        validated: ValidationResult,
+        *,
+        runtime_context: Mapping[str, Any] | None = None,
+    ) -> Dict[str, Path]:
         projection_snapshot = phase4_to_projection_snapshot(validated.snapshot)
         integrity_payload = {
             "report_hash": f"phase4_{validated.snapshot.run_id}",
@@ -34,6 +39,7 @@ class InspectionWriter:
             "run_id": validated.inspection.run_id,
             "anomalies": [dict(item) for item in validated.inspection.anomalies],
             "coverage": dict(validated.inspection.coverage),
+            "runtime": dict(runtime_context) if isinstance(runtime_context, Mapping) else {},
         }
         index = _without_nulls(index)
         index_no_hash = dict(index)

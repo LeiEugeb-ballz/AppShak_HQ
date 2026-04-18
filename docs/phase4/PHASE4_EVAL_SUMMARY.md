@@ -3,7 +3,7 @@
 ## Run Metadata
 - Run ID: phase4_8b1f1e81c2c37cce
 - Timestamp: 2026-04-18T10:45:00+00:00
-- Duration: 5.585s
+- Duration: 5.517s
 
 ## Pipeline Status
 - Projection Input: OK
@@ -27,8 +27,8 @@
 ## Determinism Check
 - Replay Match: YES
 - Hash Comparison:
-  - Original: inspection=4e18ca89d57aa067e6582270b102778f3f14fcb1f12c150fdba3f1fd62af1020; integrity=bb0e296951cd504d66f3b3a0c7108d3e170e890907b2175fe9a1381a89aa33d2
-  - Replay: inspection=4e18ca89d57aa067e6582270b102778f3f14fcb1f12c150fdba3f1fd62af1020; integrity=bb0e296951cd504d66f3b3a0c7108d3e170e890907b2175fe9a1381a89aa33d2
+  - Original: inspection=2d50760e37b7e80c668a8a173c13d6cf724d9fb4371323f42003611b096a8be2; integrity=f5bebe0745a1ad3d5b5368ec896dc2434827e7cf13b077e493d8b5eb1386e198
+  - Replay: inspection=2d50760e37b7e80c668a8a173c13d6cf724d9fb4371323f42003611b096a8be2; integrity=f5bebe0745a1ad3d5b5368ec896dc2434827e7cf13b077e493d8b5eb1386e198
 
 ## Test Results
 - test_phase4_integrity_and_inspection: PASS
