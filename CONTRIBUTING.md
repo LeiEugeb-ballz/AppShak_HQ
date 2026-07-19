@@ -2,6 +2,10 @@
 
 ---
 
+Begin with [CURRENT_STATUS.md](CURRENT_STATUS.md) and the
+[Documentation Index](docs/INDEX.md). This guide retains the contribution
+controls established for Phase 3B certification work.
+
 ## Before You Write a Single Line
 
 1. Read `ONBOARDING.md` — the architecture, the phase, the hard rules.
@@ -12,6 +16,10 @@
 ---
 
 ## Phase Lock
+
+This lock records the controls for Phase 3B certification work. It does not
+replace the repository-wide status record in
+[CURRENT_STATUS.md](CURRENT_STATUS.md).
 
 **Current active phase: 3B — Certification**
 

@@ -6,6 +6,11 @@
 
 ## STEP 1 — Prerequisites (Install Once)
 
+Before proceeding, read [CURRENT_STATUS.md](CURRENT_STATUS.md) for the factual
+repository maturity and certification position. The full document map is in
+[docs/INDEX.md](docs/INDEX.md); dependency scope is documented in
+[docs/DEPENDENCIES.md](docs/DEPENDENCIES.md).
+
 ### Python
 - Required: **Python 3.10 or higher**
 - Check: `python --version`

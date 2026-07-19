@@ -3,6 +3,11 @@
 
 ---
 
+For the authoritative repository maturity snapshot, read
+[CURRENT_STATUS.md](CURRENT_STATUS.md). For the complete documentation map,
+read [docs/INDEX.md](docs/INDEX.md). This document preserves the architecture
+and Phase 3B engineering boundaries under which it was written.
+
 ## What is AppShak?
 
 AppShak is an autonomous multi-agent AI system built around a permanent North Star:
@@ -16,6 +21,10 @@ The end product is **AGEs** — Autonomous Guided Entities — deployable as dig
 ---
 
 ## Where Are We Now?
+
+This phase snapshot is retained as historical Phase 3B operating context. For
+the reconciled repository-wide maturity and certification record, use
+[CURRENT_STATUS.md](CURRENT_STATUS.md).
 
 ```
 Phase 1 — Substrate          ✅ COMPLETE

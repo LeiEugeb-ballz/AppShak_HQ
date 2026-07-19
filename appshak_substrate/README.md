@@ -2,6 +2,10 @@
 
 Durable substrate layer for multi-process AppShak swarms.
 
+For the repository entry point, read [README.md](../README.md). For setup,
+status, and certification navigation, use [Environment Setup](../ENVIRONMENT_SETUP.md),
+[Current Status](../CURRENT_STATUS.md), and [docs/INDEX.md](../docs/INDEX.md).
+
 ## Components
 
 - `mailstore_sqlite.py`: SQLite WAL durable event/mail store with leases + idempotency records.
@@ -38,3 +42,6 @@ Each chamber prints `PASS` or `FAIL` and exits non-zero on failure.
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
+
+Related: [Substrate Bug-Fix Notes](BUGFIX_NOTES.md) and the
+[Phase 2 Substrate Signoff](../docs/phase_2_substrate_signoff.md).

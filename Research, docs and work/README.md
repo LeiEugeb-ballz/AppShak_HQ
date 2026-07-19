@@ -31,12 +31,12 @@ The original version is a Python library that provides the core kernel and agent
 ### Features
 
 - **Three Specialized Agents:**
-  - [`ScoutAgent`](appshak/agents/scout.py) - Reconnaissance and problem discovery
-  - [`BuilderAgent`](appshak/agents/builder.py) - Solution construction and execution
-  - [`ChiefAgent`](appshak/agents/chief.py) - Decision making and coordination
-- **Event-driven architecture** via [`EventBus`](appshak/event_bus.py)
-- **Global memory system** for persistent state ([`GlobalMemory`](appshak/memory.py))
-- **Safeguard monitoring** for constitutional compliance ([`SafeguardMonitor`](appshak/safeguards.py))
+  - [`ScoutAgent`](../appshak/agents/scout.py) - Reconnaissance and problem discovery
+  - [`BuilderAgent`](../appshak/agents/builder.py) - Solution construction and execution
+  - [`ChiefAgent`](../appshak/agents/chief.py) - Decision making and coordination
+- **Event-driven architecture** via [`EventBus`](../appshak/event_bus.py)
+- **Global memory system** for persistent state ([`GlobalMemory`](../appshak/memory.py))
+- **Safeguard monitoring** for constitutional compliance ([`SafeguardMonitor`](../appshak/safeguards.py))
 
 ### Setup
 
@@ -171,7 +171,8 @@ Open your browser and navigate to:
 
 ### Configuration
 
-Edit the `KERNEL_CONFIG` in [`server.py`](appshak_live/server.py:15):
+Edit the `KERNEL_CONFIG` in the archived Live implementation's
+[`server.py`](../stashed_instances_2026-02-19/appshak_live/server.py#L15):
 
 ```python
 KERNEL_CONFIG = {
@@ -253,7 +254,8 @@ Open your browser and navigate to:
 
 ### Configuration
 
-Edit the `KERNEL_CONFIG` in [`server.py`](appshak_office/server.py:15):
+Edit the `KERNEL_CONFIG` in the archived Office implementation's
+[`server.py`](../stashed_instances_2026-02-19/appshak_office/server.py#L15):
 
 ```python
 KERNEL_CONFIG = {
