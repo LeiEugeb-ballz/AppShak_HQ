@@ -3,7 +3,8 @@
 > **A real-time 3D CCTV surveillance dashboard for a self-evolving multi-agent AI system.**  
 > Built with Three.js · Vanilla JS · Share Tech Mono · Orbitron
 
-![AppShak HQ Preview](docs/preview.png)
+> Preview image note: `docs/preview.png` is described by this archived prototype
+> but is not tracked in this repository snapshot.
 
 ---
 
