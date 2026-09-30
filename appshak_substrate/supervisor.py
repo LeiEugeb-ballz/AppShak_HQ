@@ -4,6 +4,8 @@ import json
 import logging
 import os
 import subprocess
+import os
+import uuid
 import sys
 import time
 from dataclasses import dataclass
@@ -127,12 +129,7 @@ class Supervisor:
             proc = worker.process
             exit_code = proc.poll()
             if exit_code is None:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=5.0)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-                    proc.wait(timeout=5.0)
+                self._terminate_worker_tree(proc)
             self._workers.pop(agent_id, None)
             self._record_worker_event("WORKER_EXITED", agent_id, {"exit_code": proc.returncode, "reason": "stop"})
         self.publish_control_event(
@@ -256,11 +253,7 @@ class Supervisor:
                     {"pid": proc.pid, "consumer_id": worker.consumer_id},
                 )
                 self._logger.warning("WORKER_HEARTBEAT_MISSED agent=%s pid=%s", agent_id, proc.pid)
-                proc.kill()
-                try:
-                    proc.wait(timeout=2.0)
-                except subprocess.TimeoutExpired:
-                    proc.terminate()
+                self._terminate_worker_tree(proc)
                 self._workers.pop(agent_id, None)
                 self._record_worker_event(
                     "WORKER_EXITED",
@@ -379,7 +372,7 @@ class Supervisor:
         if not worktree.exists():
             raise RuntimeError(f"Missing worktree path for agent '{normalized}': {worktree}")
 
-        consumer_id = f"worker:{normalized}:{int(time.time() * 1000)}"
+        consumer_id = f"worker:{normalized}:{uuid.uuid4()}"
         worker_log_path = self.runtime_log_dir / f"{normalized}.log"
         cmd = [
             sys.executable,
@@ -433,6 +426,17 @@ class Supervisor:
             },
         )
         self._logger.info("%s agent=%s pid=%s", event_type, normalized, process.pid)
+
+    @staticmethod
+    def _terminate_worker_tree(proc: subprocess.Popen[str]) -> None:
+        if proc.poll() is not None:
+            return
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                           capture_output=True, text=True, timeout=5, check=False)
+        if proc.poll() is None:
+            proc.kill()
+        proc.wait(timeout=5.0)
 
     def _record_worker_event(self, event_type: str, agent_id: str, details: Dict[str, object]) -> None:
         correlation_id = f"{event_type}:{agent_id}:{int(time.time() * 1000)}"

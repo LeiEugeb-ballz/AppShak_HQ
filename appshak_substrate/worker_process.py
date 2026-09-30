@@ -37,6 +37,8 @@ def _build_runtime(
     *,
     args: argparse.Namespace,
     mail_store: SQLiteMailStore,
+    consumer_id: Optional[str] = None,
+    cancel_event: Optional[threading.Event] = None,
 ) -> AgentRuntime:
     workspace_roots = {args.agent_id: args.worktree}
     tool_gateway: Optional[ToolGateway] = None
@@ -55,6 +57,8 @@ def _build_runtime(
         mail_store=mail_store,
         tool_gateway=tool_gateway,
         runtime_log_path=runtime_log_path,
+        consumer_id=consumer_id,
+        cancel_event=cancel_event,
     )
 
 
@@ -75,9 +79,11 @@ def _main() -> int:
     parser = _build_parser()
     args = parser.parse_args()
     mail_store = SQLiteMailStore(args.db_path, lease_seconds=args.lease_seconds)
-    runtime = _build_runtime(args=args, mail_store=mail_store)
-    logger = _build_logger(args.log_path)
     consumer_id = args.consumer_id
+    lost_lease = threading.Event()
+    runtime = _build_runtime(args=args, mail_store=mail_store, consumer_id=consumer_id,
+                             cancel_event=lost_lease)
+    logger = _build_logger(args.log_path)
     worktree = str(Path(args.worktree).resolve())
     pid = os.getpid()
     logger.info(
@@ -100,6 +106,13 @@ def _main() -> int:
     heartbeat_interval = max(0.2, float(args.heartbeat_interval_seconds))
     next_heartbeat = 0.0
 
+    mail_store.reconcile_attempts()
+    for attempt in mail_store.list_attempts():
+        if (attempt["agent_id"] == args.agent_id and attempt["outcome"]
+                and attempt["source_event_id"] is not None):
+            mail_store.publish_attempt_result(attempt["attempt_id"])
+            mail_store.ack_attempt_event(attempt["attempt_id"])
+
     while not stop_event.is_set():
         now = time.monotonic()
         if now >= next_heartbeat:
@@ -121,14 +134,63 @@ def _main() -> int:
             continue
         if event.event_id is None:
             continue
+        lost_lease.clear()
+        heartbeat_stop = threading.Event()
+
+        def _heartbeat_inflight() -> None:
+            interval = max(0.03, min(heartbeat_interval, args.lease_seconds / 3.0))
+            while not heartbeat_stop.wait(interval):
+                try:
+                    renewed = mail_store.renew_event_lease(event.event_id, consumer_id, args.lease_seconds)
+                    if renewed:
+                        mail_store.record_worker_heartbeat(agent_id=args.agent_id,
+                                                           consumer_id=consumer_id, pid=pid)
+                except Exception:
+                    renewed = False
+                if not renewed:
+                    lost_lease.set()
+                    return
+
+        heartbeat_thread = threading.Thread(target=_heartbeat_inflight, daemon=True)
+        heartbeat_thread.start()
         try:
             logger.info("EVENT_CLAIMED agent_id=%s event_id=%s type=%s", args.agent_id, event.event_id, event.type)
-            runtime.handle_event(event)
-            mail_store.ack_event(event.event_id, consumer_id=consumer_id)
-            logger.info("EVENT_ACKED agent_id=%s event_id=%s", args.agent_id, event.event_id)
+            result = runtime.handle_event(event)
+            acknowledged = False
+            attempt_id = result.get("attempt_id")
+            if attempt_id:
+                attempt = mail_store.get_attempt(attempt_id)
+                if attempt and attempt["outcome"]:
+                    mail_store.publish_attempt_result(attempt_id)
+                    if not mail_store.ack_attempt_event(attempt_id, consumer_id=consumer_id):
+                        raise RuntimeError("Attempt result could not be acknowledged under the current lease.")
+                    acknowledged = True
+                    if attempt["source_event_id"] != event.event_id:
+                        mail_store.ack_event(event.event_id, consumer_id=consumer_id)
+                elif attempt and attempt["state"] == "RUNNING":
+                    if attempt["source_event_id"] != event.event_id:
+                        mail_store.ack_event(event.event_id, consumer_id=consumer_id)
+                        acknowledged = True
+                    else:
+                        logger.warning("ATTEMPT_STILL_RUNNING event_id=%s attempt_id=%s",
+                                       event.event_id, attempt_id)
+                else:
+                    mail_store.fail_event(event.event_id, "Execution outcome requires reconciliation.",
+                                          consumer_id=consumer_id)
+            else:
+                mail_store.ack_event(event.event_id, consumer_id=consumer_id)
+                acknowledged = True
+            if acknowledged:
+                logger.info("EVENT_ACKED agent_id=%s event_id=%s", args.agent_id, event.event_id)
         except Exception as exc:
-            mail_store.fail_event(event.event_id, repr(exc), consumer_id=consumer_id)
+            try:
+                mail_store.fail_event(event.event_id, repr(exc), consumer_id=consumer_id)
+            except PermissionError:
+                logger.warning("STALE_EVENT_LEASE agent_id=%s event_id=%s", args.agent_id, event.event_id)
             logger.error("EVENT_FAILED agent_id=%s event_id=%s error=%s", args.agent_id, event.event_id, repr(exc))
+        finally:
+            heartbeat_stop.set()
+            heartbeat_thread.join(timeout=1.0)
     logger.info("WORKER_STOP agent_id=%s consumer_id=%s", args.agent_id, consumer_id)
     return 0
 

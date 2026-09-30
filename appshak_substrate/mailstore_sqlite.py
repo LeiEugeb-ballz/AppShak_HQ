@@ -3,6 +3,7 @@
 import json
 import sqlite3
 import time
+import uuid
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -344,6 +345,228 @@ class SQLiteMailStore:
                 (json.dumps(result, ensure_ascii=True), key),
             )
             conn.commit()
+
+    @staticmethod
+    def _attempt_dict(row: sqlite3.Row) -> Dict[str, Any]:
+        item = dict(row)
+        item["request"] = json.loads(item.pop("request_json"))
+        outcome_json = item.pop("outcome_json")
+        item["outcome"] = json.loads(outcome_json) if outcome_json else None
+        return item
+
+    def get_attempt(self, attempt_id: str) -> Optional[Dict[str, Any]]:
+        with self._connection() as conn:
+            row = conn.execute("SELECT * FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
+        return self._attempt_dict(row) if row else None
+
+    def reserve_attempt(self, *, source_request_id: str, source_event_id: Optional[int],
+                        idempotency_key: str, authority_id: str, agent_id: str,
+                        workspace_id: str, requested_operation: str, created_at: str,
+                        request: Dict[str, Any]) -> Dict[str, Any]:
+        """Atomically bind a source request and idempotency key to one attempt."""
+        request_json = json.dumps(request, ensure_ascii=True, sort_keys=True)
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute(
+                "SELECT * FROM execution_attempts WHERE source_request_id = ? OR idempotency_key = ?",
+                (source_request_id, idempotency_key),
+            ).fetchone()
+            if row:
+                if (row["source_request_id"] != source_request_id or row["idempotency_key"] != idempotency_key
+                        or row["request_json"] != request_json):
+                    conn.rollback()
+                    raise ValueError("Source request or idempotency key is already bound to a different execution contract.")
+                conn.commit()
+                return self._attempt_dict(row)
+            legacy = conn.execute("SELECT 1 FROM idempotency_keys WHERE idempotency_key = ?", (idempotency_key,)).fetchone()
+            if legacy:
+                conn.rollback()
+                raise ValueError("Legacy idempotency key has no execution attempt; manual reconciliation required.")
+            if source_event_id is not None and not conn.execute(
+                "SELECT 1 FROM events WHERE id = ?", (source_event_id,)
+            ).fetchone():
+                conn.rollback()
+                raise ValueError("Execution source_event_id does not reference a durable event.")
+            attempt_id = str(uuid.uuid4())
+            now = iso_now()
+            conn.execute(
+                """INSERT INTO execution_attempts
+                (attempt_id, source_request_id, source_event_id, idempotency_key, authority_id,
+                 agent_id, workspace_id, requested_operation, created_at, request_json,
+                 state, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'RESERVED', ?)""",
+                (attempt_id, source_request_id, source_event_id, idempotency_key, authority_id,
+                 agent_id, workspace_id, requested_operation, created_at, request_json, now),
+            )
+            conn.execute(
+                """INSERT INTO idempotency_keys
+                (idempotency_key, created_ts, agent_id, action_type, event_id, result_json)
+                VALUES (?, ?, ?, ?, ?, NULL)""",
+                (idempotency_key, now, agent_id, requested_operation, source_event_id),
+            )
+            conn.commit()
+            return self.get_attempt(attempt_id) or {}
+
+    def begin_attempt(self, attempt_id: str, owner_id: str, lease_seconds: float) -> Optional[int]:
+        now = datetime.now(timezone.utc)
+        expiry = (now + timedelta(seconds=max(0.1, lease_seconds))).isoformat()
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute("SELECT state, generation, lease_expiry, source_event_id FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
+            if not row:
+                conn.rollback()
+                return None
+            if row["state"] == "RUNNING" and row["lease_expiry"] <= now.isoformat():
+                conn.execute("UPDATE execution_attempts SET state = 'NEEDS_RECONCILIATION', generation = generation + 1, owner_id = NULL, lease_expiry = NULL, updated_at = ? WHERE attempt_id = ?", (now.isoformat(), attempt_id))
+                conn.commit()
+                return None
+            if row["state"] != "RESERVED":
+                conn.commit()
+                return None
+            if row["source_event_id"] is not None and not conn.execute(
+                """SELECT 1 FROM leases WHERE event_id = ? AND claimed_by = ? AND lease_expiry > ?""",
+                (row["source_event_id"], owner_id, now.isoformat()),
+            ).fetchone():
+                conn.commit()
+                return None
+            generation = int(row["generation"]) + 1
+            conn.execute(
+                """UPDATE execution_attempts SET state = 'RUNNING', generation = ?, owner_id = ?,
+                lease_expiry = ?, started_at = ?, updated_at = ? WHERE attempt_id = ?""",
+                (generation, owner_id, expiry, now.isoformat(), now.isoformat(), attempt_id),
+            )
+            conn.commit()
+            return generation
+
+    def renew_attempt_lease(self, attempt_id: str, owner_id: str, generation: int, lease_seconds: float) -> bool:
+        now = datetime.now(timezone.utc)
+        expiry = (now + timedelta(seconds=max(0.1, lease_seconds))).isoformat()
+        with self._connection() as conn:
+            cursor = conn.execute(
+                """UPDATE execution_attempts SET lease_expiry = ?, updated_at = ?
+                WHERE attempt_id = ? AND state = 'RUNNING' AND owner_id = ? AND generation = ?
+                  AND lease_expiry > ? AND (source_event_id IS NULL OR EXISTS
+                    (SELECT 1 FROM leases WHERE event_id = source_event_id AND claimed_by = ? AND lease_expiry > ?))""",
+                (expiry, now.isoformat(), attempt_id, owner_id, generation, now.isoformat(),
+                 owner_id, now.isoformat()),
+            )
+            conn.commit()
+            return cursor.rowcount == 1
+
+    def renew_event_lease(self, event_id: int, consumer_id: str, lease_seconds: float) -> bool:
+        now = datetime.now(timezone.utc)
+        expiry = (now + timedelta(seconds=max(0.1, lease_seconds))).isoformat()
+        with self._connection() as conn:
+            cursor = conn.execute(
+                """UPDATE leases SET lease_expiry = ? WHERE event_id = ? AND claimed_by = ?
+                   AND lease_expiry > ?""",
+                (expiry, event_id, consumer_id, now.isoformat()),
+            )
+            conn.commit()
+            return cursor.rowcount == 1
+
+    def record_attempt_outcome(self, attempt_id: str, owner_id: str, generation: int,
+                               state: str, outcome: Dict[str, Any]) -> Optional[int]:
+        if state not in {"SUCCEEDED", "FAILED", "TIMED_OUT", "NEEDS_RECONCILIATION"}:
+            raise ValueError("Invalid terminal attempt state.")
+        now = iso_now()
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute("SELECT * FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
+            if not row or row["state"] != "RUNNING" or row["owner_id"] != owner_id or row["generation"] != generation or row["lease_expiry"] <= now:
+                conn.rollback()
+                return None
+            if row["source_event_id"] is not None and not conn.execute(
+                "SELECT 1 FROM leases WHERE event_id = ? AND claimed_by = ? AND lease_expiry > ?",
+                (row["source_event_id"], owner_id, now),
+            ).fetchone():
+                conn.rollback()
+                return None
+            request = json.loads(row["request_json"])
+            result_json = json.dumps(outcome, ensure_ascii=True)
+            audit = conn.execute(
+                """INSERT INTO tool_audit (ts, agent_id, action_type, working_dir, idempotency_key,
+                allowed, reason, payload_json, result_json, correlation_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (now, row["agent_id"], row["requested_operation"], request["working_dir"],
+                 row["idempotency_key"], int(state == "SUCCEEDED"), outcome.get("reason"),
+                 json.dumps(request["payload"], ensure_ascii=True), result_json, request.get("correlation_id")),
+            )
+            audit_id = int(audit.lastrowid)
+            conn.execute(
+                """UPDATE execution_attempts SET state = ?, outcome_json = ?, audit_id = ?,
+                   owner_id = NULL, lease_expiry = NULL, updated_at = ? WHERE attempt_id = ?""",
+                (state, result_json, audit_id, now, attempt_id),
+            )
+            conn.execute("UPDATE idempotency_keys SET result_json = ? WHERE idempotency_key = ?",
+                         (result_json, row["idempotency_key"]))
+            conn.commit()
+            return audit_id
+
+    def reconcile_attempts(self) -> Dict[str, int]:
+        """Fence expired executions; never infer that an external effect failed."""
+        now = iso_now()
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            changed = conn.execute(
+                """UPDATE execution_attempts SET state = 'NEEDS_RECONCILIATION', generation = generation + 1,
+                   owner_id = NULL, lease_expiry = NULL, updated_at = ?
+                   WHERE state = 'RUNNING' AND lease_expiry <= ?""", (now, now),
+            ).rowcount
+            conn.commit()
+        return {"fenced_unknown": changed}
+
+    def list_attempts(self) -> List[Dict[str, Any]]:
+        with self._connection() as conn:
+            rows = conn.execute("SELECT * FROM execution_attempts ORDER BY rowid").fetchall()
+        return [self._attempt_dict(row) for row in rows]
+
+    def publish_attempt_result(self, attempt_id: str) -> Optional[int]:
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute("SELECT * FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
+            if not row or row["state"] not in {"SUCCEEDED", "FAILED", "TIMED_OUT", "NEEDS_RECONCILIATION"} or not row["outcome_json"] or row["source_event_id"] is None:
+                conn.commit()
+                return None
+            if row["published_event_id"] is not None:
+                conn.commit()
+                return int(row["published_event_id"])
+            request = json.loads(row["request_json"])
+            outcome = json.loads(row["outcome_json"])
+            payload = {**outcome, "attempt_id": attempt_id, "source_event_id": row["source_event_id"],
+                       "idempotency_key": row["idempotency_key"], "audit_event_id": row["audit_id"]}
+            cursor = conn.execute(
+                """INSERT INTO events (ts, type, origin_id, target_agent, payload_json, status, correlation_id)
+                   VALUES (?, 'TOOL_RESULT', ?, ?, ?, 'PENDING', ?)""",
+                (iso_now(), row["agent_id"], request.get("reply_to") or "command",
+                 json.dumps(payload, ensure_ascii=True), request.get("correlation_id")),
+            )
+            result_id = int(cursor.lastrowid)
+            conn.execute("UPDATE execution_attempts SET published_event_id = ?, updated_at = ? WHERE attempt_id = ?",
+                         (result_id, iso_now(), attempt_id))
+            conn.commit()
+            return result_id
+
+    def ack_attempt_event(self, attempt_id: str, consumer_id: Optional[str] = None) -> bool:
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute("SELECT source_event_id, published_event_id, acknowledged_at FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
+            if not row or row["published_event_id"] is None or row["source_event_id"] is None:
+                conn.rollback()
+                return False
+            if row["acknowledged_at"]:
+                conn.commit()
+                return True
+            event_id = int(row["source_event_id"])
+            lease = conn.execute("SELECT claimed_by, lease_expiry FROM leases WHERE event_id = ?", (event_id,)).fetchone()
+            if lease and lease["lease_expiry"] > iso_now() and lease["claimed_by"] != consumer_id:
+                conn.rollback()
+                return False
+            conn.execute("UPDATE events SET status = 'DONE', error = NULL WHERE id = ?", (event_id,))
+            conn.execute("DELETE FROM leases WHERE event_id = ?", (event_id,))
+            conn.execute("UPDATE execution_attempts SET acknowledged_at = ?, updated_at = ? WHERE attempt_id = ?",
+                         (iso_now(), iso_now(), attempt_id))
+            conn.commit()
+            return True
 
     def record_worker_heartbeat(
         self,

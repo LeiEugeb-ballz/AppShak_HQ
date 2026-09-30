@@ -73,3 +73,29 @@ CREATE TABLE IF NOT EXISTS worker_heartbeats (
 
 CREATE INDEX IF NOT EXISTS idx_worker_heartbeats_ts
     ON worker_heartbeats(ts);
+
+CREATE TABLE IF NOT EXISTS execution_attempts (
+    attempt_id TEXT PRIMARY KEY,
+    source_request_id TEXT NOT NULL UNIQUE,
+    source_event_id INTEGER,
+    idempotency_key TEXT NOT NULL UNIQUE,
+    authority_id TEXT NOT NULL,
+    agent_id TEXT NOT NULL,
+    workspace_id TEXT NOT NULL,
+    requested_operation TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    request_json TEXT NOT NULL,
+    state TEXT NOT NULL,
+    generation INTEGER NOT NULL DEFAULT 0,
+    owner_id TEXT,
+    lease_expiry TEXT,
+    started_at TEXT,
+    outcome_json TEXT,
+    audit_id INTEGER,
+    published_event_id INTEGER,
+    acknowledged_at TEXT,
+    updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_execution_attempts_state_lease
+    ON execution_attempts(state, lease_expiry);

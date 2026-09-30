@@ -1,0 +1,65 @@
+{
+  "baton_id": "BATON-0004",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0003-s1-wp1.json",
+  "phase": "s1_wp2_runtime_stabilization",
+  "work_package": "S1-WP2 — Make execution attempts recoverable",
+  "starting_commit": "ce131005e6a47f84b0952fbc57d5bd6682478ba8",
+  "ending_worktree_state": "dirty; only scoped S1-WP2 source, tests, report and baton changes are uncommitted; ignored generated appshak_state remains ignored",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
+  "objective": "Make tool execution attempts durable, fenced and reconcilable across duplicate delivery, worker crash, timeout and restart.",
+  "root_cause": [
+    "Idempotency reservation, side effect, outcome, audit, result publication and event acknowledgment were separate operations without an execution-attempt lifecycle.",
+    "Synchronous tools could outlive worker heartbeat and source event leases."
+  ],
+  "attempt_lifecycle": "RESERVED -> RUNNING -> SUCCEEDED | FAILED | TIMED_OUT | NEEDS_RECONCILIATION; publication and acknowledgment are durable flags. Each attempt has a UUID and source/authority/workspace/operation attribution.",
+  "persistence_changes": "SQLiteMailStore atomically reserves an attempt plus idempotency key; atomically writes fenced outcome, tool audit and key result; atomically publishes one result event; atomically acknowledges source event and attempt.",
+  "schema_changes": "Idempotent execution_attempts table and state/lease index added to schema.sql. Existing SQLite data is preserved; pre-WP2 migration tested.",
+  "idempotency_behavior": "One attempt per source request and key; active duplicate does not run; terminal duplicate returns durable result; RESERVED may resume; allow_duplicate bypass denied; legacy keys without attempts require reconciliation; no implicit failure retry.",
+  "lease_behavior": "Worker heartbeat renews source event lease during synchronous work. Gateway renews running attempt lease during subprocess work. Intervals derive from configured lease duration.",
+  "fencing_behavior": "Monotonic generation, owner and unexpired attempt lease are required for outcome; durable source events additionally require the same live event lease. Expired RUNNING is fenced and unknown.",
+  "timeout_behavior": "Monotonic command deadline, process-tree termination and durable TIMED_OUT result. Windows Job Object kills descendants on handle close or worker crash; taskkill handles timeout. Nonzero exit is FAILED.",
+  "reconciliation_behavior": "Startup leaves unstarted RESERVED and valid RUNNING; expired RUNNING becomes NEEDS_RECONCILIATION; recorded outcomes publish once; published outcomes acknowledge when source lease permits; redelivery reuses stored outcome.",
+  "unknown_outcome_policy": "Never auto-replay a started attempt without a durable outcome. Unknown effects require investigation and new explicit authorization before further work.",
+  "authority_continuity_status": "PASS — attempt stores original authority_id, source_request_id, agent_id, workspace_id, requested_operation and created_at; recovery reuses the same record.",
+  "workspace_regression_status": "PASS — WP1 dirty/untracked preservation tests pass; WorkspaceManager was not modified.",
+  "files_changed": [
+    "appshak_substrate/schema.sql",
+    "appshak_substrate/mailstore_sqlite.py",
+    "appshak_substrate/types.py",
+    "appshak_substrate/tool_gateway.py",
+    "appshak_substrate/agent_runtime.py",
+    "appshak_substrate/worker_process.py",
+    "appshak_substrate/supervisor.py",
+    "tests/test_s1_wp2_recoverable_execution.py",
+    "APP_SHAK_HANDOVER/S1_WP2_RECOVERABLE_EXECUTION.md",
+    ".appshak/batons/BATON-0004-s1-wp2.json",
+    ".appshak/CURRENT_BATON.json"
+  ],
+  "tests_added": ["tests/test_s1_wp2_recoverable_execution.py: 12 focused tests"],
+  "tests_run": [
+    "python -m unittest tests.test_s1_wp2_recoverable_execution -v",
+    "python -m unittest discover -s tests -p \"test_*.py\" -v",
+    "python -m appshak_substrate.chambers.chamber_a_durability",
+    "python -m appshak_substrate.chambers.chamber_b_isolation",
+    "python -m appshak_substrate.chambers.chamber_c_tool_enforcement",
+    "python -m py_compile on changed Python files",
+    "git diff --check"
+  ],
+  "tests_passed": ["Focused WP2: 12", "Full regression: 54", "Chamber A: PASS", "Chamber B: PASS", "Chamber C: PASS"],
+  "tests_failed": [],
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "An unknown external effect cannot be proven or safely retried automatically; manual investigation is required.",
+    "No implicit retry policy exists for durable FAILED tool outcomes.",
+    "Windows hosts that prevent Job Object assignment fail closed for subprocess tools."
+  ],
+  "evidence": [
+    {"path": "appshak_substrate/mailstore_sqlite.py", "symbols": ["reserve_attempt", "begin_attempt", "record_attempt_outcome", "publish_attempt_result", "ack_attempt_event", "reconcile_attempts"], "finding": "SQLite transaction boundaries and fencing."},
+    {"path": "appshak_substrate/tool_gateway.py", "symbols": ["execute", "_run_process", "_attach_windows_job"], "finding": "Durable execution and controlled subprocess lifecycle."},
+    {"path": "appshak_substrate/worker_process.py", "symbols": ["_main"], "finding": "Heartbeat, publication and restart finalization."},
+    {"path": "tests/test_s1_wp2_recoverable_execution.py", "finding": "Crash-window, worker, migration and timeout coverage."},
+    {"path": "tests/test_s1_wp1_workspace_authority.py", "finding": "WP1 workspace and authority regression remains passing."}
+  ],
+  "recommended_next_capability": "IMPLEMENTATION",
+  "recommended_next_work_package": "S1-WP3 — Add one durable owner-task contract"
+}

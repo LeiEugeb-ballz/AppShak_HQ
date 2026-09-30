@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -19,11 +20,15 @@ class AgentRuntime:
         mail_store: SQLiteMailStore,
         tool_gateway: Optional[ToolGateway] = None,
         runtime_log_path: Optional[str | Path] = None,
+        consumer_id: Optional[str] = None,
+        cancel_event: Optional[threading.Event] = None,
     ) -> None:
         self.agent_id = agent_id
         self.mail_store = mail_store
         self.tool_gateway = tool_gateway
         self.runtime_log_path = Path(runtime_log_path) if runtime_log_path else None
+        self.consumer_id = consumer_id
+        self.cancel_event = cancel_event
 
     def handle_event(self, event: SubstrateEvent) -> Dict[str, Any]:
         if event.target_agent and event.target_agent != self.agent_id:
@@ -87,32 +92,26 @@ class AgentRuntime:
         request_data.setdefault("workspace_id", payload.get("workspace_id"))
         request_data.setdefault("requested_operation", payload.get("requested_operation") or request_data.get("action_type"))
         request_data.setdefault("created_at", payload.get("created_at") or event.timestamp)
-        result = self.tool_gateway.execute(request_data)
-
-        self.mail_store.append_event(
-            SubstrateEvent(
-                type="TOOL_RESULT",
-                origin_id=self.agent_id,
+        request_data["source_event_id"] = event.event_id
+        request_data["reply_to"] = payload.get("reply_to") or request_data.get("reply_to") or "command"
+        result = self.tool_gateway.execute(request_data, owner_id=self.consumer_id,
+                                           cancel_event=self.cancel_event)
+        if result.attempt_id is None:
+            self.mail_store.append_event(SubstrateEvent(
+                type="TOOL_RESULT", origin_id=self.agent_id,
                 target_agent=payload.get("reply_to") or "command",
                 correlation_id=event.correlation_id,
-                payload={
-                    "source_event_id": event.event_id,
-                    "allowed": result.allowed,
-                    "reason": result.reason,
-                    "return_code": result.return_code,
-                    "stdout": result.stdout,
-                    "stderr": result.stderr,
-                    "audit_event_id": result.audit_event_id,
-                    "idempotency_key": request_data.get("payload", {}).get("idempotency_key"),
-                },
-            )
-        )
+                payload={"source_event_id": event.event_id, "allowed": result.allowed,
+                         "reason": result.reason, "return_code": result.return_code,
+                         "audit_event_id": result.audit_event_id},
+            ))
         return {
             "status": "tool_request_handled",
             "event_id": event.event_id,
             "allowed": result.allowed,
             "reason": result.reason,
             "audit_event_id": result.audit_event_id,
+            "attempt_id": result.attempt_id,
         }
 
     def _handle_forge_change(self, event: SubstrateEvent) -> Dict[str, Any]:
@@ -136,6 +135,8 @@ class AgentRuntime:
                 "workspace_id": payload.get("workspace_id"),
                 "requested_operation": ToolActionType.WRITE_FILE.value,
                 "created_at": payload.get("created_at") or event.timestamp,
+                "source_event_id": event.event_id,
+                "reply_to": payload.get("reply_to") or "command",
                 "action_type": ToolActionType.WRITE_FILE.value,
                 "working_dir": workdir,
                 "correlation_id": event.correlation_id,
@@ -144,7 +145,7 @@ class AgentRuntime:
                     "content": content,
                     "idempotency_key": idempotency_key,
                 },
-            }
+            }, owner_id=self.consumer_id, cancel_event=self.cancel_event
         )
         return {
             "status": "forge_change_applied" if result.allowed else "forge_change_denied",
@@ -152,6 +153,7 @@ class AgentRuntime:
             "allowed": result.allowed,
             "reason": result.reason,
             "audit_event_id": result.audit_event_id,
+            "attempt_id": result.attempt_id,
         }
 
     def _log_runtime(self, record: Dict[str, Any]) -> None:

@@ -1,7 +1,7 @@
 {
-  "baton_id": "BATON-0003",
-  "path": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0003-s1-wp1.json",
-  "phase": "s1_wp1_runtime_stabilization",
+  "baton_id": "BATON-0004",
+  "path": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0004-s1-wp2.json",
+  "phase": "s1_wp2_runtime_stabilization",
   "status": "complete",
   "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS"
 }

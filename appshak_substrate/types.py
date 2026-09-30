@@ -170,6 +170,8 @@ class ToolRequest:
     workspace_id: Optional[str] = None
     requested_operation: Optional[str] = None
     created_at: Optional[str] = None
+    source_event_id: Optional[int] = None
+    reply_to: Optional[str] = None
 
 
 @dataclass(slots=True)
@@ -185,6 +187,7 @@ class ToolResult:
     reason: Optional[str] = None
     audit_event_id: Optional[int] = None
     correlation_id: Optional[str] = None
+    attempt_id: Optional[str] = None
 
 
 def _row_value(row: Mapping[str, Any], key: str, default: Any = None) -> Any:
