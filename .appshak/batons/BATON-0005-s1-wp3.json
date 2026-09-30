@@ -1,0 +1,63 @@
+{
+  "baton_id": "BATON-0005",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0004-s1-wp2.json",
+  "phase": "s1_wp3_runtime_stabilization",
+  "work_package": "S1-WP3 — Add one durable owner-task contract",
+  "starting_commit": "85a10a41490d7a32fbb6721611c63492cc5edc10",
+  "ending_worktree_state": "dirty; only scoped S1-WP3 implementation, tests, report and baton changes are uncommitted; ignored generated appshak_state remains ignored",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
+  "objective": "Establish one durable owner-task identity, assignment and lifecycle above WP2 execution attempts without treating execution success as validated completion.",
+  "task_contract": "SQLite owner_tasks row with UUID, owner, objective, opaque authority, idempotent source request, assignment and timestamps; explicit trusted local CLI create/assign/inspect; creation does not dispatch.",
+  "task_states": ["CREATED", "ASSIGNED", "EXECUTING", "READY_FOR_VALIDATION", "EXECUTION_FAILED", "NEEDS_RECONCILIATION"],
+  "persistence_changes": "Task row, history, artifact references and linked attempt transitions commit in the existing SQLite substrate; source events remain transport, not task truth.",
+  "schema_changes": "owner_tasks, owner_task_history, owner_task_artifacts; nullable execution_attempts.task_id; idempotent migration preserves WP2 rows.",
+  "assignment_behavior": "Owner and matching task authority assign once to agent and ToolGateway workspace identity; assignment source/time persist; no scheduling or reassignment.",
+  "attempt_linkage": "Optional task_id is carried through ToolRequest/AgentRuntime/ToolGateway to WP2 attempt reservation. Task existence, state, worker, workspace and authority are checked transactionally. Multiple attempts per task are representable.",
+  "event_history": "task_created, task_assigned, task_execution_started, task_execution_succeeded, task_execution_failed and task_needs_reconciliation are durable SQLite history records with prior/new state, actor/source and attempt ID.",
+  "failure_behavior": "FAILED and TIMED_OUT attempts make task EXECUTION_FAILED; no implicit replacement attempt.",
+  "unknown_outcome_behavior": "Unknown outcome or expired running lease makes task NEEDS_RECONCILIATION in the same transaction as the attempt fence; no blind replay.",
+  "retry_policy": "No automatic retry policy added. Duplicate source/key replays a known terminal result; new attempts in failed, unknown or ready state are denied.",
+  "authority_continuity_status": "PASS — task assignment binds existing WP1 authority/worker/workspace while each WP2 attempt retains its own authority_id, source_request_id, worker, workspace, operation and timestamp.",
+  "restart_status": "PASS — persisted states and assignments survive reopen; startup attempt reconciliation updates linked tasks only when WP2 attempt truth requires it.",
+  "golden_workflow_status": "PASS — real command worker writes exact content in a temporary worktree; reopened store retains ready task, assignment, attempt, publication/acknowledgment and artifact path reference.",
+  "files_changed": [
+    "appshak_substrate/schema.sql",
+    "appshak_substrate/mailstore_sqlite.py",
+    "appshak_substrate/types.py",
+    "appshak_substrate/tool_gateway.py",
+    "appshak_substrate/agent_runtime.py",
+    "appshak_substrate/owner_task_cli.py",
+    "tests/test_s1_wp3_durable_owner_task.py",
+    "APP_SHAK_HANDOVER/S1_WP3_DURABLE_OWNER_TASK.md",
+    ".appshak/batons/BATON-0005-s1-wp3.json",
+    ".appshak/CURRENT_BATON.json"
+  ],
+  "tests_added": ["tests/test_s1_wp3_durable_owner_task.py: 14 focused tests"],
+  "tests_run": [
+    "python -m unittest tests.test_s1_wp3_durable_owner_task -v",
+    "python -m unittest discover -s tests -p \"test_*.py\" -v",
+    "python -m appshak_substrate.chambers.chamber_a_durability",
+    "python -m appshak_substrate.chambers.chamber_b_isolation",
+    "python -m appshak_substrate.chambers.chamber_c_tool_enforcement",
+    "python -m py_compile on changed Python files",
+    "git diff --check"
+  ],
+  "tests_passed": ["Focused WP3: 14", "Full regression: 68", "Chamber A: PASS", "Chamber B: PASS", "Chamber C: PASS"],
+  "tests_failed": [],
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "Owner-task CLI is a trusted local operator interface, not an authenticated remote owner service.",
+    "Artifact references are paths only; no persisted hash, acceptance verdict or validated completion exists in WP3.",
+    "Manual unknown-outcome resolution, task reassignment and retry policy are not implemented.",
+    "The existing .gitignore ignores .appshak/; BATON-0005 exists but needs explicit force-staging in the later checkpoint."
+  ],
+  "evidence": [
+    {"path": "appshak_substrate/mailstore_sqlite.py", "symbols": ["create_owner_task", "assign_owner_task", "reserve_attempt", "begin_attempt", "record_attempt_outcome", "reconcile_attempts"], "finding": "Transactional task identity, assignment, attempt linkage and state."},
+    {"path": "appshak_substrate/owner_task_cli.py", "finding": "Explicit owner intake and inspect path without automatic dispatch."},
+    {"path": "tests/test_s1_wp3_durable_owner_task.py", "finding": "Persistence, idempotency, authority, migration, state, fencing and real worker restart coverage."},
+    {"path": "tests/test_s1_wp1_workspace_authority.py", "finding": "WP1 regression remains passing."},
+    {"path": "tests/test_s1_wp2_recoverable_execution.py", "finding": "WP2 regression remains passing."}
+  ],
+  "recommended_next_capability": "VALIDATION_IMPLEMENTATION",
+  "recommended_next_work_package": "S1-WP4 — Gate artifacts with persisted validation"
+}

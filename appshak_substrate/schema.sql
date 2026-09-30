@@ -74,6 +74,37 @@ CREATE TABLE IF NOT EXISTS worker_heartbeats (
 CREATE INDEX IF NOT EXISTS idx_worker_heartbeats_ts
     ON worker_heartbeats(ts);
 
+CREATE TABLE IF NOT EXISTS owner_tasks (
+    task_id TEXT PRIMARY KEY,
+    source_request_id TEXT NOT NULL UNIQUE,
+    owner_id TEXT NOT NULL,
+    objective TEXT NOT NULL,
+    authority_id TEXT NOT NULL,
+    state TEXT NOT NULL,
+    assigned_agent TEXT,
+    workspace_id TEXT,
+    assignment_authority_id TEXT,
+    assignment_source TEXT,
+    assigned_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS owner_task_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task_id TEXT NOT NULL REFERENCES owner_tasks(task_id),
+    event_type TEXT NOT NULL,
+    previous_state TEXT,
+    new_state TEXT NOT NULL,
+    ts TEXT NOT NULL,
+    actor_id TEXT NOT NULL,
+    source_ref TEXT NOT NULL,
+    attempt_id TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_owner_task_history_task_id
+    ON owner_task_history(task_id, id);
+
 CREATE TABLE IF NOT EXISTS execution_attempts (
     attempt_id TEXT PRIMARY KEY,
     source_request_id TEXT NOT NULL UNIQUE,
@@ -83,6 +114,7 @@ CREATE TABLE IF NOT EXISTS execution_attempts (
     agent_id TEXT NOT NULL,
     workspace_id TEXT NOT NULL,
     requested_operation TEXT NOT NULL,
+    task_id TEXT REFERENCES owner_tasks(task_id),
     created_at TEXT NOT NULL,
     request_json TEXT NOT NULL,
     state TEXT NOT NULL,
@@ -99,3 +131,11 @@ CREATE TABLE IF NOT EXISTS execution_attempts (
 
 CREATE INDEX IF NOT EXISTS idx_execution_attempts_state_lease
     ON execution_attempts(state, lease_expiry);
+
+CREATE TABLE IF NOT EXISTS owner_task_artifacts (
+    task_id TEXT NOT NULL REFERENCES owner_tasks(task_id),
+    attempt_id TEXT NOT NULL REFERENCES execution_attempts(attempt_id),
+    reference TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY(task_id, attempt_id, reference)
+);

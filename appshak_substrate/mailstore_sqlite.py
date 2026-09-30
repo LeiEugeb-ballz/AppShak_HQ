@@ -359,10 +359,105 @@ class SQLiteMailStore:
             row = conn.execute("SELECT * FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
         return self._attempt_dict(row) if row else None
 
+    def create_owner_task(self, *, owner_id: str, objective: str, authority_id: str,
+                          source_request_id: str) -> Dict[str, Any]:
+        for name, value in (("owner_id", owner_id), ("objective", objective),
+                            ("authority_id", authority_id), ("source_request_id", source_request_id)):
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string.")
+        if authority_id.strip().casefold() in {"approved", "authorized", "validated", "admin", "chief", "command"}:
+            raise ValueError("Task authority must use an opaque authority_id, not a display label.")
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute("SELECT * FROM owner_tasks WHERE source_request_id = ?",
+                               (source_request_id,)).fetchone()
+            if row:
+                if (row["owner_id"], row["objective"], row["authority_id"]) != (owner_id, objective, authority_id):
+                    raise ValueError("Task source_request_id is bound to a different owner-task contract.")
+                return dict(row)
+            task_id, now = str(uuid.uuid4()), iso_now()
+            conn.execute(
+                """INSERT INTO owner_tasks (task_id, source_request_id, owner_id, objective,
+                   authority_id, state, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, 'CREATED', ?, ?)""",
+                (task_id, source_request_id, owner_id, objective, authority_id, now, now),
+            )
+            self._task_history(conn, task_id, "task_created", None, "CREATED", owner_id,
+                               source_request_id, None, now)
+            conn.commit()
+            return dict(conn.execute("SELECT * FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone())
+
+    def assign_owner_task(self, *, task_id: str, agent_id: str, workspace_id: str,
+                          authority_id: str, actor_id: str, source_ref: str) -> Dict[str, Any]:
+        for name, value in (("task_id", task_id), ("agent_id", agent_id),
+                            ("workspace_id", workspace_id), ("authority_id", authority_id),
+                            ("actor_id", actor_id), ("source_ref", source_ref)):
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string.")
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute("SELECT * FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone()
+            if not row:
+                raise ValueError("Owner task does not exist.")
+            if actor_id != row["owner_id"] or authority_id != row["authority_id"]:
+                raise ValueError("Assignment owner or authority does not match the task.")
+            if row["state"] == "ASSIGNED" and (row["assigned_agent"], row["workspace_id"],
+                    row["assignment_authority_id"], row["assignment_source"]) == (agent_id, workspace_id,
+                                                                                     authority_id, source_ref):
+                return dict(row)
+            if row["state"] != "CREATED":
+                raise ValueError("Only CREATED tasks can be assigned; reassignment is not implemented.")
+            now = iso_now()
+            conn.execute(
+                """UPDATE owner_tasks SET state = 'ASSIGNED', assigned_agent = ?, workspace_id = ?,
+                   assignment_authority_id = ?, assignment_source = ?, assigned_at = ?, updated_at = ?
+                   WHERE task_id = ?""",
+                (agent_id, workspace_id, authority_id, source_ref, now, now, task_id),
+            )
+            self._task_history(conn, task_id, "task_assigned", "CREATED", "ASSIGNED",
+                               actor_id, source_ref, None, now)
+            conn.commit()
+            return dict(conn.execute("SELECT * FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone())
+
+    def get_owner_task(self, task_id: str) -> Optional[Dict[str, Any]]:
+        with self._connection() as conn:
+            row = conn.execute("SELECT * FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone()
+            if not row:
+                return None
+            result = dict(row)
+            result["history"] = [dict(item) for item in conn.execute(
+                "SELECT * FROM owner_task_history WHERE task_id = ? ORDER BY id", (task_id,)).fetchall()]
+            result["attempts"] = [self._attempt_dict(item) for item in conn.execute(
+                "SELECT * FROM execution_attempts WHERE task_id = ? ORDER BY rowid", (task_id,)).fetchall()]
+            result["artifacts"] = [dict(item) for item in conn.execute(
+                "SELECT * FROM owner_task_artifacts WHERE task_id = ? ORDER BY rowid", (task_id,)).fetchall()]
+            return result
+
+    @staticmethod
+    def _task_history(conn: sqlite3.Connection, task_id: str, event_type: str,
+                      previous_state: Optional[str], new_state: str, actor_id: str,
+                      source_ref: str, attempt_id: Optional[str], ts: str) -> None:
+        conn.execute(
+            """INSERT INTO owner_task_history (task_id, event_type, previous_state, new_state,
+               ts, actor_id, source_ref, attempt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (task_id, event_type, previous_state, new_state, ts, actor_id, source_ref, attempt_id),
+        )
+
+    def _set_task_state(self, conn: sqlite3.Connection, task_id: str, new_state: str,
+                        event_type: str, actor_id: str, source_ref: str,
+                        attempt_id: str, now: str) -> None:
+        row = conn.execute("SELECT state FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone()
+        if not row:
+            raise ValueError("Linked owner task no longer exists.")
+        conn.execute("UPDATE owner_tasks SET state = ?, updated_at = ? WHERE task_id = ?",
+                     (new_state, now, task_id))
+        self._task_history(conn, task_id, event_type, row["state"], new_state,
+                           actor_id, source_ref, attempt_id, now)
+
     def reserve_attempt(self, *, source_request_id: str, source_event_id: Optional[int],
                         idempotency_key: str, authority_id: str, agent_id: str,
                         workspace_id: str, requested_operation: str, created_at: str,
-                        request: Dict[str, Any]) -> Dict[str, Any]:
+                        request: Dict[str, Any], task_id: Optional[str] = None) -> Dict[str, Any]:
         """Atomically bind a source request and idempotency key to one attempt."""
         request_json = json.dumps(request, ensure_ascii=True, sort_keys=True)
         with self._connection() as conn:
@@ -373,7 +468,7 @@ class SQLiteMailStore:
             ).fetchone()
             if row:
                 if (row["source_request_id"] != source_request_id or row["idempotency_key"] != idempotency_key
-                        or row["request_json"] != request_json):
+                        or row["request_json"] != request_json or row["task_id"] != task_id):
                     conn.rollback()
                     raise ValueError("Source request or idempotency key is already bound to a different execution contract.")
                 conn.commit()
@@ -387,15 +482,24 @@ class SQLiteMailStore:
             ).fetchone():
                 conn.rollback()
                 raise ValueError("Execution source_event_id does not reference a durable event.")
+            if task_id is not None:
+                task = conn.execute("SELECT * FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone()
+                if not task:
+                    raise ValueError("Task-backed execution references a nonexistent owner task.")
+                if task["state"] not in {"ASSIGNED", "EXECUTING"}:
+                    raise ValueError("Owner task is not in an executable state.")
+                if ((task["assigned_agent"], task["workspace_id"], task["assignment_authority_id"])
+                        != (agent_id, workspace_id, authority_id)):
+                    raise ValueError("Execution worker, workspace or authority conflicts with task assignment.")
             attempt_id = str(uuid.uuid4())
             now = iso_now()
             conn.execute(
                 """INSERT INTO execution_attempts
                 (attempt_id, source_request_id, source_event_id, idempotency_key, authority_id,
-                 agent_id, workspace_id, requested_operation, created_at, request_json,
-                 state, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'RESERVED', ?)""",
+                 agent_id, workspace_id, requested_operation, task_id, created_at, request_json,
+                 state, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'RESERVED', ?)""",
                 (attempt_id, source_request_id, source_event_id, idempotency_key, authority_id,
-                 agent_id, workspace_id, requested_operation, created_at, request_json, now),
+                 agent_id, workspace_id, requested_operation, task_id, created_at, request_json, now),
             )
             conn.execute(
                 """INSERT INTO idempotency_keys
@@ -411,12 +515,16 @@ class SQLiteMailStore:
         expiry = (now + timedelta(seconds=max(0.1, lease_seconds))).isoformat()
         with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
-            row = conn.execute("SELECT state, generation, lease_expiry, source_event_id FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
+            row = conn.execute("SELECT state, generation, lease_expiry, source_event_id, task_id, source_request_id FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
             if not row:
                 conn.rollback()
                 return None
             if row["state"] == "RUNNING" and row["lease_expiry"] <= now.isoformat():
                 conn.execute("UPDATE execution_attempts SET state = 'NEEDS_RECONCILIATION', generation = generation + 1, owner_id = NULL, lease_expiry = NULL, updated_at = ? WHERE attempt_id = ?", (now.isoformat(), attempt_id))
+                if row["task_id"]:
+                    self._set_task_state(conn, row["task_id"], "NEEDS_RECONCILIATION",
+                                         "task_needs_reconciliation", owner_id,
+                                         row["source_request_id"], attempt_id, now.isoformat())
                 conn.commit()
                 return None
             if row["state"] != "RESERVED":
@@ -428,12 +536,20 @@ class SQLiteMailStore:
             ).fetchone():
                 conn.commit()
                 return None
+            if row["task_id"]:
+                task = conn.execute("SELECT state FROM owner_tasks WHERE task_id = ?", (row["task_id"],)).fetchone()
+                if not task or task["state"] not in {"ASSIGNED", "EXECUTING"}:
+                    conn.commit()
+                    return None
             generation = int(row["generation"]) + 1
             conn.execute(
                 """UPDATE execution_attempts SET state = 'RUNNING', generation = ?, owner_id = ?,
                 lease_expiry = ?, started_at = ?, updated_at = ? WHERE attempt_id = ?""",
                 (generation, owner_id, expiry, now.isoformat(), now.isoformat(), attempt_id),
             )
+            if row["task_id"]:
+                self._set_task_state(conn, row["task_id"], "EXECUTING", "task_execution_started",
+                                     owner_id, row["source_request_id"], attempt_id, now.isoformat())
             conn.commit()
             return generation
 
@@ -499,6 +615,29 @@ class SQLiteMailStore:
             )
             conn.execute("UPDATE idempotency_keys SET result_json = ? WHERE idempotency_key = ?",
                          (result_json, row["idempotency_key"]))
+            if row["task_id"]:
+                task = conn.execute("SELECT state FROM owner_tasks WHERE task_id = ?", (row["task_id"],)).fetchone()
+                if state == "NEEDS_RECONCILIATION" or task["state"] == "NEEDS_RECONCILIATION":
+                    new_state, event_type = "NEEDS_RECONCILIATION", "task_needs_reconciliation"
+                elif state in {"FAILED", "TIMED_OUT"} or task["state"] == "EXECUTION_FAILED":
+                    new_state, event_type = "EXECUTION_FAILED", "task_execution_failed"
+                else:
+                    active = conn.execute(
+                        """SELECT 1 FROM execution_attempts WHERE task_id = ?
+                           AND state IN ('RESERVED', 'RUNNING') LIMIT 1""", (row["task_id"],)
+                    ).fetchone()
+                    new_state = "EXECUTING" if active else "READY_FOR_VALIDATION"
+                    event_type = "task_execution_succeeded"
+                self._set_task_state(conn, row["task_id"], new_state, event_type,
+                                     owner_id, row["source_request_id"], attempt_id, now)
+                if state == "SUCCEEDED" and row["requested_operation"] == "WRITE_FILE":
+                    reference = request["payload"].get("path")
+                    if isinstance(reference, str) and reference:
+                        conn.execute(
+                            """INSERT OR IGNORE INTO owner_task_artifacts
+                               (task_id, attempt_id, reference, created_at) VALUES (?, ?, ?, ?)""",
+                            (row["task_id"], attempt_id, reference, now),
+                        )
             conn.commit()
             return audit_id
 
@@ -507,13 +646,22 @@ class SQLiteMailStore:
         now = iso_now()
         with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
-            changed = conn.execute(
-                """UPDATE execution_attempts SET state = 'NEEDS_RECONCILIATION', generation = generation + 1,
-                   owner_id = NULL, lease_expiry = NULL, updated_at = ?
-                   WHERE state = 'RUNNING' AND lease_expiry <= ?""", (now, now),
-            ).rowcount
+            expired = conn.execute(
+                """SELECT attempt_id, task_id, source_request_id, owner_id FROM execution_attempts
+                   WHERE state = 'RUNNING' AND lease_expiry <= ?""", (now,)
+            ).fetchall()
+            for row in expired:
+                conn.execute(
+                    """UPDATE execution_attempts SET state = 'NEEDS_RECONCILIATION', generation = generation + 1,
+                       owner_id = NULL, lease_expiry = NULL, updated_at = ? WHERE attempt_id = ?""",
+                    (now, row["attempt_id"]),
+                )
+                if row["task_id"]:
+                    self._set_task_state(conn, row["task_id"], "NEEDS_RECONCILIATION",
+                                         "task_needs_reconciliation", row["owner_id"] or "recovery",
+                                         row["source_request_id"], row["attempt_id"], now)
             conn.commit()
-        return {"fenced_unknown": changed}
+        return {"fenced_unknown": len(expired)}
 
     def list_attempts(self) -> List[Dict[str, Any]]:
         with self._connection() as conn:
@@ -731,4 +879,9 @@ class SQLiteMailStore:
             }
             if "idempotency_key" not in columns:
                 conn.execute("ALTER TABLE tool_audit ADD COLUMN idempotency_key TEXT")
+            attempt_columns = {str(row["name"]) for row in conn.execute(
+                "PRAGMA table_info(execution_attempts)").fetchall()}
+            if "task_id" not in attempt_columns:
+                conn.execute("ALTER TABLE execution_attempts ADD COLUMN task_id TEXT REFERENCES owner_tasks(task_id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_execution_attempts_task_id ON execution_attempts(task_id)")
             conn.commit()

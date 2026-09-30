@@ -172,6 +172,7 @@ class ToolRequest:
     created_at: Optional[str] = None
     source_event_id: Optional[int] = None
     reply_to: Optional[str] = None
+    task_id: Optional[str] = None
 
 
 @dataclass(slots=True)

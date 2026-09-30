@@ -108,12 +108,15 @@ class ToolGateway:
             "correlation_id": req.correlation_id,
             "reply_to": req.reply_to,
         }
+        if req.task_id is not None:
+            contract["task_id"] = req.task_id
         try:
             attempt = self.mail_store.reserve_attempt(
                 source_request_id=str(req.source_request_id), source_event_id=req.source_event_id,
                 idempotency_key=idempotency_key, authority_id=str(req.authority_id),
                 agent_id=req.agent_id, workspace_id=str(req.workspace_id),
                 requested_operation=req.action_type.value, created_at=str(req.created_at), request=contract,
+                task_id=req.task_id,
             )
         except ValueError as exc:
             return self._deny(req, reason=str(exc), payload=normalized_payload, idempotency_key=idempotency_key)
@@ -514,6 +517,11 @@ class ToolGateway:
                 reply_to=(
                     str(request.get("reply_to"))
                     if request.get("reply_to") is not None
+                    else None
+                ),
+                task_id=(
+                    str(request.get("task_id"))
+                    if request.get("task_id") is not None
                     else None
                 ),
             )

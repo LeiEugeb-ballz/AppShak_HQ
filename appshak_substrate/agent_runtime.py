@@ -90,6 +90,7 @@ class AgentRuntime:
             payload.get("source_request_id") or (f"event:{event.event_id}" if event.event_id is not None else None),
         )
         request_data.setdefault("workspace_id", payload.get("workspace_id"))
+        request_data.setdefault("task_id", payload.get("task_id"))
         request_data.setdefault("requested_operation", payload.get("requested_operation") or request_data.get("action_type"))
         request_data.setdefault("created_at", payload.get("created_at") or event.timestamp)
         request_data["source_event_id"] = event.event_id
@@ -133,6 +134,7 @@ class AgentRuntime:
                 "authority_id": payload.get("authority_id"),
                 "source_request_id": payload.get("source_request_id") or (f"event:{event.event_id}" if event.event_id is not None else None),
                 "workspace_id": payload.get("workspace_id"),
+                "task_id": payload.get("task_id"),
                 "requested_operation": ToolActionType.WRITE_FILE.value,
                 "created_at": payload.get("created_at") or event.timestamp,
                 "source_event_id": event.event_id,
