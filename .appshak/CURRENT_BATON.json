@@ -1,6 +1,7 @@
 {
-  "baton_id": "BATON-0001",
-  "path": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0001-repo-state.json",
-  "phase": "repo_state_confirmation",
-  "status": "complete"
+  "baton_id": "BATON-0002",
+  "path": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0002-architecture-audit.json",
+  "phase": "architecture_audit",
+  "status": "complete",
+  "audit_status": "CORRECTION_REQUIRED"
 }

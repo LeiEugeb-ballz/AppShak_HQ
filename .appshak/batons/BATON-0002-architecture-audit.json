@@ -1,0 +1,396 @@
+{
+  "baton_id": "BATON-0002",
+  "phase": "architecture_audit",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0001-repo-state.json",
+  "starting_commit": "a85ab5e15a3d23f864202fd413f4eaf0b5c5d081",
+  "canonical_root": "E:\\AppShak_HQ",
+  "audit_status": "CORRECTION_REQUIRED",
+  "architecture_summary": "Real SQLite delivery, process supervision and callable tool execution exist. Core agent simulation, Phase4 reporting/autonomy, and office stochastic experiments are separate paths. No complete durable owner-objective to validated-artifact and automatic successor flow is connected.",
+  "implemented_capabilities": [
+    "SQLite event/lease/audit/idempotency storage",
+    "worker subprocess supervision",
+    "real command and filesystem tool actions",
+    "projection JSON and read-only API/UI",
+    "governance registry/hash-chain/replay primitives",
+    "inspection and integrity evidence stores"
+  ],
+  "partial_capabilities": [
+    "task representation is currently delivery events",
+    "restart recovery without atomic effect reconciliation",
+    "authorization based on supplied identity labels",
+    "memory and cycle state outside task authority",
+    "artifact persistence without task-bound validation registry",
+    "inter-worker reply messages without next-stage handling",
+    "baton files without automatic verified dispatch"
+  ],
+  "missing_capabilities": [
+    "canonical owner task/attempt/acceptance lifecycle",
+    "independent artifact validation gate",
+    "active capability-to-provider routing",
+    "durable automated successor acceptance and dispatch",
+    "complete office vertical slice"
+  ],
+  "p0_findings": [
+    {
+      "id": "P0-01",
+      "title": "Default worktree setup discards unfinished work",
+      "evidence": [
+        "appshak_substrate/workspace_manager.py:WorkspaceManager.ensure_worktrees",
+        "appshak_substrate/workspace_manager.py:WorkspaceManager._ensure_clean"
+      ]
+    },
+    {
+      "id": "P0-02",
+      "title": "No task validation/completion authority; returned tool failure can become DONE delivery",
+      "evidence": [
+        "appshak_substrate/schema.sql",
+        "appshak_substrate/worker_process.py:_main",
+        "appshak_substrate/agent_runtime.py:AgentRuntime.handle_event"
+      ]
+    },
+    {
+      "id": "P0-03",
+      "title": "Crash windows separate reserved key, external effect, audit, reply and acknowledgment",
+      "evidence": [
+        "appshak_substrate/tool_gateway.py:ToolGateway.execute",
+        "appshak_substrate/agent_runtime.py:AgentRuntime._handle_tool_request"
+      ]
+    },
+    {
+      "id": "P0-04",
+      "title": "Synchronous execution blocks heartbeats and outlives unrenewed leases",
+      "evidence": [
+        "appshak_substrate/worker_process.py:_main",
+        "appshak_substrate/supervisor.py:Supervisor._monitor_workers",
+        "appshak_substrate/mailstore_sqlite.py:SQLiteMailStore._release_expired_leases_locked"
+      ]
+    }
+  ],
+  "p1_findings": [
+    {
+      "id": "P1-01",
+      "title": "Unbound Chief approval labels and prefix-only command policy are insufficient for model-originated execution"
+    },
+    {
+      "id": "P1-02",
+      "title": "Core durable-kernel path lacks acknowledgments and proposal-to-builder/tool connections"
+    },
+    {
+      "id": "P1-03",
+      "title": "No active reasoning adapter or verified capability/baton continuation"
+    },
+    {
+      "id": "P1-04",
+      "title": "Standalone telemetry wiring and freshness do not establish work success"
+    },
+    {
+      "id": "P1-05",
+      "title": "JSON corruption defaults and separate Phase4 state writes weaken recovery"
+    }
+  ],
+  "p2_findings": [
+    {
+      "id": "P2-01",
+      "title": "Root Python dependency reproducibility and current frontend build evidence incomplete"
+    },
+    {
+      "id": "P2-02",
+      "title": "Full event scans and bounded audit/client buffers limit reporting scale"
+    },
+    {
+      "id": "P2-03",
+      "title": "Bounded Phase4 reporting cycles are not business-work validation"
+    }
+  ],
+  "vertical_slice_status": {
+    "status": "INCOMPLETE",
+    "existing": "Supervisor, SQLite mail, real tools and evidence/report utilities.",
+    "needed": "Preserved workspaces, reliable attempts, owner task state, artifact validator, capability/baton dispatcher, truthful projection.",
+    "major_rewrite_required": false
+  },
+  "baton_integration_assessment": {
+    "status": "NATURAL_EXTENSION_NOT_CONNECTED",
+    "current": "Filesystem handoff documents tracked in Git; no runtime dispatch or verified acceptance.",
+    "proposed": "Canonical accepted baton plus task/validation state and unique successor outbox in one SQLite transaction; atomic filesystem export/current pointer as rebuildable projection.",
+    "transaction_limit": "SQLite, Git and filesystem effects cannot be claimed as one transaction; reconcile interruptions.",
+    "successor_policy": "Capability keys and bounded deterministic policy; no model-selected expensive fallback."
+  },
+  "persistence_assessment": {
+    "status": "PARTIALLY_DURABLE",
+    "live_state_root_present": false,
+    "live_mailstore_present": false,
+    "inspected_location": "E:\\AppShak_HQ\\appshak_state\\substrate\\mailstore.db",
+    "schema": "appshak_substrate/schema.sql",
+    "interpretation": "Durability is implemented for messages, audits and component JSON stores. Live default state is absent; no database created or queried. Business tasks/validation are absent, and effect recovery is not atomic."
+  },
+  "autonomy_assessment": {
+    "status": "SCAFFOLDING_WITH_REAL_TOOLS",
+    "swarm": "Processes targeted supplied events and emits heartbeats; no owner planner/model/validator.",
+    "core": "Fixed agent logic and SIMULATE/NOOP safeguard executor.",
+    "phase4": "Deterministic report/no-op proposals and audit/report writes.",
+    "office": "Stochastic sampled outcomes."
+  },
+  "validation_assessment": {
+    "status": "INFRASTRUCTURE_VALIDATION_NOT_TASK_GATE",
+    "existing": "Tests, certification evidence checks, integrity/inspection and replay.",
+    "missing": "Independent persisted per-artifact task acceptance and bounded repair."
+  },
+  "test_assessment": {
+    "baseline_source": "BATON-0001 and Shift 0",
+    "baseline_passed": 37,
+    "fresh_test_run": false,
+    "method": "Reviewed source; no runtime/tests started under the three-output-only audit scope.",
+    "covered": [
+      "lease reclamation",
+      "worker restart on generic messages",
+      "duplicate key denial",
+      "path traversal denial",
+      "registry persistence/replay",
+      "projection cursor/round-trip",
+      "API/report contracts"
+    ],
+    "not_covered": [
+      "whole office task recovery",
+      "effect crash reconciliation",
+      "long-tool heartbeat/lease safety",
+      "dirty workspace restart preservation",
+      "task validation failure and repair",
+      "active provider failures",
+      "baton handoff dispatch",
+      "corrupt canonical state recovery"
+    ],
+    "ui_build": "UNVERIFIED; dependencies absent; Shift 0 recorded no technical reason for omission"
+  },
+  "recommended_next_capability": "RUNTIME_STABILIZATION",
+  "recommended_work_packages": [
+    {
+      "id": "S1-WP1",
+      "title": "Preserve workspaces and bind execution authority",
+      "objective": "Non-destructive worker setup and recorded trusted approval for one bounded action route.",
+      "why": [
+        "P0-01",
+        "P1-01"
+      ],
+      "files_subsystems": [
+        "appshak_substrate/workspace_manager.py",
+        "appshak_substrate/policy.py",
+        "appshak_substrate/agent_runtime.py",
+        "appshak_substrate/tool_gateway.py"
+      ],
+      "dependencies": [],
+      "acceptance_test": "Repeated setup preserves tracked edits, untracked artifacts and ignored output; forged approval and out-of-scope actions fail; approved bounded action runs.",
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "id": "S1-WP2",
+      "title": "Make execution attempts recoverable",
+      "objective": "Independent liveness, lease renewal/fencing, recoverable effect/result state, and child-process lifecycle.",
+      "why": [
+        "P0-03",
+        "P0-04"
+      ],
+      "files_subsystems": [
+        "appshak_substrate/worker_process.py",
+        "appshak_substrate/supervisor.py",
+        "appshak_substrate/mailstore_sqlite.py",
+        "appshak_substrate/schema.sql",
+        "appshak_substrate/tool_gateway.py"
+      ],
+      "dependencies": [
+        "S1-WP1"
+      ],
+      "acceptance_test": "Long action survives heartbeat/lease thresholds; crash boundaries recover one result or explicit uncertainty; failures are distinct from acceptance; caller cannot bypass idempotency.",
+      "estimated_complexity": "LARGE"
+    },
+    {
+      "id": "S1-WP3",
+      "title": "Add one durable owner-task contract",
+      "objective": "Owner intake, task/attempt ownership and status, conditional transitions, durable bounded retries and transactional dispatch.",
+      "why": [
+        "P0-02"
+      ],
+      "files_subsystems": [
+        "appshak_substrate/schema.sql",
+        "appshak_substrate/mailstore_sqlite.py",
+        "appshak_substrate/types.py",
+        "appshak_substrate/agent_runtime.py",
+        "thin owner interface and dispatcher"
+      ],
+      "dependencies": [
+        "S1-WP2"
+      ],
+      "acceptance_test": "Restart preserves task and attempt; denials/nonzero results cannot pass tasks; duplicate submission or claim cannot create competing accepted attempts; exhausted retries stop.",
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "id": "S1-WP4",
+      "title": "Gate artifacts with persisted validation",
+      "objective": "Bind output hashes and Git state to independent persisted verdicts and bounded repair.",
+      "why": [
+        "P0-02"
+      ],
+      "files_subsystems": [
+        "tool execution results",
+        "task persistence",
+        "validation command adapter",
+        "existing evidence/hash utilities"
+      ],
+      "dependencies": [
+        "S1-WP3"
+      ],
+      "acceptance_test": "Real incorrect output is rejected, repaired output accepted; both verdicts persist; tampering fails; restart resumes pending validation; model success text cannot pass.",
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "id": "S1-WP5",
+      "title": "Connect capability routing and verified batons",
+      "objective": "One configured adapter behind deterministic capability policy; canonical baton records, outbox, export and successor consumption.",
+      "why": [
+        "P1-03"
+      ],
+      "files_subsystems": [
+        "dispatcher and routing policy",
+        "task/event store and outbox",
+        "worker adapter",
+        "baton exporter and current pointer"
+      ],
+      "dependencies": [
+        "S1-WP3",
+        "S1-WP4"
+      ],
+      "acceptance_test": "Accepted stage schedules one successor across duplicate delivery/restart; interrupted export rebuilds; bad evidence/version rejected; unavailable route and unauthorized resource escalation block; fixture and separately authorized real-adapter acceptance remain distinct.",
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "id": "S1-WP6",
+      "title": "Project the verified slice and certify restart",
+      "objective": "Task/verdict/baton truth and freshness in current UI/API, explicit corrupt-state failure, reproducible acceptance evidence.",
+      "why": [
+        "P1-04",
+        "P1-05",
+        "P2-01"
+      ],
+      "files_subsystems": [
+        "appshak_projection",
+        "appshak_observability",
+        "appshak-ui",
+        "state loaders",
+        "dependency/setup documentation"
+      ],
+      "dependencies": [
+        "S1-WP4",
+        "S1-WP5"
+      ],
+      "acceptance_test": "Owner-to-artifact-to-failed-validation-to-repair-to-pass-to-successor flow survives restart; stale UI and corrupt state are explicit; source-bound test/build evidence and repeatable setup recorded.",
+      "estimated_complexity": "MEDIUM"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "appshak_substrate/run_swarm.py",
+      "symbols": [
+        "main"
+      ],
+      "finding": "Fixed agents and supervisor startup, no model/intake/validator"
+    },
+    {
+      "path": "appshak_substrate/agent_runtime.py",
+      "symbols": [
+        "AgentRuntime.handle_event",
+        "AgentRuntime._handle_tool_request"
+      ],
+      "finding": "Real tool-request flow and generic result handling"
+    },
+    {
+      "path": "appshak_substrate/worker_process.py",
+      "symbols": [
+        "_main"
+      ],
+      "finding": "Heartbeat between synchronous events and unconditional acknowledgment after return"
+    },
+    {
+      "path": "appshak_substrate/schema.sql",
+      "finding": "Five infrastructure tables, no task/validation/baton authority"
+    },
+    {
+      "path": "appshak_substrate/tool_gateway.py",
+      "symbols": [
+        "ToolGateway.execute",
+        "ToolGateway._execute_allowed"
+      ],
+      "finding": "Real effects with separate key, audit and result operations"
+    },
+    {
+      "path": "appshak_substrate/workspace_manager.py",
+      "symbols": [
+        "WorkspaceManager.ensure_worktrees"
+      ],
+      "finding": "Existing workspace reset/clean on normal ensure"
+    },
+    {
+      "path": "appshak/kernel.py",
+      "symbols": [
+        "AppShakKernel.heartbeat",
+        "AppShakKernel._route_event"
+      ],
+      "finding": "No durable ack and no builder/tool connection"
+    },
+    {
+      "path": "appshak/safeguards.py",
+      "symbols": [
+        "SafeguardMonitor.execute_in_sandbox"
+      ],
+      "finding": "Only simulated actions"
+    },
+    {
+      "path": "appshak_phase4/runtime/action_gate.py",
+      "symbols": [
+        "ExternalActionGate.execute"
+      ],
+      "finding": "Audited approval/result dictionary, no tool executor"
+    },
+    {
+      "path": "appshak_office/worker_profiles.py",
+      "symbols": [
+        "WorkerProfile.sample_outcome"
+      ],
+      "finding": "Sampled office outcomes"
+    },
+    {
+      "path": "appshak_observability/server.py",
+      "symbols": [
+        "build_standalone_app",
+        "create_app"
+      ],
+      "finding": "Mailstore parameter discarded and health independent of state freshness"
+    },
+    {
+      "path": "appshak-ui/src/office/animator.js",
+      "symbols": [
+        "OfficeAnimator"
+      ],
+      "finding": "Fixed avatars and counter-derived animation"
+    },
+    {
+      "path": "tests/",
+      "finding": "37 tests inspected against target guarantees; pass evidence inherited"
+    },
+    {
+      "path": "appshak_state/",
+      "finding": "Absent on audit existence check"
+    },
+    {
+      "path": "APP_SHAK_HANDOVER/ARCHITECTURAL_AUDIT.md",
+      "finding": "Full audit, per-entity durability, flow, findings and work-package acceptance criteria"
+    }
+  ],
+  "report_path": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\ARCHITECTURAL_AUDIT.md",
+  "scope_control": {
+    "production_changes": false,
+    "tests_added": false,
+    "schemas_changed": false,
+    "committed": false,
+    "pushed": false,
+    "stop_after_audit": true
+  }
+}
