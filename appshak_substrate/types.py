@@ -165,6 +165,11 @@ class ToolRequest:
     payload: Dict[str, Any] = field(default_factory=dict)
     authorized_by: Optional[str] = None
     correlation_id: Optional[str] = None
+    authority_id: Optional[str] = None
+    source_request_id: Optional[str] = None
+    workspace_id: Optional[str] = None
+    requested_operation: Optional[str] = None
+    created_at: Optional[str] = None
 
 
 @dataclass(slots=True)

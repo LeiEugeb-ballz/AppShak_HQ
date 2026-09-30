@@ -5,6 +5,10 @@ from pathlib import Path
 from typing import Dict, Iterable, Optional
 
 
+class WorkspaceStateError(RuntimeError):
+    """Raised when a workspace cannot be proven safe to reuse."""
+
+
 class WorkspaceManager:
     """Creates and validates per-agent git worktree isolation."""
 
@@ -55,11 +59,8 @@ class WorkspaceManager:
                     )
             if self.reset_on_ensure:
                 self.reset_worktree(normalized)
-            # Always reset on first creation to avoid CRLF false-dirty on Windows
             else:
-                self._run_git("-C", str(path), "reset", "--hard")
-                self._run_git("-C", str(path), "clean", "-fd")
-            self._ensure_clean(path)
+                self._validate_existing_worktree(path, normalized)
             result[normalized] = path
         return result
 
@@ -71,23 +72,33 @@ class WorkspaceManager:
 
     def reset_worktree(self, agent_id: str) -> None:
         path = self.worktree_for(agent_id)
-        self._run_git("-C", str(path), "reset", "--hard")
-        self._run_git("-C", str(path), "clean", "-fd")
-        self._run_git("-C", str(path), "checkout", self.baseline_branch)
         self._run_git("-C", str(path), "reset", "--hard", self.baseline_branch)
+        self._run_git("-C", str(path), "clean", "-fd")
 
-    def _ensure_clean(self, worktree_path: Path) -> None:
-        result = self._run_git("-C", str(worktree_path), "status", "--porcelain")
-        if result.stdout.strip():
-            # On Windows, CRLF normalisation can make freshly-created worktrees
-            # appear dirty.  Force-reset and re-check before giving up.
-            self._run_git("-C", str(worktree_path), "reset", "--hard")
-            self._run_git("-C", str(worktree_path), "clean", "-fdx")
-            result2 = self._run_git("-C", str(worktree_path), "status", "--porcelain")
-            if result2.stdout.strip():
-                raise RuntimeError(
-                    f"Worktree '{worktree_path}' is not clean even after reset: {result2.stdout.strip()}"
-                )
+    def _validate_existing_worktree(self, worktree_path: Path, agent_id: str) -> None:
+        """Validate registration without changing any workspace content."""
+        try:
+            top_level = self._run_git("-C", str(worktree_path), "rev-parse", "--show-toplevel").stdout.strip()
+        except RuntimeError as exc:
+            raise WorkspaceStateError(
+                f"Workspace for agent '{agent_id}' is not a usable Git worktree; refusing cleanup: {worktree_path}"
+            ) from exc
+
+        if Path(top_level).resolve() != worktree_path.resolve():
+            raise WorkspaceStateError(
+                f"Workspace for agent '{agent_id}' resolves to '{top_level}', expected '{worktree_path}'; refusing cleanup."
+            )
+
+        listing = self._run_git("worktree", "list", "--porcelain").stdout.splitlines()
+        registered_paths = {
+            Path(line.removeprefix("worktree ").strip()).resolve()
+            for line in listing
+            if line.startswith("worktree ")
+        }
+        if worktree_path.resolve() not in registered_paths:
+            raise WorkspaceStateError(
+                f"Workspace for agent '{agent_id}' is not registered with repository '{self.repo_root}'; refusing cleanup."
+            )
 
     def _assert_git_repo(self) -> None:
         dot_git = self.repo_root / ".git"

@@ -1,0 +1,113 @@
+{
+  "baton_id": "BATON-0003",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0002-architecture-audit.json",
+  "phase": "s1_wp1_runtime_stabilization",
+  "work_package": "S1-WP1 — Preserve workspaces and bind execution authority",
+  "starting_commit": "41024a926d1afe226c7dfbac8158c5aa0d12e6b0",
+  "ending_worktree_state": "dirty; scoped WP1 implementation, tests, report and baton files are uncommitted; generated appshak_state output is ignored",
+  "objective": "Make normal durable workspace startup non-destructive and require explicit attributable execution authority for every tool side effect.",
+  "root_cause": [
+    "WorkspaceManager reset and cleaned existing worktrees during normal ensure_worktrees.",
+    "Tool requests had no required durable attribution contract tying authority, source, worker, workspace, operation and creation time."
+  ],
+  "implementation_summary": [
+    "Normal workspace reuse validates registered Git worktrees and preserves dirty/untracked state.",
+    "Explicit reset remains available only through reset_on_ensure/--reset-worktrees.",
+    "ToolRequest carries authority_id, source_request_id, workspace_id, requested_operation and created_at.",
+    "ToolGateway rejects incomplete or mismatched authority and records valid attribution in tool audit payloads.",
+    "AgentRuntime propagates authority fields from durable request envelopes."
+  ],
+  "files_changed": [
+    "appshak_substrate/workspace_manager.py",
+    "appshak_substrate/types.py",
+    "appshak_substrate/tool_gateway.py",
+    "appshak_substrate/agent_runtime.py",
+    "appshak_substrate/chambers/chamber_c_tool_enforcement.py",
+    "tests/test_tool_gateway_enforcement.py",
+    "tests/test_s1_wp1_workspace_authority.py",
+    "APP_SHAK_HANDOVER/S1_WP1_RUNTIME_STABILIZATION.md",
+    ".appshak/batons/BATON-0003-s1-wp1.json",
+    ".appshak/CURRENT_BATON.json"
+  ],
+  "tests_added": [
+    "tests/test_s1_wp1_workspace_authority.py: six focused workspace/authority tests"
+  ],
+  "tests_run": [
+    "python -m unittest tests.test_s1_wp1_workspace_authority tests.test_tool_gateway_enforcement",
+    "python -m unittest discover -s tests -p \"test_*.py\" -v",
+    "python -m appshak_substrate.chambers.chamber_a_durability",
+    "python -m appshak_substrate.chambers.chamber_b_isolation",
+    "python -m appshak_substrate.chambers.chamber_c_tool_enforcement"
+  ],
+  "tests_passed": [
+    "Focused WP1 and gateway suite: 6",
+    "Regression suite: 42",
+    "Chamber A: PASS",
+    "Chamber B: PASS",
+    "Chamber C: PASS"
+  ],
+  "tests_failed": [],
+  "workspace_preservation_status": "PASS — normal startup reuses valid registered worktrees and preserves dirty/untracked state; explicit reset is opt-in; invalid existing paths fail safely.",
+  "execution_authority_status": "PASS_WITH_NONBLOCKING_FINDINGS — required fields are validated and persisted in tool audit, but dedicated authority/task resolution is deferred to later work.",
+  "known_limitations": [
+    "No dedicated authority approval store exists yet.",
+    "Crash reconciliation, lease renewal/fencing and task lifecycle remain S1-WP2 or later.",
+    "Command execution is not an OS sandbox.",
+    "No quarantine relocation is performed for invalid workspaces; failure is explicit and non-destructive."
+  ],
+  "blocking_findings": [],
+  "evidence": [
+    {
+      "path": "appshak_substrate/workspace_manager.py",
+      "symbols": [
+        "WorkspaceManager.ensure_worktrees",
+        "WorkspaceManager._validate_existing_worktree",
+        "WorkspaceManager.reset_worktree"
+      ],
+      "finding": "Normal ensure is validation/reuse; destructive reset requires explicit flag."
+    },
+    {
+      "path": "appshak_substrate/tool_gateway.py",
+      "symbols": [
+        "ToolGateway.workspace_identity",
+        "ToolGateway.execute",
+        "ToolGateway._authority_error"
+      ],
+      "finding": "Authority fields are required, bound to the registered worktree/action, and included in durable audit payloads."
+    },
+    {
+      "path": "appshak_substrate/types.py",
+      "symbols": [
+        "ToolRequest"
+      ],
+      "finding": "Execution authority fields are part of the request envelope."
+    },
+    {
+      "path": "appshak_substrate/agent_runtime.py",
+      "symbols": [
+        "AgentRuntime._handle_tool_request",
+        "AgentRuntime._handle_forge_change"
+      ],
+      "finding": "Authority is propagated from durable event/request envelopes; privileged authority is not synthesized."
+    },
+    {
+      "path": "tests/test_s1_wp1_workspace_authority.py",
+      "finding": "Six focused WP1 tests pass."
+    },
+    {
+      "path": "tests/test_tool_gateway_enforcement.py",
+      "finding": "Existing gateway regression updated for explicit authority."
+    },
+    {
+      "path": "appshak_substrate/chambers/chamber_c_tool_enforcement.py",
+      "finding": "Existing enforcement chamber passes with explicit authority."
+    },
+    {
+      "path": "tests/",
+      "finding": "42 tests pass in the complete unittest discovery run."
+    }
+  ],
+  "recommended_next_capability": "RUNTIME_STABILIZATION",
+  "recommended_next_work_package": "S1-WP2 — Make execution attempts recoverable",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS"
+}

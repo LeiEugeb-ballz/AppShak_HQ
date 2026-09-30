@@ -79,6 +79,14 @@ class AgentRuntime:
         request_data.setdefault("working_dir", payload.get("working_dir") or request_data.get("working_dir"))
         request_data.setdefault("authorized_by", payload.get("authorized_by"))
         request_data.setdefault("correlation_id", event.correlation_id)
+        request_data.setdefault("authority_id", payload.get("authority_id"))
+        request_data.setdefault(
+            "source_request_id",
+            payload.get("source_request_id") or (f"event:{event.event_id}" if event.event_id is not None else None),
+        )
+        request_data.setdefault("workspace_id", payload.get("workspace_id"))
+        request_data.setdefault("requested_operation", payload.get("requested_operation") or request_data.get("action_type"))
+        request_data.setdefault("created_at", payload.get("created_at") or event.timestamp)
         result = self.tool_gateway.execute(request_data)
 
         self.mail_store.append_event(
@@ -123,6 +131,11 @@ class AgentRuntime:
             {
                 "agent_id": "forge",
                 "authorized_by": payload.get("authorized_by"),
+                "authority_id": payload.get("authority_id"),
+                "source_request_id": payload.get("source_request_id") or (f"event:{event.event_id}" if event.event_id is not None else None),
+                "workspace_id": payload.get("workspace_id"),
+                "requested_operation": ToolActionType.WRITE_FILE.value,
+                "created_at": payload.get("created_at") or event.timestamp,
                 "action_type": ToolActionType.WRITE_FILE.value,
                 "working_dir": workdir,
                 "correlation_id": event.correlation_id,

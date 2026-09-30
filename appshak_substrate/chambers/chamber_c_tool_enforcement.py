@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import subprocess
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 from appshak_substrate.mailstore_sqlite import SQLiteMailStore
@@ -15,6 +16,16 @@ def _run(cmd: list[str], cwd: Path) -> None:
     result = subprocess.run(cmd, cwd=str(cwd), text=True, capture_output=True, check=False)
     if result.returncode != 0:
         raise RuntimeError(f"Command failed: {' '.join(cmd)}\n{result.stderr or result.stdout}")
+
+
+def _authority(agent: str, worktree: Path, operation: str, source: str) -> dict[str, str]:
+    return {
+        "authority_id": f"authority:{source}",
+        "source_request_id": source,
+        "workspace_id": ToolGateway.workspace_identity(agent, worktree),
+        "requested_operation": operation,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 def run_chamber() -> int:
@@ -45,6 +56,7 @@ def run_chamber() -> int:
                 "action_type": "RUN_CMD",
                 "working_dir": str(worktrees["forge"]),
                 "payload": {"argv": ["git", "status"], "idempotency_key": "chamber-c-deny-non-chief"},
+                **_authority("forge", worktrees["forge"], "RUN_CMD", "chamber-c-deny-non-chief"),
             }
         )
         denied_traversal = gateway.execute(
@@ -58,6 +70,7 @@ def run_chamber() -> int:
                     "content": "blocked",
                     "idempotency_key": "chamber-c-deny-traversal",
                 },
+                **_authority("forge", worktrees["forge"], "WRITE_FILE", "chamber-c-deny-traversal"),
             }
         )
         allowed = gateway.execute(
@@ -67,6 +80,7 @@ def run_chamber() -> int:
                 "action_type": "RUN_CMD",
                 "working_dir": str(worktrees["command"]),
                 "payload": {"argv": ["git", "status"], "idempotency_key": "chamber-c-allow"},
+                **_authority("command", worktrees["command"], "RUN_CMD", "chamber-c-allow"),
             }
         )
         duplicate = gateway.execute(
@@ -76,6 +90,7 @@ def run_chamber() -> int:
                 "action_type": "RUN_CMD",
                 "working_dir": str(worktrees["command"]),
                 "payload": {"argv": ["git", "status"], "idempotency_key": "chamber-c-allow"},
+                **_authority("command", worktrees["command"], "RUN_CMD", "chamber-c-allow-duplicate"),
             }
         )
 

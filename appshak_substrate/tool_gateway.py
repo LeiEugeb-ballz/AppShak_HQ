@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
 
@@ -30,15 +31,27 @@ class ToolGateway:
     def set_workspace_roots(self, workspace_roots: Mapping[str, str | Path]) -> None:
         self.workspace_roots = {str(agent): Path(path).resolve() for agent, path in workspace_roots.items()}
 
+    @staticmethod
+    def workspace_identity(agent_id: str, workspace_root: str | Path) -> str:
+        return f"worktree:{str(agent_id).strip().lower()}:{Path(workspace_root).resolve()}"
+
     def execute(self, request: ToolRequest | Dict[str, Any]) -> ToolResult:
         req = self._coerce_request(request)
         payload = dict(req.payload)
+        authority_payload = {
+            "authority_id": req.authority_id,
+            "worker_id": req.agent_id,
+            "source_request_id": req.source_request_id,
+            "workspace_id": req.workspace_id,
+            "requested_operation": req.requested_operation,
+            "created_at": req.created_at,
+        }
         idempotency_key = payload.get("idempotency_key")
         if not isinstance(idempotency_key, str) or not idempotency_key.strip():
             return self._deny(
                 req,
                 reason="Missing required payload.idempotency_key.",
-                payload=payload,
+                payload={**payload, **authority_payload},
                 idempotency_key=None,
             )
         idempotency_key = idempotency_key.strip()
@@ -49,7 +62,16 @@ class ToolGateway:
             return self._deny(
                 req,
                 reason=f"No registered workspace root for agent '{req.agent_id}'.",
-                payload=payload,
+                payload={**payload, **authority_payload},
+                idempotency_key=idempotency_key,
+            )
+
+        authority_error = self._authority_error(req, workspace_root)
+        if authority_error is not None:
+            return self._deny(
+                req,
+                reason=authority_error,
+                payload={**payload, **authority_payload},
                 idempotency_key=idempotency_key,
             )
 
@@ -58,11 +80,11 @@ class ToolGateway:
             return self._deny(
                 req,
                 reason=decision.reason,
-                payload=payload,
+                payload={**payload, **authority_payload},
                 idempotency_key=idempotency_key,
             )
 
-        normalized_payload = dict(decision.normalized_payload)
+        normalized_payload = {**decision.normalized_payload, **authority_payload}
         if req.action_type == ToolActionType.OPEN_PR:
             return self._deny(
                 req,
@@ -309,6 +331,36 @@ class ToolGateway:
             correlation_id=request.correlation_id,
         )
 
+    def _authority_error(self, request: ToolRequest, workspace_root: Path) -> Optional[str]:
+        required = {
+            "authority_id": request.authority_id,
+            "worker_id": request.agent_id,
+            "source_request_id": request.source_request_id,
+            "workspace_id": request.workspace_id,
+            "requested_operation": request.requested_operation,
+            "created_at": request.created_at,
+        }
+        missing = [name for name, value in required.items() if not isinstance(value, str) or not value.strip()]
+        if missing:
+            return f"Execution authority incomplete; required fields missing: {', '.join(missing)}."
+
+        authority_id = str(request.authority_id).strip().casefold()
+        if authority_id in {"approved", "authorized", "validated", "admin", "chief", "command"}:
+            return "Execution authority must use an opaque authority_id, not a display label."
+
+        expected_workspace = self.workspace_identity(request.agent_id, workspace_root)
+        if request.workspace_id != expected_workspace:
+            return "Execution authority workspace_id does not match the registered worker worktree."
+
+        if request.requested_operation != request.action_type.value:
+            return "Execution authority requested_operation does not match action_type."
+
+        try:
+            datetime.fromisoformat(str(request.created_at).replace("Z", "+00:00"))
+        except ValueError:
+            return "Execution authority created_at must be an ISO-8601 timestamp."
+        return None
+
     @staticmethod
     def _coerce_request(request: ToolRequest | Dict[str, Any]) -> ToolRequest:
         if isinstance(request, ToolRequest):
@@ -335,6 +387,31 @@ class ToolGateway:
                 correlation_id=(
                     str(request.get("correlation_id"))
                     if request.get("correlation_id") is not None
+                    else None
+                ),
+                authority_id=(
+                    str(request.get("authority_id"))
+                    if request.get("authority_id") is not None
+                    else None
+                ),
+                source_request_id=(
+                    str(request.get("source_request_id"))
+                    if request.get("source_request_id") is not None
+                    else None
+                ),
+                workspace_id=(
+                    str(request.get("workspace_id"))
+                    if request.get("workspace_id") is not None
+                    else None
+                ),
+                requested_operation=(
+                    str(request.get("requested_operation"))
+                    if request.get("requested_operation") is not None
+                    else None
+                ),
+                created_at=(
+                    str(request.get("created_at"))
+                    if request.get("created_at") is not None
                     else None
                 ),
             )
