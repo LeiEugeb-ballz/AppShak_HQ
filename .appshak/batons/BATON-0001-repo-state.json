@@ -1,0 +1,46 @@
+{
+  "baton_id": "BATON-0001",
+  "phase": "repo_state_confirmation",
+  "status": "complete",
+  "canonical_root": "E:\\AppShak_HQ",
+  "branch": "main",
+  "head_commit": "6ecf84b99bee3ddb0ccd76c0358e569e8a848167",
+  "head_commit_date": "2026-08-22T18:57:47+02:00",
+  "working_tree_state_before_baton": "clean; git status --porcelain produced no entries",
+  "remote_url": "https://github.com/LeiEugeb-ballz/AppShak_HQ.git",
+  "remote_sync_state": "synchronized with origin/main; ahead 0, behind 0; origin/HEAD -> origin/main",
+  "entrypoints": {
+    "backend": "appshak_observability/server.py",
+    "frontend": "appshak-ui/package.json (Vite scripts)",
+    "runtime": "appshak/__main__.py; durable runtime appshak_substrate/run_kernel_durable.py; swarm appshak_substrate/run_swarm.py"
+  },
+  "startup_command": "python -m appshak_substrate.run_swarm --agents recon forge command --durable --worktrees --duration-seconds 1200",
+  "backend_start_command": "python -m appshak_observability.server --host 127.0.0.1 --port 8010 --projection-view appshak_state/projection/view.json",
+  "frontend_start_command": "cd appshak-ui; npm install; npm run dev",
+  "test_command": "python -m unittest discover -s tests -p \"test_*.py\" -v",
+  "build_command": "cd appshak-ui; npm run build",
+  "state_store": {
+    "type": "SQLite durable mailstore plus JSON memory/projection/ledger stores",
+    "location": "appshak_state/substrate/mailstore.db; appshak_state/memory_store.json; appshak_state/projection/view.json; configured governance ledger paths",
+    "schema_location": "appshak_substrate/mailstore_sqlite.py and appshak_projection/view_store.py",
+    "persistence": "YES"
+  },
+  "architecture_match": "MOSTLY_MATCH",
+  "repo_ready": "READY_WITH_NONBLOCKING_FINDINGS",
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "No root Python dependency manifest is tracked; dependency guidance is documented in docs/DEPENDENCIES.md.",
+    "Historical onboarding text retains Phase 3B operating-context language while CURRENT_STATUS.md records the reconciled repository-wide status.",
+    "Repository contains preserved historical/generated artifacts, archives, PDFs, screenshots, ZIP files, and run evidence."
+  ],
+  "evidence": [
+    "E:\\AppShak_HQ is a Git repository on main at 6ecf84b.",
+    "git status --porcelain was clean before baton creation.",
+    "origin/main and origin/HEAD resolve to the same synchronized remote history; rev-list HEAD...origin/main = 0 0.",
+    "Root README.md, docs/INDEX.md, CURRENT_STATUS.md, and docs/DEPENDENCIES.md exist in the canonical repository.",
+    "python -m unittest discover -s tests -p test_*.py -v completed 37 tests with OK.",
+    "The nested E:\\AppShak_HQ-main\\AppShak_HQ-main snapshot has no .git directory and lacks RC1-A navigation files.",
+    "C:\\AppShak_HQ does not exist at confirmation time."
+  ],
+  "recommended_next_capability": "ARCHITECTURAL_AUDIT"
+}
