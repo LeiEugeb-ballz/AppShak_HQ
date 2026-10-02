@@ -377,6 +377,321 @@
   overflow-wrap: anywhere;
 }
 
+.office-workflow__eyebrow {
+  margin: 0 0 0.25rem;
+  color: #7e9dc6;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.office-workflow__overview,
+.office-workflow__inspection {
+  margin-top: 1rem;
+  border: 1px solid #34455c;
+  border-radius: 10px;
+  background: #0d1621;
+}
+
+.office-workflow__overview {
+  padding: 0.85rem;
+}
+
+.office-workflow__overview > header,
+.office-workflow__inspection-head,
+.office-workflow__history-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.office-workflow__overview h3,
+.office-workflow__inspection h3,
+.office-workflow__stage h4,
+.office-view__section-heading h2 {
+  margin: 0;
+}
+
+.office-workflow__overview header p,
+.office-view__section-heading p {
+  margin: 0.25rem 0 0;
+  color: #91a5c1;
+  font-size: 0.78rem;
+}
+
+.office-workflow__counts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.office-workflow__counts span {
+  display: grid;
+  min-width: 4.5rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #354b65;
+  border-radius: 7px;
+  color: #a8bad3;
+  font-size: 0.64rem;
+  text-align: center;
+}
+
+.office-workflow__counts strong {
+  color: #f0f5ff;
+  font-size: 1rem;
+}
+
+.office-workflow__task-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+}
+
+.office-workflow__task-button {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0.7rem;
+  border: 1px solid #35455b;
+  border-radius: 8px;
+  color: #e6eefc;
+  background: #111d2a;
+  text-align: left;
+  cursor: pointer;
+  align-items: flex-start;
+}
+
+.office-workflow__task-button:hover,
+.office-workflow__task-button:focus-visible,
+.office-workflow__task-button--selected {
+  border-color: #6797d2;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(95, 157, 255, 0.2);
+}
+
+.office-workflow__task-summary,
+.office-workflow__task-states {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.office-workflow__task-summary small,
+.office-workflow__task-states small {
+  color: #94a8c5;
+  font-size: 0.68rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.office-workflow__task-states {
+  justify-items: end;
+  flex: 0 0 42%;
+  max-width: 42%;
+  text-align: right;
+}
+
+.office-workflow__task-states .office-workflow__state-chip {
+  max-width: 100%;
+}
+
+.office-workflow__inspection {
+  padding: 1rem;
+}
+
+.office-workflow__inspection--stale {
+  border-color: #805e54;
+  background: #211a1c;
+}
+
+.office-workflow__inspection-head {
+  align-items: center;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #2f4055;
+}
+
+.office-workflow__value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.office-workflow__value--mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.76rem;
+}
+
+.office-workflow__state-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid #52667e;
+  border-radius: 999px;
+  color: #dce7f8;
+  background: #202e3f;
+  font-size: 0.67rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.office-workflow__state-chip--complete,
+.office-workflow__state-chip--passed,
+.office-workflow__state-chip--verified {
+  border-color: #3e8c6b;
+  color: #c6f4db;
+  background: #183a2c;
+}
+
+.office-workflow__state-chip--failed,
+.office-workflow__state-chip--execution-failed,
+.office-workflow__state-chip--validation-failed,
+.office-workflow__state-chip--validation-error,
+.office-workflow__state-chip--error {
+  border-color: #a6505d;
+  color: #ffd5db;
+  background: #43232b;
+}
+
+.office-workflow__state-chip--needs-reconciliation,
+.office-workflow__state-chip--unknown-state,
+.office-workflow__state-chip--waiting-for-capability {
+  border-color: #a67b43;
+  color: #ffe2b2;
+  background: #40301f;
+}
+
+.office-workflow__state-chip--history {
+  opacity: 0.72;
+}
+
+.office-workflow__condition,
+.office-workflow__waiting,
+.office-workflow__success {
+  margin: 0.85rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-left: 3px solid #a67b43;
+  background: #2c241b;
+  color: #ffe2b2;
+  font-size: 0.82rem;
+}
+
+.office-workflow__condition--execution_failed,
+.office-workflow__condition--validation_failed,
+.office-workflow__condition--validation_error {
+  border-color: #b95b68;
+  color: #ffd5db;
+  background: #321e24;
+}
+
+.office-workflow__success {
+  border-color: #3e8c6b;
+  color: #c6f4db;
+  background: #142c23;
+}
+
+.office-workflow__chain {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.office-workflow__stage {
+  border: 1px solid #2c3d52;
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: #101b28;
+}
+
+.office-workflow__stage > header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.office-workflow__stage-number {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  color: #bcd3f3;
+  background: #263b54;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.office-workflow__details--compact {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.office-workflow__history,
+.office-workflow__evidence {
+  color: #dce7f8;
+}
+
+.office-workflow__history summary,
+.office-workflow__evidence summary {
+  color: #9fb9db;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.office-workflow__history-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.office-workflow__history-list > li,
+.office-workflow__record {
+  padding: 0.65rem;
+  border: 1px solid #29394d;
+  border-radius: 7px;
+  background: #0b141f;
+}
+
+.office-workflow__records {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.office-workflow__check {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.55rem;
+  padding: 0.55rem;
+  border: 1px solid #29394d;
+  border-radius: 6px;
+}
+
+.office-workflow__check pre,
+.office-workflow__evidence-json {
+  grid-column: 1 / -1;
+  max-width: 100%;
+  margin: 0.35rem 0 0;
+  color: #aebfda;
+  font: 0.7rem/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.office-view__section-heading {
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid #2f4055;
+}
+
 .office-view__canvas-shell {
   position: relative;
   border: 1px solid #2a3447;

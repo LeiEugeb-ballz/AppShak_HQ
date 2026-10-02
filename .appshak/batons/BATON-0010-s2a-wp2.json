@@ -1,0 +1,51 @@
+{
+  "baton_id": "BATON-0010",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0009-s2a-wp1.json",
+  "phase": "s2a_wp2_operator_usability",
+  "work_package": "S2A-WP2 — Operator usability and workflow inspection",
+  "starting_commit": "72062838189f02b3e32582644509b8f4936797e1",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
+  "certification_status": "S2A_WP2_READ_ONLY_WORKFLOW_INSPECTION",
+  "record_kind": "repository_handover_projection",
+  "runtime_dispatchable": false,
+  "canonical_runtime_source": "GET /api/office/state from configured S1 SQLite mailstore",
+  "task_overview_status": "PASS",
+  "workflow_inspection_status": "PASS",
+  "failure_uncertainty_status": "PASS",
+  "validation_inspection_status": "PASS",
+  "baton_handoff_status": "PASS",
+  "canonical_telemetry_separation_status": "PASS",
+  "read_only_status": "PASS",
+  "accessibility_readability_status": "PASS",
+  "historical_assets_reused": [],
+  "tests_run": [
+    "npm run lint",
+    "npm run test:office",
+    "npm run build",
+    "python -m unittest discover -s tests -p \"test_*.py\" -v"
+  ],
+  "tests_passed": [
+    "Repository-wide ESLint: 0 errors",
+    "Focused UI tests: 16",
+    "UI build: PASS",
+    "Full Python regression: 111"
+  ],
+  "tests_failed": [],
+  "screenshots": [
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\WP2\\overview.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\WP2\\active.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\WP2\\validation_failure.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\WP2\\needs_reconciliation.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\WP2\\completed.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\WP2\\waiting_for_capability.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\WP2\\stale_unavailable.png"
+  ],
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "APP_SHAK_HANDOVER/S2_MASTER_PLAN.md is absent; no roadmap checkbox was marked.",
+    "The office endpoint is a bounded snapshot and the task overview has no server-side pagination or filtering.",
+    "Visual baselines use isolated synthetic component fixtures and are not S2C visual approval."
+  ],
+  "report": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_WP2_OPERATOR_USABILITY.md",
+  "recommended_next_stage": "S2B — LIVE OFFICE-STATE PROJECTION"
+}

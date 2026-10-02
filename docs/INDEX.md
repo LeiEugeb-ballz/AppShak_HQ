@@ -69,6 +69,7 @@ These are the primary documents for a current engineer.
 
 - [S1 Final Integration and Restart Certification](../APP_SHAK_HANDOVER/S1_FINAL_CERTIFICATION.md)
 - [S2A-WP1 Operator Console Binding](../APP_SHAK_HANDOVER/S2A_WP1_OPERATOR_CONSOLE_BINDING.md)
+- [S2A-WP2 Operator Usability and Workflow Inspection](../APP_SHAK_HANDOVER/S2A_WP2_OPERATOR_USABILITY.md)
 - [S1 WP5 Independent Corrective Review](../APP_SHAK_HANDOVER/S1_WP5_SOL_HIGH_REVIEW.md)
 - [Phase 2 Substrate Signoff](phase_2_substrate_signoff.md)
 - [Phase 4 Operational Validation — Partial Run](phase_4_operational_validation.md)

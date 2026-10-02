@@ -1,12 +1,12 @@
 {
-  "baton_id": "BATON-0009",
-  "path": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0009-s2a-wp1.json",
-  "phase": "s2a_wp1_operator_console_binding",
+  "baton_id": "BATON-0010",
+  "path": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0010-s2a-wp2.json",
+  "phase": "s2a_wp2_operator_usability",
   "status": "complete",
   "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
   "record_kind": "repository_handover_projection",
   "runtime_dispatchable": false,
-  "certification_status": "S2A_WP1_BOUND_TO_S1_TRUTH",
-  "certified_floor_tag": "appshak-s1-certified",
-  "certified_floor_commit": "69d005dccf4023656bc95fa0218a08de72282713"
+  "certification_status": "S2A_WP2_READ_ONLY_WORKFLOW_INSPECTION",
+  "starting_commit": "72062838189f02b3e32582644509b8f4936797e1",
+  "recommended_next_stage": "S2B — LIVE OFFICE-STATE PROJECTION"
 }

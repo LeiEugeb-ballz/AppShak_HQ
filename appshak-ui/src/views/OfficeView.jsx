@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useInspectionData } from '../hooks/useInspectionData'
 import { useOfficeState } from '../hooks/useOfficeState'
 import { useProjectionView } from '../hooks/useProjectionView'
@@ -66,6 +66,7 @@ export function OfficeView() {
   const canvasRef = useRef(null)
   const animatorRef = useRef(null)
   const frameRef = useRef(0)
+  const [selectedWorkflowTaskId, setSelectedWorkflowTaskId] = useState(null)
   const latestRef = useRef({
     view: null,
     connectionState: 'connecting',
@@ -154,7 +155,17 @@ export function OfficeView() {
 
   return (
     <section className="office-view">
-      <div className="panel office-view__meta">
+      <OfficeWorkflowPanel
+        model={officeModel}
+        selectedTaskId={selectedWorkflowTaskId}
+        onSelectTask={setSelectedWorkflowTaskId}
+      />
+
+      <section className="panel office-view__meta" aria-label="Telemetry and observability status">
+        <header className="office-view__section-heading">
+          <h2>Telemetry / Events / Observability</h2>
+          <p>Non-authoritative operational signals. Canonical workflow truth is shown above.</p>
+        </header>
         <div className="office-view__stats">
           <span>schema: {schemaVersion}</span>
           <span>queue: {queueValue(view)}</span>
@@ -178,12 +189,10 @@ export function OfficeView() {
             Blue = event telemetry
           </span>
         </div>
-        <p className="office-view__telemetry-note">Room and avatar positions are illustrative. Workflow status below comes from canonical S1 state.</p>
+        <p className="office-view__telemetry-note">Room and avatar positions are illustrative. Event telemetry does not change canonical S1 workflow state.</p>
         <div className="office-view__error">stream_error: {error ?? 'n/a'}</div>
         <div className="office-view__error">inspection_error: {inspectionError ?? 'n/a'}</div>
-      </div>
-
-      <OfficeWorkflowPanel model={officeModel} />
+      </section>
 
       <div className="office-view__canvas-shell">
         <canvas ref={canvasRef} className="office-view__canvas" aria-label="CCTV office projection visualization" />
