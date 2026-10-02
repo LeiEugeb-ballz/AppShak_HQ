@@ -18,6 +18,7 @@ Start with [README.md](../README.md), then read
 | Contribute or verify changes | [Contributing Guide](../CONTRIBUTING.md) |
 | Run or understand a subsystem | [Active runtime and subsystem documents](#active-runtime-and-subsystem-documents) |
 | Review certification scope and evidence | [Certification](#certification) |
+| Resume the certified S1 slice | [S1 Re-entry](../APP_SHAK_HANDOVER/00_READ_ME_FIRST.md) |
 | Inspect history, drafts, research, or prototypes | [Historical archival and draft material](#historical-archival-and-draft-material) |
 
 ## ACTIVE
@@ -30,6 +31,7 @@ These are the primary documents for a current engineer.
 - [Dependency Guidance](DEPENDENCIES.md)
 - [Developer Onboarding](../ONBOARDING.md)
 - [Contributing Guide](../CONTRIBUTING.md)
+- [S1 Re-entry](../APP_SHAK_HANDOVER/00_READ_ME_FIRST.md)
 
 ## SUPPORTING
 
@@ -65,6 +67,8 @@ These are the primary documents for a current engineer.
 
 ### Phase and run records
 
+- [S1 Final Integration and Restart Certification](../APP_SHAK_HANDOVER/S1_FINAL_CERTIFICATION.md)
+- [S1 WP5 Independent Corrective Review](../APP_SHAK_HANDOVER/S1_WP5_SOL_HIGH_REVIEW.md)
 - [Phase 2 Substrate Signoff](phase_2_substrate_signoff.md)
 - [Phase 4 Operational Validation — Partial Run](phase_4_operational_validation.md)
 - [Phase 4 Evaluation Summary](phase4/PHASE4_EVAL_SUMMARY.md)

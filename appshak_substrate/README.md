@@ -27,6 +27,11 @@ python -m appshak_substrate.run_kernel_durable --hours 1 --mailstore-db appshak_
 python -m appshak_substrate.run_swarm --agents recon forge command --durable --worktrees --duration-seconds 120
 ```
 
+The database must already exist. Add `--initialize-db` only for an intentional
+first startup. Do not use `--reset-worktrees` for the verified S1 path. See
+[S1 Final Certification](../APP_SHAK_HANDOVER/S1_FINAL_CERTIFICATION.md) for
+the exact startup and integrated certification commands.
+
 ## Run Chambers
 
 ```bash

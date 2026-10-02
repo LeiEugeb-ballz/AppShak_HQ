@@ -12,6 +12,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--agents", nargs="+", default=["recon", "forge", "command"])
     parser.add_argument("--durable", action="store_true", help="Use durable SQLite substrate (default behavior).")
     parser.add_argument("--db-path", type=str, default="appshak_state/substrate/mailstore.db")
+    parser.add_argument("--initialize-db", action="store_true",
+                        help="Explicitly create the durable database on first startup.")
     parser.add_argument("--duration-seconds", type=float, default=60.0)
     parser.add_argument("--worktrees", action="store_true", help="Enable per-agent git worktree isolation.")
     parser.add_argument("--repo-root", type=str, default=".")
@@ -27,6 +29,11 @@ def _build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
+    db_path = Path(args.db_path)
+    if db_path.exists() and not db_path.is_file():
+        parser.error(f"Canonical mailstore path is not a file: {db_path}")
+    if not db_path.exists() and not args.initialize_db:
+        parser.error(f"Canonical mailstore is missing: {db_path}; use --initialize-db explicitly on first startup")
     agents = [str(agent).strip().lower() for agent in args.agents if str(agent).strip()]
     if not agents:
         raise ValueError("At least one agent is required.")

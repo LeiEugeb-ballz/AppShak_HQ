@@ -5,10 +5,11 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Mapping, Optional
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 
 from appshak_inspection.indexer import paginate_timeline
 from appshak_projection.view_store import ProjectionViewStore
+from appshak_projection.office_state import OfficeStateUnavailable, read_office_state
 
 from .broadcaster import ObservabilityBroadcaster
 from .models import SnapshotResponse
@@ -33,6 +34,7 @@ def create_app(
     data_store: Optional[ObservabilityDataStore] = None,
     snapshot_poll_interval: float = 1.0,
     durable_poll_interval: float = 1.0,
+    mailstore_db: Optional[str | Path] = None,
 ) -> FastAPI:
     resolved_projection_store = projection_view_store or ProjectionViewStore()
     resolved_state_view = state_view or _ProjectionStateView(resolved_projection_store)
@@ -70,6 +72,15 @@ def create_app(
     @app.get("/api/snapshot", response_model=SnapshotResponse)
     async def snapshot() -> SnapshotResponse:
         return SnapshotResponse.from_snapshot(resolved_projection_store.load())
+
+    @app.get("/api/office/state")
+    async def office_state(limit: int = 100) -> dict:
+        if mailstore_db is None:
+            raise HTTPException(status_code=503, detail="Canonical mailstore is not configured.")
+        try:
+            return read_office_state(mailstore_db, limit=limit)
+        except OfficeStateUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     @app.get("/api/inspect/entities")
     async def inspect_entities() -> dict:
@@ -148,7 +159,6 @@ def build_standalone_app(
     snapshot_poll_interval: float = 1.0,
     durable_poll_interval: float = 1.0,
 ) -> FastAPI:
-    del mailstore_db
     projection_store = ProjectionViewStore(projection_view_path)
     state_view = _ProjectionStateView(projection_store)
     data_store = ObservabilityDataStore(
@@ -162,6 +172,7 @@ def build_standalone_app(
         data_store=data_store,
         snapshot_poll_interval=snapshot_poll_interval,
         durable_poll_interval=durable_poll_interval,
+        mailstore_db=mailstore_db,
     )
 
 

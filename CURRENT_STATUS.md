@@ -6,9 +6,14 @@ the underlying records rather than replacing them.
 For setup and navigation, start with [README.md](README.md) and
 [docs/INDEX.md](docs/INDEX.md).
 
+The latest bounded S1 integration record is
+[S1 Final Certification](APP_SHAK_HANDOVER/S1_FINAL_CERTIFICATION.md). Its
+controlled owner-task slice passed with documented limits; it does not replace
+the historical Phase 4 run records below.
+
 ## Current development position
 
-- The current `main` commit at the time this document was prepared is
+- At the original RC1-A preparation checkpoint, `main` was
   `cd8a3dc3e6d1486a7a95afa29b61aa88f8cfcd43` (2026-04-26), titled
   `Phase 2 stabilization patch: memory determinism, event purity, vault isolation`.
 - The active source tree includes Phase 4 runtime, pipeline, writer, and

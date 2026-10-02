@@ -1,0 +1,70 @@
+{
+  "baton_id": "BATON-0008",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0007-s1-wp5.json",
+  "phase": "s1_final_integration_certification",
+  "work_package": "S1-WP6 — Project the verified slice and certify restart",
+  "starting_commit": "406fdef0500b5fa2a7c32b53042c67df14db9deb",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
+  "certification_status": "CERTIFIED_CONTROLLED_SLICE",
+  "golden_workflow_status": "CERTIFIED",
+  "negative_workflow_status": "CERTIFIED",
+  "restart_status": "CERTIFIED",
+  "workspace_status": "CERTIFIED",
+  "authority_status": "CERTIFIED",
+  "execution_status": "CERTIFIED",
+  "task_status": "CERTIFIED",
+  "artifact_status": "CERTIFIED",
+  "validation_status": "CERTIFIED",
+  "completion_gate_status": "CERTIFIED",
+  "baton_status": "CERTIFIED",
+  "routing_status": "CERTIFIED",
+  "dispatch_boundary_status": "PARTIAL",
+  "projection_status": "CERTIFIED",
+  "record_kind": "repository_handover_projection",
+  "runtime_dispatchable": false,
+  "canonical_certification_database": "E:\\AppShak_HQ\\appshak_state\\s1_certification\\run-068e9f5c448f\\mailstore.db",
+  "canonical_certification_task_id": "03575ab4-7588-4d8a-8985-e226e5fd88f2",
+  "canonical_certification_baton_id": "BATON-0008",
+  "canonical_certification_baton_source": null,
+  "canonical_certification_dispatch_id": "ff428a16-01d7-4b4d-9514-08abf3c81d88",
+  "canonical_certification_dispatch_status": "WAITING_FOR_CAPABILITY",
+  "startup_command": "python -m appshak_substrate.run_swarm --agents recon forge command --durable --worktrees --repo-root E:\\AppShak_HQ --db-path E:\\AppShak_HQ\\appshak_state\\substrate\\mailstore.db --duration-seconds 1200",
+  "certification_command": "python -m appshak_substrate.s1_certification",
+  "tests_run": [
+    "python -m unittest discover -s tests -p \"test_*.py\" -v",
+    "python -m appshak_substrate.chambers.chamber_a_durability",
+    "python -m appshak_substrate.chambers.chamber_b_isolation",
+    "python -m appshak_substrate.chambers.chamber_c_tool_enforcement",
+    "python -m appshak_substrate.s1_certification"
+  ],
+  "tests_passed": [
+    "Full regression: 110",
+    "Chamber A: PASS",
+    "Chamber B: PASS",
+    "Chamber C: PASS",
+    "Integrated certification: 9 named checks PASS"
+  ],
+  "tests_failed": [],
+  "chambers": {
+    "A": "PASS",
+    "B": "PASS",
+    "C": "PASS"
+  },
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "No external capability target is configured; the canonical dispatch remains WAITING_FOR_CAPABILITY and no provider execution is claimed.",
+    "The integrated certification uses an isolated real Git repository, worker worktree, and SQLite database under ignored appshak_state; it does not certify a live owner objective in the production mailstore.",
+    "The repository handover BATON-0008 follows filesystem BATON-0007, while the certification fixture's verified SQLite BATON-0008 is a root because pre-WP5 handovers cannot be promoted into runtime lineage.",
+    "A concurrent validation run failed one test and errored one test without captured names; the final sequential full regression passed all 110 tests."
+  ],
+  "known_limitations": [
+    "The certified artifact path is one bounded UTF-8 file workflow, not a general artifact registry.",
+    "The office state endpoint is a read-only backend projection, not a complete task visualization.",
+    "No autonomous repair loop, external model launch, or Codex desktop model switching is implemented.",
+    "Certification run evidence is ignored local state and is not included in the uncommitted repository change set."
+  ],
+  "recommended_next_capability": "ARCHITECTURAL_AUDIT",
+  "recommended_next_work": "After S1 review, examine the durable external handoff and operator-facing workflow as a separately authorized post-S1 work package.",
+  "report": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S1_FINAL_CERTIFICATION.md",
+  "read_me": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\00_READ_ME_FIRST.md"
+}

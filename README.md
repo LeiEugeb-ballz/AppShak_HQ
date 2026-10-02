@@ -14,15 +14,17 @@ a feature demo.
 
 Read these in order when joining the repository:
 
-1. [Current Status](CURRENT_STATUS.md) — authoritative factual snapshot of
+1. [S1 Re-entry](APP_SHAK_HANDOVER/00_READ_ME_FIRST.md) — latest bounded runtime
+   certification, exact commands, and handoff limits.
+2. [Current Status](CURRENT_STATUS.md) — authoritative factual snapshot of
    maturity, certification records, and documented outstanding items.
-2. [Environment Setup](ENVIRONMENT_SETUP.md) — Python, Git, Node, dependencies,
+3. [Environment Setup](ENVIRONMENT_SETUP.md) — Python, Git, Node, dependencies,
    state directories, and smoke checks.
-3. [Developer Onboarding](ONBOARDING.md) — architecture, engineering intent,
+4. [Developer Onboarding](ONBOARDING.md) — architecture, engineering intent,
    and contribution boundaries.
-4. [Documentation Index](docs/INDEX.md) — canonical navigation for active,
+5. [Documentation Index](docs/INDEX.md) — canonical navigation for active,
    supporting, certification, historical, archival, and draft material.
-5. [Contributing Guide](CONTRIBUTING.md) — validation and contribution process.
+6. [Contributing Guide](CONTRIBUTING.md) — validation and contribution process.
 
 ## Repository map
 
@@ -91,6 +93,10 @@ npm run dev
 Open `http://127.0.0.1:5173`. The UI reads the backend snapshot endpoint and
 WebSocket stream. Additional integrity, inspection, and stability commands are
 in [docs/INDEX.md](docs/INDEX.md#active-runtime-and-subsystem-documents).
+The swarm command requires an existing SQLite database; add `--initialize-db`
+only for an intentional first startup. Canonical task and baton truth is
+available from the backend at `/api/office/state`. The exact S1 startup and
+certification commands are in [S1 Final Certification](APP_SHAK_HANDOVER/S1_FINAL_CERTIFICATION.md).
 
 ## Maturity and certification
 
