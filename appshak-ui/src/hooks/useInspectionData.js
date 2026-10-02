@@ -6,6 +6,7 @@ const API_OFFICE_TIMELINE = '/api/inspect/office/timeline'
 const API_INTEGRITY_LATEST = '/api/integrity/latest'
 const API_STABILITY_RUNS = '/api/stability/runs'
 const DEFAULT_PAGE_LIMIT = 25
+const EMPTY_TIMELINE = { items: [], next_cursor: null, total: 0 }
 
 function resolveEventsUrl() {
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -140,13 +141,14 @@ export function useInspectionData() {
   }, [fetchEntities, fetchIntegrity, fetchOfficeTimeline, fetchStabilityRuns])
 
   useEffect(() => {
-    refreshAll()
+    const refreshTimer = setTimeout(() => {
+      refreshAll()
+    }, 0)
+    return () => clearTimeout(refreshTimer)
   }, [refreshAll])
 
   useEffect(() => {
     if (!selectedEntityId) {
-      setSelectedEntity(null)
-      setEntityTimeline({ items: [], next_cursor: null, total: 0 })
       return
     }
     let disposed = false
@@ -248,9 +250,9 @@ export function useInspectionData() {
     entities,
     selectedEntityId,
     setSelectedEntityId,
-    selectedEntity,
+    selectedEntity: selectedEntityId ? selectedEntity : null,
     selectedEntityType,
-    entityTimeline,
+    entityTimeline: selectedEntityId ? entityTimeline : EMPTY_TIMELINE,
     officeTimeline,
     integrityLatest,
     stabilityRuns,
