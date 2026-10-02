@@ -610,7 +610,7 @@ Make the office itself a truthful visual projection of canonical AppShak state.
 
 
 
-\[ ] S2B — Live office-state projection
+\[x] S2B — Live office-state projection
 
 
 
@@ -1058,9 +1058,9 @@ S1   Durable truth                         COMPLETE
 
 S2A  Operator interaction / inspection     COMPLETE
 
-S2B  Live office-state projection          NEXT
+S2B  Live office-state projection          COMPLETE
 
-S2C  Visual/perceptual verification        PENDING
+S2C  Visual/perceptual verification        NEXT
 
 S2D  External capability handoff           PENDING
 

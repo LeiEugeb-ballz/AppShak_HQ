@@ -108,6 +108,10 @@ export function OfficeView() {
   }, [view, connectionState, signalLost, lastUpdated, officeModel])
 
   useEffect(() => {
+    animatorRef.current?.ingestOfficeModel(officeModel, selectedWorkflowTaskId)
+  }, [officeModel, selectedWorkflowTaskId])
+
+  useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) {
       return undefined

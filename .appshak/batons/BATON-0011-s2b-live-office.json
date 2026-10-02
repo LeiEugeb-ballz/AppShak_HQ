@@ -1,0 +1,66 @@
+{
+  "baton_id": "BATON-0011",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0010-s2a-wp2.json",
+  "phase": "s2b_live_office_projection",
+  "work_package": "S2B — Live office-state projection",
+  "starting_commit": "4ac38026098af161cc34a8fabb4df4b949a57ce1",
+  "completion_status": "CERTIFIED_WITH_CORRECTIONS",
+  "certification_status": "S2B_ATS_DERIVED_OFFICE_PROJECTION_REVIEWED",
+  "record_kind": "repository_handover_projection",
+  "runtime_dispatchable": false,
+  "canonical_runtime_source": "GET /api/office/state from configured S1 SQLite mailstore",
+  "ats_mapping_status": "PASS",
+  "worker_projection_status": "PASS",
+  "state_transition_status": "PASS",
+  "validation_failure_status": "PASS",
+  "reconciliation_status": "PASS",
+  "waiting_for_capability_status": "PASS",
+  "stale_unavailable_status": "PASS",
+  "console_office_coherence_status": "PASS",
+  "read_only_status": "PASS",
+  "historical_simulation_reuse": false,
+  "tests_run": [
+    "npm run lint",
+    "npm run test:office",
+    "npm run build",
+    "python -m unittest discover -s tests -p \"test_*.py\" -v"
+  ],
+  "tests_passed": [
+    "Repository-wide ESLint: 0 errors",
+    "Focused UI tests: 27",
+    "UI build: PASS",
+    "Full Python regression: 111"
+  ],
+  "tests_failed": [],
+  "initial_verification_failure": "First full Python run: test_timeout_kills_child_tree observed RUNNING rather than TIMED_OUT; isolated WP2 suite and second full suite passed without source changes.",
+  "independent_review": {
+    "status": "CERTIFIED_WITH_CORRECTIONS",
+    "corrections": [
+      "Raw EXECUTING without a running attempt no longer appears as active work.",
+      "Office and console now project the same selected or default ATS task.",
+      "Missing or unfamiliar worker assignment no longer fabricates a command worker.",
+      "Distinct ATS workflow states now have visible room markers.",
+      "Stale baseline was recaptured after the canvas rendered."
+    ],
+    "visual_approval": false
+  },
+  "visual_baselines": [
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2B_VISUAL_BASELINES\\active.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2B_VISUAL_BASELINES\\validation_failed.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2B_VISUAL_BASELINES\\needs_reconciliation.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2B_VISUAL_BASELINES\\complete.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2B_VISUAL_BASELINES\\waiting_for_capability.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2B_VISUAL_BASELINES\\stale_unavailable.png"
+  ],
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "The projection uses the bounded ATS snapshot and does not add server-side pagination or filtering.",
+    "Baselines are synthetic engineering fixtures and are not S2C visual approval.",
+    "Richer perceptual verification remains deferred to S2C.",
+    "The owner-controlled master plan marks S2B complete but its current-position table still calls S2B NEXT; this review was prohibited from editing it.",
+    "The first full Python run had a transient timeout-test failure; the isolated WP2 suite and second full suite passed without Python source changes."
+  ],
+  "report": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2B_LIVE_OFFICE_PROJECTION.md",
+  "recommended_next_stage": "S2C — Visual / perceptual verification",
+  "next_capability": "VISUAL_VALIDATION"
+}

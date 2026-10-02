@@ -12,6 +12,8 @@ import {
   mapCanonicalOfficeState,
   OFFICE_STALE_AFTER_MS,
 } from '../src/office/officeState.js'
+import { OfficeAnimator } from '../src/office/animator.js'
+import { projectOfficeModel } from '../src/office/projection.js'
 
 const uiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 let vite
@@ -253,4 +255,138 @@ test('empty and unknown canonical states render safely', () => {
 test('noncanonical response fails closed', () => {
   assert.throws(() => mapCanonicalOfficeState({ source: 'mock', tasks: [], batons: [] }))
   assert.throws(() => mapCanonicalOfficeState({ source: 'canonical_sqlite', tasks: [{}], batons: [] }))
+})
+
+test('ATS states map to one truthful office projection', () => {
+  const active = projectOfficeModel(model(payload({ taskState: 'EXECUTING', attemptState: 'RUNNING', validationState: null, baton: false })))
+  assert.equal(active.state, 'ACTIVE / EXECUTING')
+  assert.equal(active.worker.id, 'command')
+  assert.equal(active.taskId, 'task-123')
+
+  const failed = projectOfficeModel(model(payload({ taskState: 'VALIDATION_FAILED', validationState: 'FAILED', baton: false })))
+  assert.equal(failed.state, 'VALIDATION_FAILED')
+  assert.equal(failed.worker, null)
+
+  const uncertain = projectOfficeModel(model(payload({ taskState: 'NEEDS_RECONCILIATION', attemptState: 'NEEDS_RECONCILIATION', validationState: null, baton: false })))
+  assert.equal(uncertain.state, 'NEEDS_RECONCILIATION')
+  assert.equal(uncertain.zone, 'reconDesk')
+})
+
+test('validated completion and waiting handoff remain distinct and honest', () => {
+  const complete = projectOfficeModel(model(payload()))
+  assert.equal(complete.state, 'WAITING_FOR_CAPABILITY')
+  assert.equal(complete.handoffState, 'WAITING_FOR_CAPABILITY')
+  assert.equal(complete.worker, null)
+
+  const plainComplete = projectOfficeModel(model(payload({ baton: false })))
+  assert.equal(plainComplete.state, 'COMPLETE')
+  assert.equal(plainComplete.zone, 'forgeDesk')
+})
+
+test('stale, unavailable, and unknown projections do not fabricate activity', () => {
+  const stale = projectOfficeModel(buildOfficeViewModel(mapCanonicalOfficeState(payload()), {
+    receivedAt: 10_000, now: 10_000 + OFFICE_STALE_AFTER_MS + 1,
+  }))
+  assert.equal(stale.live, false)
+  assert.equal(stale.worker, null)
+  assert.equal(stale.state, 'STALE')
+  const unavailable = projectOfficeModel(buildOfficeViewModel(null, { errorKind: 'BACKEND_UNAVAILABLE' }))
+  assert.equal(unavailable.state, 'BACKEND_UNAVAILABLE')
+  assert.equal(unavailable.worker, null)
+})
+
+test('identical ATS snapshots are idempotent and transitions are state-driven', () => {
+  const view = model(payload({ taskState: 'EXECUTING', attemptState: 'RUNNING', validationState: null, baton: false }))
+  const animator = new OfficeAnimator()
+  animator.ingestOfficeModel(view)
+  const first = animator.tick(1000)
+  animator.ingestOfficeModel(view)
+  const second = animator.tick(1100)
+  assert.deepEqual(second.avatars, first.avatars)
+  const completed = model(payload({ baton: false }))
+  animator.ingestOfficeModel(completed)
+  const transition = animator.tick(1200)
+  assert.equal(transition.officeProjection.state, 'COMPLETE')
+  assert.equal(transition.running, false)
+})
+
+test('office projection code has no operational write request path', async () => {
+  const sources = await Promise.all([
+    readFile(path.join(uiRoot, 'src/office/projection.js'), 'utf8'),
+    readFile(path.join(uiRoot, 'src/office/animator.js'), 'utf8'),
+    readFile(path.join(uiRoot, 'src/views/OfficeView.jsx'), 'utf8'),
+  ])
+  const combined = sources.join('\n')
+  assert.doesNotMatch(combined, /fetch\(|XMLHttpRequest|WebSocket|method:\s*['"](?:POST|PUT|PATCH|DELETE)['"]/i)
+})
+
+test('office and console select the same ATS task, including historical inspection', () => {
+  const view = model(multiPayload())
+  assert.equal(projectOfficeModel(view).taskId, view.tasks[0].task_id)
+  const history = projectOfficeModel(view, 'complete')
+  assert.equal(history.taskId, 'complete')
+  assert.equal(history.state, 'WAITING_FOR_CAPABILITY')
+  assert.equal(history.worker, null)
+  assert.equal(projectOfficeModel(view, 'failed').state, 'VALIDATION_FAILED')
+})
+
+test('unassigned or unfamiliar workers are never invented as command workers', () => {
+  const unassigned = payload({ taskState: 'EXECUTING', attemptState: 'RUNNING', validationState: null, baton: false })
+  unassigned.tasks[0].assigned_agent = null
+  const withoutWorker = projectOfficeModel(model(unassigned))
+  assert.equal(withoutWorker.state, 'ACTIVE / EXECUTING')
+  assert.equal(withoutWorker.worker, null)
+  assert.equal(withoutWorker.zone, 'boardroom')
+
+  const unfamiliar = payload({ taskState: 'EXECUTING', attemptState: 'RUNNING', validationState: null, baton: false })
+  unfamiliar.tasks[0].assigned_agent = 'specialist-7'
+  const withWorker = projectOfficeModel(model(unfamiliar))
+  assert.equal(withWorker.worker.id, 'specialist-7')
+  assert.equal(withWorker.zone, 'boardroom')
+})
+
+test('failed validation wins over an executing raw state and no running attempt stays unknown', () => {
+  const conflict = payload({ taskState: 'EXECUTING', attemptState: 'RUNNING', validationState: 'FAILED', baton: false })
+  assert.equal(projectOfficeModel(model(conflict)).state, 'VALIDATION_FAILED')
+  const noRun = payload({ taskState: 'EXECUTING', attemptState: 'PENDING', validationState: null, baton: false })
+  assert.equal(projectOfficeModel(model(noRun)).state, 'UNKNOWN')
+})
+
+test('stale or unavailable ATS removes live workers immediately and does not resume old transitions', () => {
+  const animator = new OfficeAnimator()
+  const active = model(payload({ taskState: 'EXECUTING', attemptState: 'RUNNING', validationState: null, baton: false }))
+  animator.ingestOfficeModel(active)
+  assert.equal(Object.keys(animator.tick(1000).avatars).length, 1)
+  const unavailable = buildOfficeViewModel(mapCanonicalOfficeState(payload()), {
+    receivedAt: 10000, now: 10001, errorKind: 'BACKEND_UNAVAILABLE',
+  })
+  animator.ingestOfficeModel(unavailable)
+  const frame = animator.tick(2000)
+  assert.deepEqual(frame.avatars, {})
+  assert.equal(frame.officeProjection.state, 'BACKEND_UNAVAILABLE')
+  assert.equal(frame.running, false)
+  animator.ingestOfficeModel(unavailable)
+  assert.deepEqual(animator.tick(3000).avatars, {})
+})
+
+test('validation activity has a task marker but no invented validator avatar', () => {
+  const validating = projectOfficeModel(model(payload({ taskState: 'VALIDATING', validationState: 'RUNNING', baton: false })))
+  assert.equal(validating.state, 'VALIDATION IN PROGRESS')
+  assert.equal(validating.zone, 'boardroom')
+  assert.equal(validating.worker, null)
+})
+
+test('projection errors and duplicated historical assignments never create extra live workers', () => {
+  const raw = multiPayload()
+  raw.tasks.push(taskRow({ id: 'old-active', taskState: 'EXECUTING', attemptState: 'RUNNING', validationState: null, baton: false }).task)
+  const view = model(raw)
+  const animator = new OfficeAnimator()
+  animator.ingestOfficeModel(view)
+  assert.equal(Object.keys(animator.tick(1000).avatars).length, 1)
+  const projectionError = buildOfficeViewModel(mapCanonicalOfficeState(raw), {
+    receivedAt: 10000, now: 10001, errorKind: 'PROJECTION_ERROR',
+  })
+  animator.ingestOfficeModel(projectionError)
+  assert.equal(animator.tick(2000).officeProjection.state, 'PROJECTION_ERROR')
+  assert.deepEqual(animator.tick(2001).avatars, {})
 })

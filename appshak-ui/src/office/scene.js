@@ -1,4 +1,4 @@
-import { clamp, lerp } from './effects'
+import { clamp, lerp } from './effects.js'
 
 export const OFFICE_ZONES = {
   supervisorDesk: { x: 0.78, y: 0.2, label: 'Supervisor Control' },
@@ -320,6 +320,41 @@ function drawAvatars(ctx, geometry, avatars) {
   }
 }
 
+function drawWorkflowMarker(ctx, geometry, projection) {
+  if (!projection.live || !projection.taskId) return
+  const zone = OFFICE_ZONES[projection.zone]
+  if (!zone) return
+  const palette = {
+    'ACTIVE / EXECUTING': '#75c5ff',
+    'VALIDATION IN PROGRESS': '#eacb77',
+    VALIDATION_FAILED: '#ff7384',
+    NEEDS_RECONCILIATION: '#ffad69',
+    COMPLETE: '#73d5a2',
+    WAITING_FOR_CAPABILITY: '#eacb77',
+  }
+  const color = palette[projection.state] ?? '#b2bfd4'
+  const label = projection.state
+  const point = projectPoint(geometry, zone.x, zone.y)
+  const labelWidth = Math.min(210, Math.max(95, label.length * 7.2 + 22))
+  const labelY = point.y - 42 * point.scale
+  ctx.beginPath()
+  ctx.arc(point.x, point.y, 19 * point.scale, 0, Math.PI * 2)
+  ctx.strokeStyle = rgbaFromHex(color, 0.85)
+  ctx.lineWidth = 2
+  ctx.stroke()
+  drawRoundedRect(ctx, point.x - labelWidth / 2, labelY - 16, labelWidth, 22, 5)
+  ctx.fillStyle = rgbaFromHex('#101a26', 0.93)
+  ctx.fill()
+  ctx.strokeStyle = rgbaFromHex(color, 0.78)
+  ctx.lineWidth = 1
+  ctx.stroke()
+  ctx.font = '700 11px "Space Grotesk", "Segoe UI", sans-serif'
+  ctx.fillStyle = rgbaFromHex(color, 1)
+  ctx.textAlign = 'center'
+  ctx.fillText(label, point.x, labelY - 1)
+  ctx.textAlign = 'start'
+}
+
 function drawHud(ctx, width, height, data) {
   const x = width * 0.025
   const y = height * 0.03
@@ -341,7 +376,10 @@ function drawHud(ctx, width, height, data) {
   ctx.fillText(`timestamp: ${data.timestamp}`, x + 10, y + 36)
   ctx.fillText(`telemetry queue: ${data.queueSize} | event: ${data.eventType}`, x + 10, y + 53)
   ctx.fillText(`telemetry stream: ${data.connectionState}`, x + 10, y + 70)
-  ctx.fillText(`S1 state: ${data.officeStatus}`, x + 10, y + 87)
+  ctx.fillText(`ATS office: ${data.officeStatus}`, x + 10, y + 87)
+  if (data.workerId || data.taskId) {
+    ctx.fillText(`worker: ${data.workerId ?? 'none'} | task: ${data.taskId ?? 'n/a'}`, x + 10, y + 104)
+  }
 }
 
 function drawScanlines(ctx, width, height) {
@@ -390,6 +428,7 @@ export function drawOfficeScene(ctx, width, height, frame) {
   const animationState = isRecord(frame?.animationState) ? frame.animationState : {}
   const view = isRecord(frame?.view) ? frame.view : {}
   const officeModel = isRecord(frame?.officeModel) ? frame.officeModel : {}
+  const officeProjection = isRecord(animationState.officeProjection) ? animationState.officeProjection : {}
   const officeCurrent = officeModel.freshness === 'LIVE / CURRENT'
 
   const lightLevel = clamp(Number(animationState.lightLevel) || 0.4, 0.2, 0.92)
@@ -429,6 +468,7 @@ export function drawOfficeScene(ctx, width, height, frame) {
   }
   drawSecurityCheckpoint(ctx, geometry, width, height, securityPulseIntensity, securityPulseColor)
   drawAvatars(ctx, geometry, animationState.avatars)
+  drawWorkflowMarker(ctx, geometry, officeProjection)
 
   const ambientPulse = clamp(Number(animationState.ambientPulse) || 0, 0, 1)
   if (officeCurrent && ambientPulse > 0.01) {
@@ -452,7 +492,9 @@ export function drawOfficeScene(ctx, width, height, frame) {
     queueSize,
     eventType,
     connectionState: frame?.connectionState ?? 'unknown',
-    officeStatus: officeModel.scene_status ?? 'UNKNOWN_STATE',
+    officeStatus: officeProjection.state ?? officeModel.scene_status ?? 'UNKNOWN_STATE',
+    workerId: officeProjection.worker?.id ?? null,
+    taskId: officeProjection.taskId ?? null,
   })
 
   drawScanlines(ctx, width, height)
