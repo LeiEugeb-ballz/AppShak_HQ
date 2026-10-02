@@ -1,6 +1,7 @@
 ﻿from __future__ import annotations
 
 import json
+import hashlib
 import sqlite3
 import time
 import uuid
@@ -431,7 +432,257 @@ class SQLiteMailStore:
                 "SELECT * FROM execution_attempts WHERE task_id = ? ORDER BY rowid", (task_id,)).fetchall()]
             result["artifacts"] = [dict(item) for item in conn.execute(
                 "SELECT * FROM owner_task_artifacts WHERE task_id = ? ORDER BY rowid", (task_id,)).fetchall()]
+            result["criteria"] = [self._criterion_dict(item) for item in conn.execute(
+                "SELECT * FROM task_acceptance_criteria WHERE task_id = ? ORDER BY created_at, criterion_id",
+                (task_id,)).fetchall()]
+            result["validations"] = [self._validation_dict(conn, item) for item in conn.execute(
+                "SELECT * FROM validation_runs WHERE task_id = ? ORDER BY created_at, validation_id",
+                (task_id,)).fetchall()]
             return result
+
+    @staticmethod
+    def _criterion_dict(row: sqlite3.Row) -> Dict[str, Any]:
+        item = dict(row)
+        item["config"] = json.loads(item.pop("config_json"))
+        item["required"] = bool(item["required"])
+        return item
+
+    @staticmethod
+    def _validation_dict(conn: sqlite3.Connection, row: sqlite3.Row) -> Dict[str, Any]:
+        item = dict(row)
+        raw_evidence = item.pop("evidence_json")
+        item["evidence"] = json.loads(raw_evidence) if raw_evidence else None
+        item["checks"] = []
+        for check in conn.execute(
+            "SELECT * FROM validation_checks WHERE validation_id = ? ORDER BY criterion_id",
+            (item["validation_id"],),
+        ).fetchall():
+            check_item = dict(check)
+            check_item["evidence"] = json.loads(check_item.pop("evidence_json"))
+            item["checks"].append(check_item)
+        return item
+
+    def add_acceptance_criterion(self, *, task_id: str, criterion_type: str,
+                                 config: Dict[str, Any], created_by: str,
+                                 source_ref: str, required: bool = True) -> Dict[str, Any]:
+        kind = str(criterion_type).strip().upper()
+        if kind not in {"FILE_EXISTS", "EXACT_TEXT", "SHA256"}:
+            raise ValueError("Unsupported acceptance criterion type.")
+        if not isinstance(config, dict):
+            raise ValueError("Acceptance criterion config must be an object.")
+        if kind == "EXACT_TEXT" and not isinstance(config.get("expected"), str):
+            raise ValueError("EXACT_TEXT requires string config.expected.")
+        if kind == "SHA256":
+            digest = config.get("expected")
+            if not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdefABCDEF" for c in digest):
+                raise ValueError("SHA256 requires a 64-character hexadecimal config.expected.")
+        for name, value in (("task_id", task_id), ("created_by", created_by), ("source_ref", source_ref)):
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string.")
+        config_json = json.dumps(config, ensure_ascii=True, sort_keys=True)
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            task = conn.execute("SELECT * FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone()
+            if not task:
+                raise ValueError("Owner task does not exist.")
+            if task["owner_id"] != created_by:
+                raise ValueError("Only the task owner can define acceptance criteria.")
+            if task["state"] not in {"CREATED", "ASSIGNED"}:
+                raise ValueError("Acceptance criteria must be fixed before task execution.")
+            existing = conn.execute(
+                """SELECT * FROM task_acceptance_criteria WHERE task_id = ? AND criterion_type = ?
+                   AND config_json = ? AND source_ref = ?""",
+                (task_id, kind, config_json, source_ref),
+            ).fetchone()
+            if existing:
+                conn.commit()
+                return self._criterion_dict(existing)
+            criterion_id, now = str(uuid.uuid4()), iso_now()
+            conn.execute(
+                """INSERT INTO task_acceptance_criteria
+                   (criterion_id, task_id, criterion_type, config_json, required,
+                    source_ref, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (criterion_id, task_id, kind, config_json, int(required), source_ref, created_by, now),
+            )
+            conn.commit()
+            return self._criterion_dict(conn.execute(
+                "SELECT * FROM task_acceptance_criteria WHERE criterion_id = ?", (criterion_id,)
+            ).fetchone())
+
+    def get_artifact(self, artifact_id: str) -> Optional[Dict[str, Any]]:
+        with self._connection() as conn:
+            row = conn.execute("SELECT * FROM owner_task_artifacts WHERE artifact_id = ?",
+                               (artifact_id,)).fetchone()
+        return dict(row) if row else None
+
+    def create_validation_run(self, *, task_id: str, artifact_id: str, validator_id: str,
+                              source_request_id: str) -> Dict[str, Any]:
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            existing = conn.execute("SELECT * FROM validation_runs WHERE source_request_id = ?",
+                                    (source_request_id,)).fetchone()
+            if existing:
+                if (existing["task_id"], existing["artifact_id"], existing["validator_id"]) != (
+                        task_id, artifact_id, validator_id):
+                    raise ValueError("Validation source_request_id is bound to a different contract.")
+                conn.commit()
+                return self._validation_dict(conn, existing)
+            task = conn.execute("SELECT * FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone()
+            artifact = conn.execute("SELECT * FROM owner_task_artifacts WHERE artifact_id = ?",
+                                    (artifact_id,)).fetchone()
+            if not task or task["state"] != "READY_FOR_VALIDATION":
+                raise ValueError("Task is not ready for validation.")
+            if not artifact or artifact["task_id"] != task_id:
+                raise ValueError("Validation artifact does not belong to the task.")
+            if not conn.execute(
+                "SELECT 1 FROM task_acceptance_criteria WHERE task_id = ? AND required = 1 LIMIT 1",
+                (task_id,),
+            ).fetchone():
+                raise ValueError("Task has no required acceptance criteria.")
+            validation_id, now = str(uuid.uuid4()), iso_now()
+            conn.execute(
+                """INSERT INTO validation_runs
+                   (validation_id, source_request_id, task_id, artifact_id, validator_id,
+                    status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'PENDING', ?, ?)""",
+                (validation_id, source_request_id, task_id, artifact_id, validator_id, now, now),
+            )
+            conn.commit()
+            return self._validation_dict(conn, conn.execute(
+                "SELECT * FROM validation_runs WHERE validation_id = ?", (validation_id,)
+            ).fetchone())
+
+    def get_validation_run(self, validation_id: str) -> Optional[Dict[str, Any]]:
+        with self._connection() as conn:
+            row = conn.execute("SELECT * FROM validation_runs WHERE validation_id = ?",
+                               (validation_id,)).fetchone()
+            return self._validation_dict(conn, row) if row else None
+
+    def complete_validation(self, validation_id: str, *, observed_text: str,
+                            actor_id: str) -> Dict[str, Any]:
+        """Persist deterministic checks and gate COMPLETE on the exact inspected bytes."""
+        now = iso_now()
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            run = conn.execute("SELECT * FROM validation_runs WHERE validation_id = ?",
+                               (validation_id,)).fetchone()
+            if not run:
+                raise ValueError("Validation run does not exist.")
+            if run["status"] in {"PASSED", "FAILED", "ERROR", "NEEDS_RECONCILIATION"}:
+                conn.commit()
+                return self._validation_dict(conn, run)
+            if run["status"] != "RUNNING" or not run["related_attempt_id"]:
+                raise ValueError("Validation run is not backed by a running validator attempt.")
+            attempt = conn.execute("SELECT * FROM execution_attempts WHERE attempt_id = ?",
+                                   (run["related_attempt_id"],)).fetchone()
+            if not attempt or attempt["state"] != "SUCCEEDED" or attempt["validation_id"] != validation_id:
+                raise ValueError("Validator attempt has no durable successful outcome.")
+            artifact = conn.execute("SELECT * FROM owner_task_artifacts WHERE artifact_id = ?",
+                                    (run["artifact_id"],)).fetchone()
+            if not artifact:
+                return self._finish_validation_error(
+                    conn, run, "ERROR", actor_id, {"reason": "artifact_record_missing"}, now)
+            try:
+                current_bytes = Path(artifact["reference"]).read_bytes()
+            except OSError as exc:
+                return self._finish_validation_error(
+                    conn, run, "ERROR", actor_id,
+                    {"reason": "artifact_read_error", "error": repr(exc)}, now)
+            observed_bytes = observed_text.encode("utf-8")
+            current_sha = hashlib.sha256(current_bytes).hexdigest()
+            observed_sha = hashlib.sha256(observed_bytes).hexdigest()
+            integrity_match = (
+                artifact["sha256"] == current_sha == observed_sha
+                and artifact["size_bytes"] == len(current_bytes) == len(observed_bytes)
+            )
+            criteria = conn.execute(
+                "SELECT * FROM task_acceptance_criteria WHERE task_id = ? ORDER BY created_at, criterion_id",
+                (run["task_id"],),
+            ).fetchall()
+            required_passed = True
+            check_summaries: List[Dict[str, Any]] = []
+            for criterion in criteria:
+                config = json.loads(criterion["config_json"])
+                kind = criterion["criterion_type"]
+                if kind == "FILE_EXISTS":
+                    passed, observed = True, {"exists": True}
+                elif kind == "EXACT_TEXT":
+                    passed = observed_text == config["expected"]
+                    observed = {"text_sha256": observed_sha, "size_bytes": len(observed_bytes)}
+                elif kind == "SHA256":
+                    passed = current_sha.casefold() == str(config["expected"]).casefold()
+                    observed = {"sha256": current_sha}
+                else:
+                    passed, observed = False, {"error": "unsupported_criterion"}
+                status = "PASSED" if passed else "FAILED"
+                evidence = {"criterion_type": kind, "observed": observed}
+                conn.execute(
+                    """INSERT OR REPLACE INTO validation_checks
+                       (validation_id, criterion_id, status, evidence_json) VALUES (?, ?, ?, ?)""",
+                    (validation_id, criterion["criterion_id"], status,
+                     json.dumps(evidence, ensure_ascii=True, sort_keys=True)),
+                )
+                check_summaries.append({"criterion_id": criterion["criterion_id"], "status": status})
+                if criterion["required"] and not passed:
+                    required_passed = False
+            passed = bool(criteria) and required_passed and integrity_match
+            status = "PASSED" if passed else "FAILED"
+            evidence = {
+                "artifact_id": artifact["artifact_id"],
+                "reference": artifact["reference"],
+                "produced_sha256": artifact["sha256"],
+                "observed_sha256": observed_sha,
+                "completion_sha256": current_sha,
+                "size_bytes": len(current_bytes),
+                "integrity_match": integrity_match,
+                "checks": check_summaries,
+            }
+            conn.execute(
+                """UPDATE validation_runs SET status = ?, completed_at = ?, validated_sha256 = ?,
+                   validated_size_bytes = ?, evidence_json = ?, updated_at = ? WHERE validation_id = ?""",
+                (status, now, current_sha, len(current_bytes),
+                 json.dumps(evidence, ensure_ascii=True, sort_keys=True), now, validation_id),
+            )
+            task_state = "COMPLETE" if passed else "VALIDATION_FAILED"
+            event_type = "task_validation_passed" if passed else "task_validation_failed"
+            self._set_task_state(conn, run["task_id"], task_state, event_type, actor_id,
+                                 run["source_request_id"], run["related_attempt_id"], now)
+            conn.commit()
+            return self._validation_dict(conn, conn.execute(
+                "SELECT * FROM validation_runs WHERE validation_id = ?", (validation_id,)
+            ).fetchone())
+
+    def record_validation_error(self, validation_id: str, *, actor_id: str,
+                                evidence: Dict[str, Any], unknown: bool = False) -> Dict[str, Any]:
+        with self._connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            run = conn.execute("SELECT * FROM validation_runs WHERE validation_id = ?",
+                               (validation_id,)).fetchone()
+            if not run:
+                raise ValueError("Validation run does not exist.")
+            if run["status"] in {"PASSED", "FAILED", "ERROR", "NEEDS_RECONCILIATION"}:
+                conn.commit()
+                return self._validation_dict(conn, run)
+            return self._finish_validation_error(
+                conn, run, "NEEDS_RECONCILIATION" if unknown else "ERROR",
+                actor_id, evidence, iso_now())
+
+    def _finish_validation_error(self, conn: sqlite3.Connection, run: sqlite3.Row,
+                                 status: str, actor_id: str, evidence: Dict[str, Any],
+                                 now: str) -> Dict[str, Any]:
+        conn.execute(
+            """UPDATE validation_runs SET status = ?, completed_at = ?, evidence_json = ?,
+               updated_at = ? WHERE validation_id = ?""",
+            (status, now, json.dumps(evidence, ensure_ascii=True, sort_keys=True),
+             now, run["validation_id"]),
+        )
+        task_state = "NEEDS_RECONCILIATION" if status == "NEEDS_RECONCILIATION" else "VALIDATION_ERROR"
+        event_type = "task_needs_reconciliation" if status == "NEEDS_RECONCILIATION" else "task_validation_error"
+        self._set_task_state(conn, run["task_id"], task_state, event_type, actor_id,
+                             run["source_request_id"], run["related_attempt_id"] or "", now)
+        conn.commit()
+        return self._validation_dict(conn, conn.execute(
+            "SELECT * FROM validation_runs WHERE validation_id = ?", (run["validation_id"],)
+        ).fetchone())
 
     @staticmethod
     def _task_history(conn: sqlite3.Connection, task_id: str, event_type: str,
@@ -457,7 +708,8 @@ class SQLiteMailStore:
     def reserve_attempt(self, *, source_request_id: str, source_event_id: Optional[int],
                         idempotency_key: str, authority_id: str, agent_id: str,
                         workspace_id: str, requested_operation: str, created_at: str,
-                        request: Dict[str, Any], task_id: Optional[str] = None) -> Dict[str, Any]:
+                        request: Dict[str, Any], task_id: Optional[str] = None,
+                        validation_id: Optional[str] = None) -> Dict[str, Any]:
         """Atomically bind a source request and idempotency key to one attempt."""
         request_json = json.dumps(request, ensure_ascii=True, sort_keys=True)
         with self._connection() as conn:
@@ -468,7 +720,8 @@ class SQLiteMailStore:
             ).fetchone()
             if row:
                 if (row["source_request_id"] != source_request_id or row["idempotency_key"] != idempotency_key
-                        or row["request_json"] != request_json or row["task_id"] != task_id):
+                        or row["request_json"] != request_json or row["task_id"] != task_id
+                        or row["validation_id"] != validation_id):
                     conn.rollback()
                     raise ValueError("Source request or idempotency key is already bound to a different execution contract.")
                 conn.commit()
@@ -486,20 +739,30 @@ class SQLiteMailStore:
                 task = conn.execute("SELECT * FROM owner_tasks WHERE task_id = ?", (task_id,)).fetchone()
                 if not task:
                     raise ValueError("Task-backed execution references a nonexistent owner task.")
-                if task["state"] not in {"ASSIGNED", "EXECUTING"}:
-                    raise ValueError("Owner task is not in an executable state.")
+                allowed_states = {"READY_FOR_VALIDATION"} if validation_id else {"ASSIGNED", "EXECUTING"}
+                if task["state"] not in allowed_states:
+                    raise ValueError("Owner task is not in the required executable or validation state.")
                 if ((task["assigned_agent"], task["workspace_id"], task["assignment_authority_id"])
                         != (agent_id, workspace_id, authority_id)):
                     raise ValueError("Execution worker, workspace or authority conflicts with task assignment.")
+            if validation_id is not None:
+                validation = conn.execute("SELECT * FROM validation_runs WHERE validation_id = ?",
+                                          (validation_id,)).fetchone()
+                if (not validation or validation["task_id"] != task_id
+                        or validation["status"] != "PENDING"):
+                    raise ValueError("Validation run is not pending for this task.")
+                if requested_operation != "READ_FILE":
+                    raise ValueError("Deterministic file validation requires READ_FILE.")
             attempt_id = str(uuid.uuid4())
             now = iso_now()
             conn.execute(
                 """INSERT INTO execution_attempts
                 (attempt_id, source_request_id, source_event_id, idempotency_key, authority_id,
-                 agent_id, workspace_id, requested_operation, task_id, created_at, request_json,
-                 state, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'RESERVED', ?)""",
+                 agent_id, workspace_id, requested_operation, task_id, validation_id, created_at, request_json,
+                 state, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'RESERVED', ?)""",
                 (attempt_id, source_request_id, source_event_id, idempotency_key, authority_id,
-                 agent_id, workspace_id, requested_operation, task_id, created_at, request_json, now),
+                 agent_id, workspace_id, requested_operation, task_id, validation_id,
+                 created_at, request_json, now),
             )
             conn.execute(
                 """INSERT INTO idempotency_keys
@@ -515,13 +778,23 @@ class SQLiteMailStore:
         expiry = (now + timedelta(seconds=max(0.1, lease_seconds))).isoformat()
         with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
-            row = conn.execute("SELECT state, generation, lease_expiry, source_event_id, task_id, source_request_id FROM execution_attempts WHERE attempt_id = ?", (attempt_id,)).fetchone()
+            row = conn.execute(
+                """SELECT state, generation, lease_expiry, source_event_id, task_id,
+                   validation_id, source_request_id FROM execution_attempts WHERE attempt_id = ?""",
+                (attempt_id,),
+            ).fetchone()
             if not row:
                 conn.rollback()
                 return None
             if row["state"] == "RUNNING" and row["lease_expiry"] <= now.isoformat():
                 conn.execute("UPDATE execution_attempts SET state = 'NEEDS_RECONCILIATION', generation = generation + 1, owner_id = NULL, lease_expiry = NULL, updated_at = ? WHERE attempt_id = ?", (now.isoformat(), attempt_id))
                 if row["task_id"]:
+                    if row["validation_id"]:
+                        run = conn.execute("SELECT * FROM validation_runs WHERE validation_id = ?",
+                                           (row["validation_id"],)).fetchone()
+                        self._finish_validation_error(conn, run, "NEEDS_RECONCILIATION", owner_id,
+                            {"reason": "validator_attempt_lease_expired"}, now.isoformat())
+                        return None
                     self._set_task_state(conn, row["task_id"], "NEEDS_RECONCILIATION",
                                          "task_needs_reconciliation", owner_id,
                                          row["source_request_id"], attempt_id, now.isoformat())
@@ -538,7 +811,8 @@ class SQLiteMailStore:
                 return None
             if row["task_id"]:
                 task = conn.execute("SELECT state FROM owner_tasks WHERE task_id = ?", (row["task_id"],)).fetchone()
-                if not task or task["state"] not in {"ASSIGNED", "EXECUTING"}:
+                valid_states = {"READY_FOR_VALIDATION"} if row["validation_id"] else {"ASSIGNED", "EXECUTING"}
+                if not task or task["state"] not in valid_states:
                     conn.commit()
                     return None
             generation = int(row["generation"]) + 1
@@ -548,8 +822,22 @@ class SQLiteMailStore:
                 (generation, owner_id, expiry, now.isoformat(), now.isoformat(), attempt_id),
             )
             if row["task_id"]:
-                self._set_task_state(conn, row["task_id"], "EXECUTING", "task_execution_started",
-                                     owner_id, row["source_request_id"], attempt_id, now.isoformat())
+                if row["validation_id"]:
+                    validation = conn.execute("SELECT * FROM validation_runs WHERE validation_id = ?",
+                                              (row["validation_id"],)).fetchone()
+                    if not validation or validation["status"] != "PENDING":
+                        conn.rollback()
+                        return None
+                    conn.execute(
+                        """UPDATE validation_runs SET status = 'RUNNING', started_at = ?,
+                           related_attempt_id = ?, updated_at = ? WHERE validation_id = ?""",
+                        (now.isoformat(), attempt_id, now.isoformat(), row["validation_id"]),
+                    )
+                    self._set_task_state(conn, row["task_id"], "VALIDATING", "task_validation_started",
+                                         owner_id, row["source_request_id"], attempt_id, now.isoformat())
+                else:
+                    self._set_task_state(conn, row["task_id"], "EXECUTING", "task_execution_started",
+                                         owner_id, row["source_request_id"], attempt_id, now.isoformat())
             conn.commit()
             return generation
 
@@ -615,7 +903,19 @@ class SQLiteMailStore:
             )
             conn.execute("UPDATE idempotency_keys SET result_json = ? WHERE idempotency_key = ?",
                          (result_json, row["idempotency_key"]))
-            if row["task_id"]:
+            if row["task_id"] and row["validation_id"]:
+                validation = conn.execute("SELECT * FROM validation_runs WHERE validation_id = ?",
+                                          (row["validation_id"],)).fetchone()
+                if state == "NEEDS_RECONCILIATION":
+                    self._finish_validation_error(conn, validation, "NEEDS_RECONCILIATION",
+                        owner_id, {"reason": "validator_attempt_unknown", "attempt_id": attempt_id}, now)
+                    return audit_id
+                if state in {"FAILED", "TIMED_OUT"}:
+                    self._finish_validation_error(conn, validation, "ERROR", owner_id,
+                        {"reason": "validator_tool_failed", "attempt_id": attempt_id,
+                         "attempt_state": state, "tool_outcome": outcome}, now)
+                    return audit_id
+            elif row["task_id"]:
                 task = conn.execute("SELECT state FROM owner_tasks WHERE task_id = ?", (row["task_id"],)).fetchone()
                 if state == "NEEDS_RECONCILIATION" or task["state"] == "NEEDS_RECONCILIATION":
                     new_state, event_type = "NEEDS_RECONCILIATION", "task_needs_reconciliation"
@@ -633,11 +933,21 @@ class SQLiteMailStore:
                 if state == "SUCCEEDED" and row["requested_operation"] == "WRITE_FILE":
                     reference = request["payload"].get("path")
                     if isinstance(reference, str) and reference:
-                        conn.execute(
-                            """INSERT OR IGNORE INTO owner_task_artifacts
-                               (task_id, attempt_id, reference, created_at) VALUES (?, ?, ?, ?)""",
-                            (row["task_id"], attempt_id, reference, now),
-                        )
+                        file_path = Path(reference).resolve()
+                        try:
+                            file_bytes = file_path.read_bytes()
+                        except OSError:
+                            file_bytes = None
+                        if file_bytes is not None:
+                            conn.execute(
+                                """INSERT OR IGNORE INTO owner_task_artifacts
+                                   (artifact_id, task_id, attempt_id, kind, reference, workspace_id,
+                                    producer_id, size_bytes, sha256, created_at)
+                                   VALUES (?, ?, ?, 'FILE', ?, ?, ?, ?, ?, ?)""",
+                                (str(uuid.uuid4()), row["task_id"], attempt_id, str(file_path),
+                                 row["workspace_id"], row["agent_id"], len(file_bytes),
+                                 hashlib.sha256(file_bytes).hexdigest(), now),
+                            )
             conn.commit()
             return audit_id
 
@@ -647,7 +957,7 @@ class SQLiteMailStore:
         with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
             expired = conn.execute(
-                """SELECT attempt_id, task_id, source_request_id, owner_id FROM execution_attempts
+                """SELECT attempt_id, task_id, validation_id, source_request_id, owner_id FROM execution_attempts
                    WHERE state = 'RUNNING' AND lease_expiry <= ?""", (now,)
             ).fetchall()
             for row in expired:
@@ -657,11 +967,32 @@ class SQLiteMailStore:
                     (now, row["attempt_id"]),
                 )
                 if row["task_id"]:
-                    self._set_task_state(conn, row["task_id"], "NEEDS_RECONCILIATION",
-                                         "task_needs_reconciliation", row["owner_id"] or "recovery",
-                                         row["source_request_id"], row["attempt_id"], now)
+                    if row["validation_id"]:
+                        run = conn.execute("SELECT * FROM validation_runs WHERE validation_id = ?",
+                                           (row["validation_id"],)).fetchone()
+                        self._finish_validation_error(conn, run, "NEEDS_RECONCILIATION",
+                            row["owner_id"] or "recovery",
+                            {"reason": "validator_attempt_lease_expired",
+                             "attempt_id": row["attempt_id"]}, now)
+                    else:
+                        self._set_task_state(conn, row["task_id"], "NEEDS_RECONCILIATION",
+                                             "task_needs_reconciliation", row["owner_id"] or "recovery",
+                                             row["source_request_id"], row["attempt_id"], now)
+            stranded = conn.execute(
+                """SELECT vr.* FROM validation_runs vr
+                   JOIN execution_attempts ea ON ea.attempt_id = vr.related_attempt_id
+                   WHERE vr.status = 'RUNNING' AND ea.state IN ('SUCCEEDED','FAILED','TIMED_OUT','NEEDS_RECONCILIATION')"""
+            ).fetchall()
+            for run in stranded:
+                attempt = conn.execute("SELECT state FROM execution_attempts WHERE attempt_id = ?",
+                                       (run["related_attempt_id"],)).fetchone()
+                unknown = attempt["state"] == "NEEDS_RECONCILIATION"
+                self._finish_validation_error(
+                    conn, run, "NEEDS_RECONCILIATION" if unknown else "ERROR", "recovery",
+                    {"reason": "validation_interrupted_before_verdict",
+                     "attempt_id": run["related_attempt_id"], "attempt_state": attempt["state"]}, now)
             conn.commit()
-        return {"fenced_unknown": len(expired)}
+        return {"fenced_unknown": len(expired), "validation_reconciled": len(stranded)}
 
     def list_attempts(self) -> List[Dict[str, Any]]:
         with self._connection() as conn:
@@ -883,5 +1214,22 @@ class SQLiteMailStore:
                 "PRAGMA table_info(execution_attempts)").fetchall()}
             if "task_id" not in attempt_columns:
                 conn.execute("ALTER TABLE execution_attempts ADD COLUMN task_id TEXT REFERENCES owner_tasks(task_id)")
+            if "validation_id" not in attempt_columns:
+                conn.execute("ALTER TABLE execution_attempts ADD COLUMN validation_id TEXT")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_execution_attempts_task_id ON execution_attempts(task_id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_execution_attempts_validation_id ON execution_attempts(validation_id)")
+            artifact_columns = {str(row["name"]) for row in conn.execute(
+                "PRAGMA table_info(owner_task_artifacts)").fetchall()}
+            artifact_migrations = {
+                "artifact_id": "TEXT",
+                "kind": "TEXT",
+                "workspace_id": "TEXT",
+                "producer_id": "TEXT",
+                "size_bytes": "INTEGER",
+                "sha256": "TEXT",
+            }
+            for name, sql_type in artifact_migrations.items():
+                if name not in artifact_columns:
+                    conn.execute(f"ALTER TABLE owner_task_artifacts ADD COLUMN {name} {sql_type}")
+            conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_owner_task_artifacts_id ON owner_task_artifacts(artifact_id)")
             conn.commit()

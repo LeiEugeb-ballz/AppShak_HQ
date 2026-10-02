@@ -110,13 +110,15 @@ class ToolGateway:
         }
         if req.task_id is not None:
             contract["task_id"] = req.task_id
+        if req.validation_id is not None:
+            contract["validation_id"] = req.validation_id
         try:
             attempt = self.mail_store.reserve_attempt(
                 source_request_id=str(req.source_request_id), source_event_id=req.source_event_id,
                 idempotency_key=idempotency_key, authority_id=str(req.authority_id),
                 agent_id=req.agent_id, workspace_id=str(req.workspace_id),
                 requested_operation=req.action_type.value, created_at=str(req.created_at), request=contract,
-                task_id=req.task_id,
+                task_id=req.task_id, validation_id=req.validation_id,
             )
         except ValueError as exc:
             return self._deny(req, reason=str(exc), payload=normalized_payload, idempotency_key=idempotency_key)
@@ -131,6 +133,21 @@ class ToolGateway:
         if generation is None:
             return self._attempt_denial(req, attempt_id, "Execution attempt is already running or requires reconciliation.")
 
+        lease_stop = threading.Event()
+        lease_lost = threading.Event()
+        lease_interval = max(0.03, min(1.0, self.mail_store.lease_seconds / 3.0))
+
+        def _keep_attempt_lease() -> None:
+            while not lease_stop.wait(lease_interval):
+                if not self.mail_store.renew_attempt_lease(
+                    attempt_id, execution_owner, generation, self.mail_store.lease_seconds
+                ):
+                    lease_lost.set()
+                    return
+
+        lease_thread = threading.Thread(target=_keep_attempt_lease, daemon=True,
+                                        name=f"attempt-lease-{attempt_id}")
+        lease_thread.start()
         state = "FAILED"
         try:
             exec_result = self._execute_allowed(req, normalized_payload, attempt_id, execution_owner,
@@ -149,10 +166,15 @@ class ToolGateway:
             exec_result = ToolResult(False, req.action_type, req.agent_id, req.working_dir,
                                      error=repr(exc), reason="Tool outcome uncertain after execution error.",
                                      correlation_id=req.correlation_id)
+        finally:
+            lease_stop.set()
+            lease_thread.join(timeout=max(0.1, lease_interval * 2))
         outcome = {"allowed": exec_result.allowed, "reason": exec_result.reason,
                    "stdout": exec_result.stdout, "stderr": exec_result.stderr,
                    "return_code": exec_result.return_code, "error": exec_result.error,
                    "state": state}
+        if lease_lost.is_set():
+            return self._attempt_denial(req, attempt_id, "Execution fence was lost; outcome requires reconciliation.")
         audit_id = self.mail_store.record_attempt_outcome(attempt_id, execution_owner, generation, state, outcome)
         if audit_id is None:
             return self._attempt_denial(req, attempt_id, "Execution fence was lost; outcome requires reconciliation.")
@@ -522,6 +544,11 @@ class ToolGateway:
                 task_id=(
                     str(request.get("task_id"))
                     if request.get("task_id") is not None
+                    else None
+                ),
+                validation_id=(
+                    str(request.get("validation_id"))
+                    if request.get("validation_id") is not None
                     else None
                 ),
             )

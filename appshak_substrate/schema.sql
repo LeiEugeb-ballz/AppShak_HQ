@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS execution_attempts (
     workspace_id TEXT NOT NULL,
     requested_operation TEXT NOT NULL,
     task_id TEXT REFERENCES owner_tasks(task_id),
+    validation_id TEXT,
     created_at TEXT NOT NULL,
     request_json TEXT NOT NULL,
     state TEXT NOT NULL,
@@ -133,9 +134,57 @@ CREATE INDEX IF NOT EXISTS idx_execution_attempts_state_lease
     ON execution_attempts(state, lease_expiry);
 
 CREATE TABLE IF NOT EXISTS owner_task_artifacts (
+    artifact_id TEXT NOT NULL UNIQUE,
     task_id TEXT NOT NULL REFERENCES owner_tasks(task_id),
     attempt_id TEXT NOT NULL REFERENCES execution_attempts(attempt_id),
+    kind TEXT NOT NULL,
     reference TEXT NOT NULL,
+    workspace_id TEXT NOT NULL,
+    producer_id TEXT NOT NULL,
+    size_bytes INTEGER NOT NULL,
+    sha256 TEXT NOT NULL,
     created_at TEXT NOT NULL,
     PRIMARY KEY(task_id, attempt_id, reference)
+);
+
+CREATE TABLE IF NOT EXISTS task_acceptance_criteria (
+    criterion_id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES owner_tasks(task_id),
+    criterion_type TEXT NOT NULL,
+    config_json TEXT NOT NULL,
+    required INTEGER NOT NULL DEFAULT 1,
+    source_ref TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_task_acceptance_criteria_task
+    ON task_acceptance_criteria(task_id, created_at);
+
+CREATE TABLE IF NOT EXISTS validation_runs (
+    validation_id TEXT PRIMARY KEY,
+    source_request_id TEXT NOT NULL UNIQUE,
+    task_id TEXT NOT NULL REFERENCES owner_tasks(task_id),
+    artifact_id TEXT NOT NULL,
+    validator_id TEXT NOT NULL,
+    status TEXT NOT NULL,
+    started_at TEXT,
+    completed_at TEXT,
+    related_attempt_id TEXT REFERENCES execution_attempts(attempt_id),
+    validated_sha256 TEXT,
+    validated_size_bytes INTEGER,
+    evidence_json TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_validation_runs_task
+    ON validation_runs(task_id, created_at);
+
+CREATE TABLE IF NOT EXISTS validation_checks (
+    validation_id TEXT NOT NULL REFERENCES validation_runs(validation_id),
+    criterion_id TEXT NOT NULL REFERENCES task_acceptance_criteria(criterion_id),
+    status TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    PRIMARY KEY(validation_id, criterion_id)
 );

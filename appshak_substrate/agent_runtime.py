@@ -91,6 +91,7 @@ class AgentRuntime:
         )
         request_data.setdefault("workspace_id", payload.get("workspace_id"))
         request_data.setdefault("task_id", payload.get("task_id"))
+        request_data.setdefault("validation_id", payload.get("validation_id"))
         request_data.setdefault("requested_operation", payload.get("requested_operation") or request_data.get("action_type"))
         request_data.setdefault("created_at", payload.get("created_at") or event.timestamp)
         request_data["source_event_id"] = event.event_id
