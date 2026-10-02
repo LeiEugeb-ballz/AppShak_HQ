@@ -1218,6 +1218,14 @@ class SQLiteMailStore:
                 conn.execute("ALTER TABLE execution_attempts ADD COLUMN validation_id TEXT")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_execution_attempts_task_id ON execution_attempts(task_id)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_execution_attempts_validation_id ON execution_attempts(validation_id)")
+            baton_columns = {str(row["name"]) for row in conn.execute(
+                "PRAGMA table_info(capability_batons)").fetchall()}
+            if "working_tree_hash" not in baton_columns:
+                conn.execute("ALTER TABLE capability_batons ADD COLUMN working_tree_hash TEXT NOT NULL DEFAULT ''")
+            if "next_objective" not in baton_columns:
+                conn.execute("ALTER TABLE capability_batons ADD COLUMN next_objective TEXT NOT NULL DEFAULT ''")
+            if "results_json" not in baton_columns:
+                conn.execute("ALTER TABLE capability_batons ADD COLUMN results_json TEXT NOT NULL DEFAULT '{}'")
             artifact_columns = {str(row["name"]) for row in conn.execute(
                 "PRAGMA table_info(owner_task_artifacts)").fetchall()}
             artifact_migrations = {

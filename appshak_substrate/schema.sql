@@ -188,3 +188,66 @@ CREATE TABLE IF NOT EXISTS validation_checks (
     evidence_json TEXT NOT NULL,
     PRIMARY KEY(validation_id, criterion_id)
 );
+
+CREATE TABLE IF NOT EXISTS capability_batons (
+    baton_id TEXT PRIMARY KEY,
+    source_baton_id TEXT,
+    task_id TEXT NOT NULL,
+    work_package TEXT NOT NULL,
+    next_objective TEXT NOT NULL DEFAULT '',
+    repository_root TEXT NOT NULL,
+    git_commit TEXT NOT NULL,
+    working_tree_hash TEXT NOT NULL DEFAULT '',
+    completion_status TEXT NOT NULL,
+    current_state_json TEXT NOT NULL,
+    results_json TEXT NOT NULL DEFAULT '{}',
+    evidence_json TEXT NOT NULL,
+    validation_id TEXT,
+    required_capability TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    producer_id TEXT NOT NULL,
+    verification_status TEXT NOT NULL,
+    status TEXT NOT NULL,
+    verification_reason TEXT,
+    verification_evidence_json TEXT,
+    policy_version TEXT,
+    updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_capability_batons_status
+    ON capability_batons(status, required_capability);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_capability_batons_verified_successor
+    ON capability_batons(source_baton_id)
+    WHERE source_baton_id IS NOT NULL AND status = 'VERIFIED';
+
+CREATE TABLE IF NOT EXISTS baton_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    baton_id TEXT NOT NULL REFERENCES capability_batons(baton_id),
+    event_type TEXT NOT NULL,
+    previous_status TEXT,
+    new_status TEXT NOT NULL,
+    actor_id TEXT NOT NULL,
+    source_ref TEXT NOT NULL,
+    evidence_json TEXT,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_baton_history_baton
+    ON baton_history(baton_id, id);
+
+CREATE TABLE IF NOT EXISTS baton_dispatches (
+    dispatch_id TEXT PRIMARY KEY,
+    baton_id TEXT NOT NULL UNIQUE REFERENCES capability_batons(baton_id),
+    required_capability TEXT NOT NULL,
+    status TEXT NOT NULL,
+    target_id TEXT,
+    route_json TEXT,
+    context_json TEXT NOT NULL,
+    reason TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_baton_dispatches_status
+    ON baton_dispatches(status, required_capability);

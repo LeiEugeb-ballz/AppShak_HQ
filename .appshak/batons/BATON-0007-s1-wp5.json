@@ -1,0 +1,57 @@
+{
+  "baton_id": "BATON-0007",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0006-s1-wp4.json",
+  "phase": "s1_wp5_capability_routing_batons",
+  "work_package": "S1-WP5 — Connect capability routing and verified batons",
+  "starting_commit": "b5f4634fe12a276e2e60b0a33eec0d13b6d0f06e",
+  "ending_worktree_state": "dirty; only scoped S1-WP5 implementation, tests, report, baton and current projection changes are uncommitted; generated appshak_state remains ignored",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
+  "independent_review": "CERTIFIED_WITH_CORRECTIONS — Sol High corrective gate completed before checkpoint",
+  "review_corrections": [
+    "Removed automatic promotion of filesystem baton JSON into verified SQLite lineage.",
+    "Added single-successor lineage enforcement and atomic predecessor supersession.",
+    "Changed the unconfigured default route from a synthetic target to fail-closed waiting.",
+    "Bound verification to current-state truth, a commit plus working-tree fingerprint, and resolved in-repository evidence.",
+    "Separated source work package, next objective and tests/results in durable baton context.",
+    "Added final verified-status recheck during dispatch and expanded focused coverage from 16 to 24 tests."
+  ],
+  "objective": "Transfer validated bounded work through a verified durable baton and deterministic capability route without claiming unsupported external model execution.",
+  "capabilities": ["REPOSITORY_INSPECTION", "RUNTIME_STABILIZATION", "IMPLEMENTATION", "INTEGRATION", "VALIDATION_IMPLEMENTATION", "ARCHITECTURAL_AUDIT", "ROOT_CAUSE_ANALYSIS", "CERTIFICATION"],
+  "canonical_state": "Runtime capability_batons, baton_history and baton_dispatches truth is SQLite-backed",
+  "filesystem_projection": "CURRENT_BATON.json and .appshak/batons/BATON-0007-s1-wp5.json are repository handover projections and cannot auto-promote into runtime truth",
+  "runtime_dispatchable": false,
+  "verification_contract": "Task COMPLETE, matching durable current state, persisted validation PASSED for that task, COMPLETE claim, canonical repository identity, current existing Git commit, matching working-tree fingerprint, confined evidence, valid capability, and canonical verified source lineage are required.",
+  "lineage_contract": "BATON-0007 references accepted repository checkpoint BATON-0006; runtime verification permits only one canonical successor and atomically supersedes its predecessor.",
+  "routing_contract": "CapabilityRoutingPolicy selects explicitly configured enabled targets deterministically by priority then target_id; the default policy is empty and fail-closed; provider/model classes are policy metadata, not baton truth.",
+  "dispatch_contract": "Only VERIFIED batons dispatch; exactly one durable idempotent dispatch row is created, with READY_FOR_EXTERNAL_DISPATCH or WAITING_FOR_CAPABILITY.",
+  "context_contract": "Dispatch context references baton, task/work package, Git basis, validation, evidence, constraints and next objective without conversation history.",
+  "external_dispatch_boundary": "No supported interface exists here for changing a manually selected Codex desktop model; no external execution is claimed.",
+  "files_changed": [
+    "appshak_substrate/schema.sql",
+    "appshak_substrate/mailstore_sqlite.py",
+    "appshak_substrate/baton_routing.py",
+    "tests/test_s1_wp5_capability_routing_batons.py",
+    "APP_SHAK_HANDOVER/S1_WP5_CAPABILITY_ROUTING_BATONS.md",
+    "APP_SHAK_HANDOVER/S1_WP5_SOL_HIGH_REVIEW.md",
+    ".appshak/batons/BATON-0007-s1-wp5.json",
+    ".appshak/CURRENT_BATON.json"
+  ],
+  "tests_run": [
+    "python -m unittest tests.test_s1_wp5_capability_routing_batons -v",
+    "python -m unittest discover -s tests -p \"test_*.py\" -v",
+    "python -m appshak_substrate.chambers.chamber_a_durability",
+    "python -m appshak_substrate.chambers.chamber_b_isolation",
+    "python -m appshak_substrate.chambers.chamber_c_tool_enforcement"
+  ],
+  "tests_passed": ["Focused WP5 after review: 24", "Full regression after review: 107", "Chamber A: PASS", "Chamber B: PASS", "Chamber C: PASS"],
+  "tests_failed": [],
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "External dispatch remains an explicit handoff boundary; the repository records a durable decision but does not switch a desktop-selected model.",
+    "BATON-0007 is ignored and requires explicit force-staging during the later checkpoint; the already tracked CURRENT_BATON modification appears normally.",
+    "Concrete deployment targets remain unconfigured; the default policy therefore persists WAITING_FOR_CAPABILITY.",
+    "BATON-0007 is a repository checkpoint handover and is intentionally not a runtime-dispatchable SQLite baton."
+  ],
+  "recommended_next_capability": "CERTIFICATION",
+  "recommended_next_work_package": "S1-WP6 — Certification gate"
+}
