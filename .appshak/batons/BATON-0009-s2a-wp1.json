@@ -1,0 +1,52 @@
+{
+  "baton_id": "BATON-0009",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0008-s1-certification.json",
+  "phase": "s2a_wp1_operator_console_binding",
+  "work_package": "S2A-WP1 — Bind operator console to certified S1 truth",
+  "starting_commit": "69d005dccf4023656bc95fa0218a08de72282713",
+  "certified_floor_tag": "appshak-s1-certified",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
+  "certification_status": "S2A_WP1_BOUND_TO_S1_TRUTH",
+  "record_kind": "repository_handover_projection",
+  "runtime_dispatchable": false,
+  "canonical_runtime_source": "GET /api/office/state from configured S1 SQLite mailstore",
+  "office_state_api_status": "CERTIFIED_S1_CONTRACT_REUSED",
+  "view_model_status": "PASS",
+  "task_truth_status": "PASS",
+  "execution_truth_status": "PASS",
+  "validation_completion_status": "PASS",
+  "baton_routing_status": "PASS",
+  "stale_error_status": "PASS",
+  "read_only_status": "PASS",
+  "historical_assets_reused": [],
+  "tests_run": [
+    "python -m unittest discover -s tests -p \"test_*.py\" -v",
+    "npm run test:office",
+    "npm run build",
+    "npx eslint src/office/officeState.js src/hooks/useOfficeState.js src/components/OfficeWorkflowPanel.jsx src/views/OfficeView.jsx src/office/scene.js tests/officeState.test.mjs tests/visualBaseline.jsx"
+  ],
+  "tests_passed": [
+    "Full Python regression: 111",
+    "Focused UI tests: 9",
+    "UI build: PASS",
+    "Changed-file ESLint: PASS"
+  ],
+  "tests_failed": [],
+  "screenshots": [
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\active.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\validating.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\completed.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\failed.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\waiting.png",
+    "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_VISUAL_BASELINES\\stale_error.png"
+  ],
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "Repository-wide ESLint still reports two pre-existing react-hooks/set-state-in-effect errors in unchanged useInspectionData.js; changed-file lint passes.",
+    "Screenshot baselines use isolated synthetic component fixtures and are not evidence of a live deployed office.",
+    "The operator console polls canonical state; external baton pickup and runtime mutation controls remain outside this work package."
+  ],
+  "report": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2A_WP1_OPERATOR_CONSOLE_BINDING.md",
+  "recommended_next_capability": "UI_INTEGRATION",
+  "recommended_next_work": "S2A-WP2 — Operator usability and workflow inspection"
+}

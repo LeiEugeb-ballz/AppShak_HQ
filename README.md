@@ -82,7 +82,7 @@ python -m appshak_substrate.run_swarm --agents recon forge command --durable --w
 python -m appshak_projection.run_projector --mailstore-db appshak_state/substrate/mailstore.db --view-path appshak_state/projection/view.json --poll-interval 1
 
 # Terminal C: observability API and WebSocket backend
-python -m appshak_observability.server --host 127.0.0.1 --port 8010 --projection-view appshak_state/projection/view.json
+python -m appshak_observability.server --host 127.0.0.1 --port 8010 --mailstore-db appshak_state/substrate/mailstore.db --projection-view appshak_state/projection/view.json
 
 # Terminal D: UI
 cd appshak-ui
@@ -90,8 +90,11 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:5173`. The UI reads the backend snapshot endpoint and
-WebSocket stream. Additional integrity, inspection, and stability commands are
+Open `http://127.0.0.1:5173`. The UI reads the backend snapshot and WebSocket
+telemetry plus the canonical read-only `/api/office/state` task projection.
+The S2A binding and its limits are recorded in
+[S2A-WP1 Operator Console Binding](APP_SHAK_HANDOVER/S2A_WP1_OPERATOR_CONSOLE_BINDING.md).
+Additional integrity, inspection, and stability commands are
 in [docs/INDEX.md](docs/INDEX.md#active-runtime-and-subsystem-documents).
 The swarm command requires an existing SQLite database; add `--initialize-db`
 only for an intentional first startup. Canonical task and baton truth is

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useInspectionData } from '../hooks/useInspectionData'
+import { useOfficeState } from '../hooks/useOfficeState'
 import { useProjectionView } from '../hooks/useProjectionView'
+import { OfficeWorkflowPanel } from '../components/OfficeWorkflowPanel'
 import { OfficeAnimator } from '../office/animator'
 import { createOfficeSceneRenderer } from '../office/scene'
 
@@ -69,9 +71,11 @@ export function OfficeView() {
     connectionState: 'connecting',
     signalLost: false,
     lastUpdated: null,
+    officeModel: null,
   })
 
   const { view, connectionState, error, lastUpdated, signalLost, isOnline } = useProjectionView()
+  const officeModel = useOfficeState()
   const {
     entities,
     selectedEntityId,
@@ -89,12 +93,8 @@ export function OfficeView() {
   } = useInspectionData()
 
   if (animatorRef.current == null) {
-    animatorRef.current = new OfficeAnimator(view)
+    animatorRef.current = new OfficeAnimator()
   }
-
-  useEffect(() => {
-    animatorRef.current?.ingestView(view)
-  }, [view])
 
   useEffect(() => {
     latestRef.current = {
@@ -102,8 +102,9 @@ export function OfficeView() {
       connectionState,
       signalLost,
       lastUpdated,
+      officeModel,
     }
-  }, [view, connectionState, signalLost, lastUpdated])
+  }, [view, connectionState, signalLost, lastUpdated, officeModel])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -121,6 +122,7 @@ export function OfficeView() {
         connectionState: latest.connectionState,
         signalLost: latest.signalLost,
         lastUpdated: latest.lastUpdated,
+        officeModel: latest.officeModel,
       })
       frameRef.current = window.requestAnimationFrame(renderLoop)
     }
@@ -157,28 +159,31 @@ export function OfficeView() {
           <span>schema: {schemaVersion}</span>
           <span>queue: {queueValue(view)}</span>
           <span>current_event: {currentEventType}</span>
-          <span>stream: {connectionState}</span>
-          <span>online: {String(isOnline)}</span>
-          <span>updated: {updatedAt}</span>
+          <span>telemetry_stream: {connectionState}</span>
+          <span>telemetry_online: {String(isOnline)}</span>
+          <span>telemetry_updated: {updatedAt}</span>
           <span>inspection_stream: {inspectionConnectionState}</span>
         </div>
         <div className="office-view__legend" aria-label="Office view legend">
           <span>
             <i className="office-view__dot office-view__dot--green" />
-            Green = valid execution
+            Green = tool allowed telemetry
           </span>
           <span>
             <i className="office-view__dot office-view__dot--red" />
-            Red = policy denial
+            Red = tool denied telemetry
           </span>
           <span>
             <i className="office-view__dot office-view__dot--blue" />
-            Blue = active processing
+            Blue = event telemetry
           </span>
         </div>
+        <p className="office-view__telemetry-note">Room and avatar positions are illustrative. Workflow status below comes from canonical S1 state.</p>
         <div className="office-view__error">stream_error: {error ?? 'n/a'}</div>
         <div className="office-view__error">inspection_error: {inspectionError ?? 'n/a'}</div>
       </div>
+
+      <OfficeWorkflowPanel model={officeModel} />
 
       <div className="office-view__canvas-shell">
         <canvas ref={canvasRef} className="office-view__canvas" aria-label="CCTV office projection visualization" />

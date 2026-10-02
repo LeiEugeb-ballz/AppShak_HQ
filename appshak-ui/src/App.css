@@ -268,6 +268,115 @@
   font-size: 0.78rem;
 }
 
+.office-view__telemetry-note,
+.office-workflow__meta {
+  margin: 0;
+  color: #a5b6d0;
+  font-size: 0.8rem;
+}
+
+.office-workflow__header p {
+  margin: 0.35rem 0 0;
+  color: #a5b6d0;
+  font-size: 0.8rem;
+}
+
+.office-workflow__availability {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.office-workflow__badge,
+.office-workflow__state {
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #617085;
+  border-radius: 7px;
+  color: #dce6f7;
+  background: #243040;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.office-workflow__badge--current,
+.office-workflow__state--complete {
+  border-color: #3e8c6b;
+  color: #c6f4db;
+  background: #183a2c;
+}
+
+.office-workflow__badge--stale,
+.office-workflow__badge--error {
+  border-color: #af6b56;
+  color: #ffe0d4;
+  background: #472a28;
+}
+
+.office-workflow__warning,
+.office-workflow__error {
+  color: #ffd5bc;
+  font-size: 0.84rem;
+}
+
+.office-workflow__tasks {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.office-workflow__task {
+  border: 1px solid #3b4b61;
+  border-radius: 9px;
+  padding: 0.8rem;
+  background: #0f1722;
+}
+
+.office-workflow__task--stale {
+  border-color: #7d645d;
+  background: #231d1f;
+}
+
+.office-workflow__task-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 0.7rem;
+}
+
+.office-workflow__task-head h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.98rem;
+}
+
+.office-workflow__task-head small {
+  color: #9bacc6;
+  overflow-wrap: anywhere;
+}
+
+.office-workflow__details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem 0.9rem;
+  margin: 0;
+}
+
+.office-workflow__detail {
+  min-width: 0;
+}
+
+.office-workflow__detail dt {
+  color: #92a8c4;
+  font-size: 0.72rem;
+}
+
+.office-workflow__detail dd {
+  margin: 0.15rem 0 0;
+  color: #e4edff;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
 .office-view__canvas-shell {
   position: relative;
   border: 1px solid #2a3447;
@@ -393,6 +502,20 @@
   }
 
   .office-view__inspection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .office-workflow__details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .office-workflow__task-head {
+    flex-direction: column;
+  }
+
+  .office-workflow__details {
     grid-template-columns: 1fr;
   }
 }

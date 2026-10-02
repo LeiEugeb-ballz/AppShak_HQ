@@ -324,7 +324,7 @@ function drawHud(ctx, width, height, data) {
   const x = width * 0.025
   const y = height * 0.03
   const panelWidth = Math.max(280, width * 0.36)
-  const panelHeight = Math.max(80, height * 0.12)
+  const panelHeight = Math.max(100, height * 0.16)
 
   drawRoundedRect(ctx, x, y, panelWidth, panelHeight, 8)
   ctx.fillStyle = rgbaFromHex('#0d151f', 0.72)
@@ -339,8 +339,9 @@ function drawHud(ctx, width, height, data) {
 
   ctx.fillStyle = rgbaFromHex('#9fb5d6', 0.88)
   ctx.fillText(`timestamp: ${data.timestamp}`, x + 10, y + 36)
-  ctx.fillText(`queue: ${data.queueSize} | event: ${data.eventType}`, x + 10, y + 53)
-  ctx.fillText(`stream: ${data.connectionState}`, x + 10, y + 70)
+  ctx.fillText(`telemetry queue: ${data.queueSize} | event: ${data.eventType}`, x + 10, y + 53)
+  ctx.fillText(`telemetry stream: ${data.connectionState}`, x + 10, y + 70)
+  ctx.fillText(`S1 state: ${data.officeStatus}`, x + 10, y + 87)
 }
 
 function drawScanlines(ctx, width, height) {
@@ -382,19 +383,20 @@ function safeTimestamp(value) {
   if (typeof value === 'string' && value.trim().length > 0) {
     return value
   }
-  return new Date().toISOString()
+  return 'unknown'
 }
 
 export function drawOfficeScene(ctx, width, height, frame) {
   const animationState = isRecord(frame?.animationState) ? frame.animationState : {}
   const view = isRecord(frame?.view) ? frame.view : {}
+  const officeModel = isRecord(frame?.officeModel) ? frame.officeModel : {}
+  const officeCurrent = officeModel.freshness === 'LIVE / CURRENT'
 
   const lightLevel = clamp(Number(animationState.lightLevel) || 0.4, 0.2, 0.92)
   const stressLevel = clamp(Number(animationState.stressLevel) || 0, 0, 1)
   const queueSize = Number.isFinite(Number(view.event_queue_size))
     ? Number(view.event_queue_size)
     : Number(animationState.queueSize) || 0
-  const running = Boolean(view.running ?? animationState.running)
   const eventType =
     typeof view?.current_event?.type === 'string' && view.current_event.type.length > 0
       ? view.current_event.type
@@ -412,7 +414,7 @@ export function drawOfficeScene(ctx, width, height, frame) {
   }
   drawWaterCooler(ctx, geometry, width, height)
 
-  const pulseList = Array.isArray(animationState.pulses) ? animationState.pulses : []
+  const pulseList = officeCurrent && Array.isArray(animationState.pulses) ? animationState.pulses : []
   drawZonePulses(ctx, geometry, pulseList)
 
   let securityPulseIntensity = 0
@@ -429,7 +431,7 @@ export function drawOfficeScene(ctx, width, height, frame) {
   drawAvatars(ctx, geometry, animationState.avatars)
 
   const ambientPulse = clamp(Number(animationState.ambientPulse) || 0, 0, 1)
-  if (ambientPulse > 0.01) {
+  if (officeCurrent && ambientPulse > 0.01) {
     const pulse = ctx.createRadialGradient(
       width * 0.5,
       height * 0.5,
@@ -450,16 +452,14 @@ export function drawOfficeScene(ctx, width, height, frame) {
     queueSize,
     eventType,
     connectionState: frame?.connectionState ?? 'unknown',
+    officeStatus: officeModel.scene_status ?? 'UNKNOWN_STATE',
   })
 
   drawScanlines(ctx, width, height)
   drawVignette(ctx, width, height)
 
-  if (!running && !frame?.signalLost) {
-    drawStatusOverlay(ctx, width, height, 'PAUSED', 'neutral')
-  }
-  if (frame?.signalLost) {
-    drawStatusOverlay(ctx, width, height, 'SIGNAL LOST', 'alert')
+  if (!officeCurrent) {
+    drawStatusOverlay(ctx, width, height, officeModel.availability ?? 'UNKNOWN_STATE', 'alert')
   }
 }
 
