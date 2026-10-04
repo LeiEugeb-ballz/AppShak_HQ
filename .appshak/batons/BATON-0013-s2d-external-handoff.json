@@ -1,0 +1,44 @@
+{
+  "baton_id": "BATON-0013",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0012-s2c-visual-verification.json",
+  "phase": "s2d_external_capability_handoff",
+  "work_package": "S2D — External capability handoff",
+  "starting_commit": "2cd7cf97cecfa9d9b50f0e48515df9d14909a99c",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
+  "certification_status": "PROVIDER_NEUTRAL_LOCAL_EXTERNAL_HANDOFF_CERTIFIED",
+  "record_kind": "repository_handover_projection",
+  "runtime_dispatchable": false,
+  "ats_authority": "SQLite owner task, verified runtime baton, dispatch, execution attempt, artifact, and validation records",
+  "external_boundary": "Separate local worker process via authenticated loopback-only pickup, renew, and result API",
+  "commercial_provider_connected": false,
+  "validation_gate": "External result reaches READY_FOR_VALIDATION; only persisted independent PASS completes the task",
+  "tests_run": [
+    "python -m unittest discover -s tests -p 'test_s2d_external_handoff.py' -v",
+    "python -m unittest discover -s tests -p 'test_*.py' -v",
+    "npm run lint",
+    "npm run test:office",
+    "npm run build",
+    "python -m appshak_substrate.s1_certification",
+    "python -m appshak_substrate.chambers.chamber_a_durability",
+    "python -m appshak_substrate.chambers.chamber_b_isolation",
+    "python -m appshak_substrate.chambers.chamber_c_tool_enforcement"
+  ],
+  "tests_passed": [
+    "Focused S2D: 14 passed",
+    "Python regression: 125 passed",
+    "UI tests: 32 passed",
+    "ESLint and UI build: PASS",
+    "S1 certification: PASS",
+    "Chambers A, B, C: PASS"
+  ],
+  "tests_failed": [],
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "No commercial provider or remote transport configured or tested.",
+    "The separate worker is a local deterministic text-file adapter, not a production model integration.",
+    "Trusted backend preparation/publication and out-of-band credential provisioning are explicit deployment steps.",
+    "S2E visual treatment and Owner-controlled CURRENT POSITION update were not performed."
+  ],
+  "report": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2D_EXTERNAL_CAPABILITY_HANDOFF.md",
+  "recommended_next_stage": "S2E — Office metaphor / polished ATS-driven movement"
+}

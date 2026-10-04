@@ -72,6 +72,7 @@ These are the primary documents for a current engineer.
 - [S2A-WP2 Operator Usability and Workflow Inspection](../APP_SHAK_HANDOVER/S2A_WP2_OPERATOR_USABILITY.md)
 - [S2B Live Office Projection](../APP_SHAK_HANDOVER/S2B_LIVE_OFFICE_PROJECTION.md)
 - [S2C Visual / Perceptual Verification](../APP_SHAK_HANDOVER/S2C_VISUAL_PERCEPTUAL_VERIFICATION.md)
+- [S2D External Capability Handoff](../APP_SHAK_HANDOVER/S2D_EXTERNAL_CAPABILITY_HANDOFF.md)
 - [S2C Visual-Review Package](../APP_SHAK_HANDOVER/S2C_VISUAL_REVIEW/README.md)
 - [S1 WP5 Independent Corrective Review](../APP_SHAK_HANDOVER/S1_WP5_SOL_HIGH_REVIEW.md)
 - [Phase 2 Substrate Signoff](phase_2_substrate_signoff.md)

@@ -1,12 +1,12 @@
 {
-  "baton_id": "BATON-0012",
-  "path": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0012-s2c-visual-verification.json",
-  "phase": "s2c_visual_perceptual_verification",
+  "baton_id": "BATON-0013",
+  "path": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0013-s2d-external-handoff.json",
+  "phase": "s2d_external_capability_handoff",
   "status": "complete",
   "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
   "record_kind": "repository_handover_projection",
   "runtime_dispatchable": false,
-  "certification_status": "S2C_VISUAL_VERIFICATION_PROCESS_CERTIFIED",
-  "starting_commit": "b7f56df5cb2c9ed2572a3cceed4a3248c1d2c10b",
-  "recommended_next_stage": "S2D — EXTERNAL CAPABILITY HANDOFF"
+  "certification_status": "PROVIDER_NEUTRAL_LOCAL_EXTERNAL_HANDOFF_CERTIFIED",
+  "starting_commit": "2cd7cf97cecfa9d9b50f0e48515df9d14909a99c",
+  "recommended_next_stage": "S2E — Office metaphor / polished ATS-driven movement"
 }

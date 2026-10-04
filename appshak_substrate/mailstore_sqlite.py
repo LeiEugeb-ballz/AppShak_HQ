@@ -1226,6 +1226,23 @@ class SQLiteMailStore:
                 conn.execute("ALTER TABLE capability_batons ADD COLUMN next_objective TEXT NOT NULL DEFAULT ''")
             if "results_json" not in baton_columns:
                 conn.execute("ALTER TABLE capability_batons ADD COLUMN results_json TEXT NOT NULL DEFAULT '{}'")
+            dispatch_columns = {str(row["name"]) for row in conn.execute(
+                "PRAGMA table_info(baton_dispatches)").fetchall()}
+            dispatch_migrations = {
+                "handoff_task_id": "TEXT REFERENCES owner_tasks(task_id)",
+                "attempt_id": "TEXT REFERENCES execution_attempts(attempt_id)",
+                "payload_reference": "TEXT", "result_reference": "TEXT",
+                "workspace_root": "TEXT", "credential_sha256": "TEXT",
+                "chief_authorized_by": "TEXT",
+                "pickup_owner_id": "TEXT", "pickup_generation": "INTEGER",
+                "dispatched_at": "TEXT", "acknowledged_at": "TEXT",
+                "result_at": "TEXT", "result_sha256": "TEXT", "result_size_bytes": "INTEGER",
+            }
+            for name, sql_type in dispatch_migrations.items():
+                if name not in dispatch_columns:
+                    conn.execute(f"ALTER TABLE baton_dispatches ADD COLUMN {name} {sql_type}")
+            conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_baton_dispatches_credential "
+                         "ON baton_dispatches(credential_sha256) WHERE credential_sha256 IS NOT NULL")
             artifact_columns = {str(row["name"]) for row in conn.execute(
                 "PRAGMA table_info(owner_task_artifacts)").fetchall()}
             artifact_migrations = {

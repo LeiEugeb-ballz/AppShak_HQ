@@ -89,7 +89,11 @@ def _read_office_state(db_path: str | Path, *, limit: int) -> dict[str, Any]:
             "b.status, b.verification_status, b.verification_reason, b.required_capability, "
             "b.git_commit, b.completion_status, b.validation_id, b.producer_id, b.policy_version, "
             "b.created_at, b.updated_at, d.dispatch_id, d.status AS dispatch_status, d.target_id, "
-            "d.reason AS dispatch_reason, d.created_at AS dispatch_created_at, "
+            "d.reason AS dispatch_reason, d.handoff_task_id, d.attempt_id AS handoff_attempt_id, "
+            "d.payload_reference, d.result_reference, d.pickup_owner_id, "
+            "d.pickup_generation, d.dispatched_at, d.acknowledged_at, "
+            "d.result_at, d.result_sha256, d.result_size_bytes, "
+            "d.created_at AS dispatch_created_at, "
             "d.updated_at AS dispatch_updated_at FROM capability_batons b LEFT JOIN baton_dispatches d "
             "ON d.baton_id = b.baton_id ORDER BY b.created_at DESC, b.baton_id DESC LIMIT ?",
             (max(1, min(int(limit), 1000)),),

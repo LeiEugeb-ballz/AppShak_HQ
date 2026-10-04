@@ -28,6 +28,7 @@ class RouteTarget:
     model_class: str
     priority: int = 100
     enabled: bool = True
+    workspace_root: Optional[str] = None
 
 
 class CapabilityRoutingPolicy:
@@ -47,6 +48,8 @@ class CapabilityRoutingPolicy:
                 raise ValueError("Route provider and model classes must be non-empty.")
             if any(capability not in CAPABILITIES for capability in target.capabilities):
                 raise ValueError("Route target contains an unknown capability.")
+            if target.workspace_root is not None and not str(target.workspace_root).strip():
+                raise ValueError("Configured target workspace must be non-empty.")
 
     @classmethod
     def default(cls) -> "CapabilityRoutingPolicy":
@@ -65,7 +68,7 @@ class CapabilityRoutingPolicy:
         if not eligible:
             return None
         selected = sorted(eligible, key=lambda target: (target.priority, target.target_id))[0]
-        return {
+        route = {
             "target_id": selected.target_id,
             "capability": capability,
             "provider_class": selected.provider_class,
@@ -73,6 +76,9 @@ class CapabilityRoutingPolicy:
             "policy_version": self.version,
             "priority": selected.priority,
         }
+        if selected.workspace_root is not None:
+            route["workspace_root"] = str(Path(selected.workspace_root).resolve())
+        return route
 
 
 class VerifiedBatonManager:
@@ -97,6 +103,7 @@ class VerifiedBatonManager:
         if not row:
             return None
         item = dict(row)
+        item.pop("credential_sha256", None)
         for key in ("route_json", "context_json"):
             raw = item.pop(key, None)
             item[key.removesuffix("_json")] = json.loads(raw) if raw else None

@@ -806,7 +806,7 @@ pickup without weakening baton verification.
 
 
 
-\[ ] S2D — External capability handoff
+\[x] S2D — External capability handoff
 
 
 
@@ -1062,9 +1062,9 @@ S2B  Live office-state projection          COMPLETE
 
 S2C  Visual/perceptual verification        COMPLETE
 
-S2D  External capability handoff           NEXT
+S2D  External capability handoff           COMPLETE
 
-S2E  Office metaphor / polished animation  PENDING
+S2E  Office metaphor / polished animation  NEXT
 
 S3   Autonomous office workflows           FUTURE GUIDANCE
 
