@@ -1,48 +1,53 @@
 import { clamp, lerp } from './effects.js'
 
+// Stable locations are presentation coordinates, never task or worker state.
 export const OFFICE_ZONES = {
-  supervisorDesk: { x: 0.78, y: 0.2, label: 'Supervisor Control' },
-  commandDesk: { x: 0.18, y: 0.49, label: 'Command Desk' },
-  reconDesk: { x: 0.2, y: 0.8, label: 'Recon Desk' },
-  forgeDesk: { x: 0.78, y: 0.8, label: 'Forge Desk' },
-  boardroom: { x: 0.5, y: 0.52, label: 'Boardroom' },
-  dispatchZone: { x: 0.34, y: 0.42, label: 'Dispatch Zone' },
-  waterCooler: { x: 0.92, y: 0.1, label: 'Water Cooler' },
-  securityCheckpoint: { x: 0.06, y: 0.32, label: 'Security Checkpoint' },
-  supervisorIdle: { x: 0.58, y: 0.3, label: 'Supervisor Idle' },
+  supervisorDesk: { x: 0.79, y: 0.25, label: 'SUPERVISION' },
+  commandDesk: { x: 0.18, y: 0.47, label: 'COMMAND' },
+  reconDesk: { x: 0.2, y: 0.8, label: 'INCIDENT REVIEW' },
+  forgeDesk: { x: 0.79, y: 0.8, label: 'DELIVERY ARCHIVE' },
+  boardroom: { x: 0.53, y: 0.61, label: 'VALIDATION' },
+  dispatchZone: { x: 0.39, y: 0.3, label: 'CAPABILITY HANDOFF' },
+  waterCooler: { x: 0.92, y: 0.12, label: 'FACILITIES' },
+  securityCheckpoint: { x: 0.06, y: 0.32, label: 'ENTRY' },
+  supervisorIdle: { x: 0.62, y: 0.26, label: 'SUPERVISION' },
 }
 
-const DESK_DEFINITIONS = [
-  { zone: 'supervisorDesk', monitorColor: '#6aa3ff' },
-  { zone: 'commandDesk', monitorColor: '#6ea9d8' },
-  { zone: 'reconDesk', monitorColor: '#67c9ff' },
-  { zone: 'forgeDesk', monitorColor: '#f4b470' },
-]
+const C = {
+  ink: '#101923', wall: '#202b35', floor: '#303c45', floorLow: '#26323c',
+  edge: '#60717b', ivory: '#f0eadb', muted: '#b5c4c9', brass: '#d6b77b',
+  teal: '#8ccbbd', coral: '#e6a088', incident: '#e8b680',
+}
 
-const AVATAR_COLORS = {
-  supervisor: '#7db8ff',
-  recon: '#7de0ff',
-  forge: '#f8c18f',
-  command: '#b7c3de',
+const STATE_COLOR = {
+  'ACTIVE / EXECUTING': C.teal,
+  'VALIDATION IN PROGRESS': C.brass,
+  VALIDATION_PENDING: C.brass,
+  RESULT_RETURNED: C.brass,
+  VALIDATION_FAILED: C.coral,
+  VALIDATION_ERROR: C.coral,
+  EXECUTION_FAILED: C.coral,
+  HANDOFF_FAILED: C.coral,
+  NEEDS_RECONCILIATION: C.incident,
+  WAITING_FOR_CAPABILITY: C.brass,
+  HANDOFF_DISPATCHED: C.teal,
+  EXTERNAL_PICKUP_ACKNOWLEDGED: C.teal,
+  EXTERNAL_RUNNING: C.teal,
+  COMPLETE: '#a9d5b6',
 }
 
 function isRecord(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
-function rgbaFromHex(hex, alpha) {
+function rgba(hex, alpha) {
   const clean = String(hex).replace('#', '')
-  if (clean.length !== 6) {
-    return `rgba(255, 255, 255, ${clamp(alpha, 0, 1)})`
-  }
-  const r = Number.parseInt(clean.slice(0, 2), 16)
-  const g = Number.parseInt(clean.slice(2, 4), 16)
-  const b = Number.parseInt(clean.slice(4, 6), 16)
-  return `rgba(${r}, ${g}, ${b}, ${clamp(alpha, 0, 1)})`
+  const value = clean.length === 6 ? clean : 'ffffff'
+  return `rgba(${Number.parseInt(value.slice(0, 2), 16)}, ${Number.parseInt(value.slice(2, 4), 16)}, ${Number.parseInt(value.slice(4, 6), 16)}, ${clamp(alpha, 0, 1)})`
 }
 
-function drawRoundedRect(ctx, x, y, width, height, radius) {
-  const r = Math.max(0, Math.min(radius, width * 0.5, height * 0.5))
+function roundRect(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2)
   ctx.beginPath()
   ctx.moveTo(x + r, y)
   ctx.lineTo(x + width - r, y)
@@ -50,286 +55,245 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
   ctx.lineTo(x + width, y + height - r)
   ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height)
   ctx.lineTo(x + r, y + height)
-  ctx.quadraticCurveTo(x, y + height, x, y + height - r)
-  ctx.lineTo(x, y + r)
-  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.quadraticCurveTo(x, y + height, x + r, y)
   ctx.closePath()
 }
 
-function roomGeometry(width, height) {
-  return {
-    top: height * 0.11,
-    bottom: height * 0.94,
-    leftTop: width * 0.15,
-    rightTop: width * 0.85,
-    leftBottom: width * 0.03,
-    rightBottom: width * 0.97,
+function panel(ctx, x, y, width, height, fill, stroke, radius = 10) {
+  roundRect(ctx, x, y, width, height, radius)
+  ctx.fillStyle = fill
+  ctx.fill()
+  if (stroke) {
+    ctx.lineWidth = 1
+    ctx.strokeStyle = stroke
+    ctx.stroke()
   }
 }
 
-function rowBounds(geometry, yNorm) {
-  const y = clamp(yNorm, 0, 1)
+function geometryFor(width, height) {
   return {
-    y: lerp(geometry.top, geometry.bottom, y),
-    left: lerp(geometry.leftTop, geometry.leftBottom, y),
-    right: lerp(geometry.rightTop, geometry.rightBottom, y),
+    top: height * 0.14, bottom: height * 0.94,
+    leftTop: width * 0.13, rightTop: width * 0.87,
+    leftBottom: width * 0.035, rightBottom: width * 0.965,
   }
 }
 
 function projectPoint(geometry, xNorm, yNorm) {
-  const row = rowBounds(geometry, yNorm)
-  const x = lerp(row.left, row.right, clamp(xNorm, 0, 1))
-  return {
-    x,
-    y: row.y,
-    scale: lerp(0.68, 1.14, clamp(yNorm, 0, 1)),
-  }
+  const y = clamp(yNorm, 0, 1)
+  const left = lerp(geometry.leftTop, geometry.leftBottom, y)
+  const right = lerp(geometry.rightTop, geometry.rightBottom, y)
+  return { x: lerp(left, right, clamp(xNorm, 0, 1)),
+    y: lerp(geometry.top, geometry.bottom, y), scale: lerp(0.77, 1.12, y) }
 }
 
-function drawBackdrop(ctx, width, height, lightLevel, stressLevel) {
-  const wallGradient = ctx.createLinearGradient(0, 0, 0, height)
-  wallGradient.addColorStop(0, rgbaFromHex('#0a121a', 1))
-  wallGradient.addColorStop(1, rgbaFromHex('#070c12', 1))
-  ctx.fillStyle = wallGradient
+function drawRoom(ctx, width, height, geometry) {
+  const background = ctx.createLinearGradient(0, 0, 0, height)
+  background.addColorStop(0, '#111d27')
+  background.addColorStop(1, '#0b141d')
+  ctx.fillStyle = background
   ctx.fillRect(0, 0, width, height)
 
-  const glow = ctx.createRadialGradient(width * 0.6, height * 0.15, 0, width * 0.6, height * 0.25, width * 0.8)
-  const glowStrength = clamp(0.16 + lightLevel * 0.23, 0.1, 0.45)
-  glow.addColorStop(0, rgbaFromHex('#8bb5ff', glowStrength))
-  glow.addColorStop(1, 'rgba(0, 0, 0, 0)')
-  ctx.fillStyle = glow
-  ctx.fillRect(0, 0, width, height)
-
-  if (stressLevel > 0.02) {
-    const stressOverlay = ctx.createLinearGradient(0, 0, width, height)
-    stressOverlay.addColorStop(0, rgbaFromHex('#7a2025', 0.02 + stressLevel * 0.08))
-    stressOverlay.addColorStop(1, rgbaFromHex('#8f232d', 0.05 + stressLevel * 0.16))
-    ctx.fillStyle = stressOverlay
-    ctx.fillRect(0, 0, width, height)
+  const wallY = geometry.top - 27
+  ctx.fillStyle = C.wall
+  ctx.fillRect(geometry.leftTop, wallY, geometry.rightTop - geometry.leftTop, 30)
+  ctx.fillStyle = '#374853'
+  ctx.fillRect(geometry.leftTop, wallY + 26, geometry.rightTop - geometry.leftTop, 3)
+  for (let index = 1; index <= 3; index += 1) {
+    const x = lerp(geometry.leftTop, geometry.rightTop, index / 4)
+    ctx.fillStyle = '#283641'
+    ctx.fillRect(x, wallY + 3, 2, 23)
   }
-}
-
-function drawRoomShell(ctx, geometry, lightLevel) {
-  const topLeft = rowBounds(geometry, 0)
-  const bottomLeft = rowBounds(geometry, 1)
 
   ctx.beginPath()
-  ctx.moveTo(topLeft.left, topLeft.y)
-  ctx.lineTo(topLeft.right, topLeft.y)
-  ctx.lineTo(bottomLeft.right, bottomLeft.y)
-  ctx.lineTo(bottomLeft.left, bottomLeft.y)
+  ctx.moveTo(geometry.leftTop, geometry.top)
+  ctx.lineTo(geometry.rightTop, geometry.top)
+  ctx.lineTo(geometry.rightBottom, geometry.bottom)
+  ctx.lineTo(geometry.leftBottom, geometry.bottom)
   ctx.closePath()
-
-  const floorGradient = ctx.createLinearGradient(0, geometry.top, 0, geometry.bottom)
-  floorGradient.addColorStop(0, rgbaFromHex('#182432', 0.9))
-  floorGradient.addColorStop(1, rgbaFromHex('#0f1823', 0.98))
-  ctx.fillStyle = floorGradient
+  const floor = ctx.createLinearGradient(0, geometry.top, 0, geometry.bottom)
+  floor.addColorStop(0, C.floor)
+  floor.addColorStop(1, C.floorLow)
+  ctx.fillStyle = floor
   ctx.fill()
-
   ctx.lineWidth = 2
-  ctx.strokeStyle = rgbaFromHex('#5e738f', 0.22 + lightLevel * 0.22)
-  ctx.stroke()
-}
-
-function drawFloorGrid(ctx, geometry, lightLevel) {
-  ctx.lineWidth = 1
-  const gridColor = rgbaFromHex('#85a2c6', 0.06 + lightLevel * 0.14)
-  ctx.strokeStyle = gridColor
-
-  for (let row = 1; row <= 12; row += 1) {
-    const line = rowBounds(geometry, row / 12)
-    ctx.beginPath()
-    ctx.moveTo(line.left, line.y)
-    ctx.lineTo(line.right, line.y)
-    ctx.stroke()
-  }
-
-  for (let col = 0; col <= 14; col += 1) {
-    const xRatio = col / 14
-    ctx.beginPath()
-    for (let row = 0; row <= 16; row += 1) {
-      const point = projectPoint(geometry, xRatio, row / 16)
-      if (row === 0) {
-        ctx.moveTo(point.x, point.y)
-      } else {
-        ctx.lineTo(point.x, point.y)
-      }
-    }
-    ctx.stroke()
-  }
-}
-
-function drawDesk(ctx, geometry, width, height, zoneName, monitorColor, lightLevel) {
-  const zone = OFFICE_ZONES[zoneName]
-  if (!zone) {
-    return
-  }
-  const point = projectPoint(geometry, zone.x, zone.y)
-  const deskWidth = Math.max(52, width * 0.085 * point.scale)
-  const deskHeight = Math.max(20, height * 0.03 * point.scale)
-  const x = point.x - deskWidth * 0.5
-  const y = point.y - deskHeight * 0.5
-
-  drawRoundedRect(ctx, x, y, deskWidth, deskHeight, deskHeight * 0.32)
-  ctx.fillStyle = rgbaFromHex('#2a3a4d', 0.95)
-  ctx.fill()
-  ctx.strokeStyle = rgbaFromHex('#6782a3', 0.35 + lightLevel * 0.25)
-  ctx.lineWidth = 1.2
+  ctx.strokeStyle = C.edge
   ctx.stroke()
 
-  const monitorWidth = deskWidth * 0.22
-  const monitorHeight = deskHeight * 0.56
-  const monitorX = point.x - monitorWidth * 0.5
-  const monitorY = y - monitorHeight * 0.7
-  drawRoundedRect(ctx, monitorX, monitorY, monitorWidth, monitorHeight, monitorHeight * 0.2)
-  ctx.fillStyle = rgbaFromHex(monitorColor, 0.24 + lightLevel * 0.42)
-  ctx.fill()
-}
-
-function drawBoardroomTable(ctx, geometry, width, height, lightLevel) {
-  const zone = OFFICE_ZONES.boardroom
-  const point = projectPoint(geometry, zone.x, zone.y)
-  const radiusX = Math.max(45, width * 0.12 * point.scale)
-  const radiusY = Math.max(18, height * 0.038 * point.scale)
-  ctx.beginPath()
-  ctx.ellipse(point.x, point.y, radiusX, radiusY, 0, 0, Math.PI * 2)
-  ctx.fillStyle = rgbaFromHex('#3c4c60', 0.96)
-  ctx.fill()
-  ctx.strokeStyle = rgbaFromHex('#7d95b4', 0.3 + lightLevel * 0.24)
-  ctx.lineWidth = 1.5
-  ctx.stroke()
-}
-
-function drawWaterCooler(ctx, geometry, width, height) {
-  const zone = OFFICE_ZONES.waterCooler
-  const point = projectPoint(geometry, zone.x, zone.y)
-  const bodyWidth = Math.max(14, width * 0.019 * point.scale)
-  const bodyHeight = Math.max(26, height * 0.064 * point.scale)
-  const bodyX = point.x - bodyWidth * 0.5
-  const bodyY = point.y - bodyHeight
-
-  drawRoundedRect(ctx, bodyX, bodyY, bodyWidth, bodyHeight, bodyWidth * 0.25)
-  ctx.fillStyle = rgbaFromHex('#d8e7fa', 0.22)
-  ctx.fill()
-  ctx.strokeStyle = rgbaFromHex('#a8c0e5', 0.38)
-  ctx.lineWidth = 1
-  ctx.stroke()
-
-  ctx.beginPath()
-  ctx.arc(point.x, bodyY - bodyWidth * 0.2, bodyWidth * 0.44, 0, Math.PI * 2)
-  ctx.fillStyle = rgbaFromHex('#78baff', 0.26)
-  ctx.fill()
-}
-
-function drawSecurityCheckpoint(ctx, geometry, width, height, pulseIntensity, pulseColor) {
-  const zone = OFFICE_ZONES.securityCheckpoint
-  const point = projectPoint(geometry, zone.x, zone.y)
-  const panelWidth = Math.max(16, width * 0.018 * point.scale)
-  const panelHeight = Math.max(62, height * 0.12 * point.scale)
-  const x = point.x - panelWidth * 0.5
-  const y = point.y - panelHeight * 0.5
-
-  drawRoundedRect(ctx, x, y, panelWidth, panelHeight, panelWidth * 0.3)
-  ctx.fillStyle = rgbaFromHex('#2f455d', 0.88)
-  ctx.fill()
-  ctx.strokeStyle = rgbaFromHex('#7f9ec0', 0.32)
-  ctx.lineWidth = 1.1
-  ctx.stroke()
-
-  const ledRadius = Math.max(5, panelWidth * 0.35)
-  const ledY = y + panelHeight * 0.26
-  ctx.beginPath()
-  ctx.arc(point.x, ledY, ledRadius, 0, Math.PI * 2)
-  ctx.fillStyle = rgbaFromHex('#5f87bd', 0.35)
-  ctx.fill()
-
-  if (pulseIntensity > 0.01) {
-    const gradient = ctx.createRadialGradient(point.x, ledY, ledRadius * 0.1, point.x, ledY, ledRadius * 3.8)
-    gradient.addColorStop(0, rgbaFromHex(pulseColor, 0.35 * pulseIntensity))
-    gradient.addColorStop(1, rgbaFromHex(pulseColor, 0))
-    ctx.fillStyle = gradient
+  // Broad floor seams give the room scale without a diagnostic grid.
+  for (const yNorm of [0.24, 0.53, 0.79]) {
+    const left = projectPoint(geometry, 0, yNorm)
+    const right = projectPoint(geometry, 1, yNorm)
     ctx.beginPath()
-    ctx.arc(point.x, ledY, ledRadius * 3.8, 0, Math.PI * 2)
-    ctx.fill()
-  }
-}
-
-function drawZonePulses(ctx, geometry, pulseList) {
-  if (!Array.isArray(pulseList)) {
-    return
-  }
-  for (const pulse of pulseList) {
-    if (!isRecord(pulse) || typeof pulse.zone !== 'string') {
-      continue
-    }
-    const zone = OFFICE_ZONES[pulse.zone]
-    if (!zone) {
-      continue
-    }
-    const intensity = clamp(Number(pulse.intensity), 0, 1)
-    if (intensity < 0.01) {
-      continue
-    }
-    const point = projectPoint(geometry, zone.x, zone.y)
-    const radius = 32 * point.scale + 56 * intensity
-    const color = typeof pulse.color === 'string' ? pulse.color : '#6ca8ff'
-    const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius)
-    gradient.addColorStop(0, rgbaFromHex(color, 0.36 * intensity))
-    gradient.addColorStop(1, rgbaFromHex(color, 0))
-    ctx.fillStyle = gradient
-    ctx.beginPath()
-    ctx.arc(point.x, point.y, radius, 0, Math.PI * 2)
-    ctx.fill()
-  }
-}
-
-function drawAvatars(ctx, geometry, avatars) {
-  if (!isRecord(avatars)) {
-    return []
-  }
-  const drawn = []
-  for (const [avatarId, position] of Object.entries(avatars)) {
-    if (!isRecord(position)) {
-      continue
-    }
-    const xNorm = Number(position.x)
-    const yNorm = Number(position.y)
-    if (!Number.isFinite(xNorm) || !Number.isFinite(yNorm)) {
-      continue
-    }
-    const point = projectPoint(geometry, xNorm, yNorm)
-    const radius = 5.5 * point.scale + 2.8
-    const color = AVATAR_COLORS[avatarId] ?? '#9cb0cb'
-
-    ctx.beginPath()
-    ctx.arc(point.x, point.y, radius * 2.2, 0, Math.PI * 2)
-    ctx.fillStyle = rgbaFromHex(color, 0.1)
-    ctx.fill()
-
-    ctx.beginPath()
-    ctx.arc(point.x, point.y, radius, 0, Math.PI * 2)
-    ctx.fillStyle = rgbaFromHex(color, 0.9)
-    ctx.fill()
+    ctx.moveTo(left.x, left.y)
+    ctx.lineTo(right.x, right.y)
+    ctx.strokeStyle = rgba('#9daeb0', 0.11)
     ctx.lineWidth = 1
-    ctx.strokeStyle = rgbaFromHex('#f6fbff', 0.52)
     ctx.stroke()
-
-    const label = avatarId.slice(0, 3).toUpperCase()
-    ctx.font = `${Math.max(10, radius * 1.25)}px "Space Grotesk", "Segoe UI", sans-serif`
-    ctx.fillStyle = rgbaFromHex('#d8e8ff', 0.8)
-    ctx.fillText(label, point.x + radius + 3, point.y + radius * 0.32)
-    drawn.push(avatarId)
   }
-  return drawn
+  for (const xNorm of [0.32, 0.66]) {
+    const top = projectPoint(geometry, xNorm, 0)
+    const bottom = projectPoint(geometry, xNorm, 1)
+    ctx.beginPath()
+    ctx.moveTo(top.x, top.y)
+    ctx.lineTo(bottom.x, bottom.y)
+    ctx.strokeStyle = rgba('#9daeb0', 0.09)
+    ctx.stroke()
+  }
+}
+
+function zoneLabel(ctx, geometry, zoneName, width, height) {
+  const zone = OFFICE_ZONES[zoneName]
+  const p = projectPoint(geometry, zone.x, zone.y)
+  const compact = width < 650
+  const short = {
+    supervisorDesk: 'SUPERVISION', commandDesk: 'COMMAND', reconDesk: 'REVIEW',
+    forgeDesk: 'ARCHIVE', boardroom: 'QA', dispatchZone: 'HANDOFF',
+  }
+  const label = compact ? short[zoneName] : zone.label
+  ctx.font = `700 ${compact ? 9 : 11}px "Bahnschrift", "Trebuchet MS", sans-serif`
+  const textWidth = ctx.measureText(label).width
+  const x = clamp(p.x - textWidth / 2, 8, width - textWidth - 8)
+  const y = p.y + Math.max(38, height * 0.075) * p.scale
+  ctx.fillStyle = rgba(C.ivory, 0.76)
+  ctx.fillText(label, x, y)
+  return { zone: zoneName, label, bounds: { x, y: y - 12, width: textWidth, height: 15 } }
+}
+
+function drawDesk(ctx, geometry, zoneName, width, height, tone) {
+  const zone = OFFICE_ZONES[zoneName]
+  const p = projectPoint(geometry, zone.x, zone.y)
+  const deskWidth = Math.max(54, Math.min(116, width * 0.105)) * p.scale
+  const deskHeight = Math.max(23, Math.min(42, height * 0.07)) * p.scale
+  const x = p.x - deskWidth / 2
+  const y = p.y - deskHeight / 2
+  panel(ctx, x + 3, y + 8, deskWidth, deskHeight, rgba('#080e14', 0.32), null, 8)
+  panel(ctx, x, y, deskWidth, deskHeight, '#52616a', rgba('#b3bfc0', 0.45), 7)
+  panel(ctx, x + 5, y + 4, deskWidth - 10, deskHeight - 8, '#67757b', null, 5)
+  const screenWidth = deskWidth * 0.35
+  panel(ctx, p.x - screenWidth / 2, y - 16 * p.scale, screenWidth, 16 * p.scale,
+    '#172732', rgba(tone, 0.8), 3)
+  ctx.fillStyle = rgba(tone, 0.24)
+  ctx.fillRect(p.x - screenWidth / 2 + 3, y - 13 * p.scale, screenWidth - 6, 9 * p.scale)
+  panel(ctx, x + deskWidth * 0.12, y + deskHeight * 0.34, deskWidth * 0.26,
+    deskHeight * 0.4, '#e1d8c4', null, 2)
+  ctx.beginPath()
+  ctx.ellipse(p.x, y + deskHeight + 12 * p.scale, deskWidth * 0.2, 7 * p.scale, 0, 0, Math.PI * 2)
+  ctx.fillStyle = '#394a50'
+  ctx.fill()
+}
+
+function drawValidationTable(ctx, geometry, width) {
+  const p = projectPoint(geometry, OFFICE_ZONES.boardroom.x, OFFICE_ZONES.boardroom.y)
+  const w = Math.max(68, Math.min(158, width * 0.14)) * p.scale
+  panel(ctx, p.x - w / 2 + 3, p.y - 18, w, 43, rgba('#081117', 0.34), null, 12)
+  panel(ctx, p.x - w / 2, p.y - 22, w, 43, '#596965', rgba(C.brass, 0.58), 10)
+  panel(ctx, p.x - w * 0.29, p.y - 16, w * 0.31, 25, '#ede6d8', null, 3)
+  ctx.fillStyle = '#637471'
+  ctx.fillRect(p.x - w * 0.24, p.y - 8, w * 0.19, 2)
+  ctx.fillRect(p.x - w * 0.24, p.y - 3, w * 0.15, 2)
+  ctx.beginPath()
+  ctx.arc(p.x + w * 0.24, p.y, 10 * p.scale, 0, Math.PI * 2)
+  ctx.strokeStyle = C.brass
+  ctx.lineWidth = 2
+  ctx.stroke()
+}
+
+function drawDispatchDock(ctx, geometry, width) {
+  const p = projectPoint(geometry, OFFICE_ZONES.dispatchZone.x, OFFICE_ZONES.dispatchZone.y)
+  const w = Math.max(100, Math.min(220, width * 0.21)) * p.scale
+  panel(ctx, p.x - w / 2, p.y - 16, w, 35 * p.scale, rgba('#25373a', 0.96), rgba(C.brass, 0.44), 8)
+  const slotWidth = w * 0.33
+  panel(ctx, p.x - w * 0.43, p.y - 9, slotWidth, 20 * p.scale, '#56615f', rgba(C.brass, 0.5), 3)
+  panel(ctx, p.x + w * 0.09, p.y - 9, slotWidth, 20 * p.scale, '#56615f', rgba(C.teal, 0.5), 3)
+  ctx.font = '700 9px "Bahnschrift", "Trebuchet MS", sans-serif'
+  ctx.fillStyle = C.ivory
+  ctx.fillText('HOLD', p.x - w * 0.41, p.y + 5)
+  ctx.fillText('SEND', p.x + w * 0.11, p.y + 5)
+}
+
+function drawIncidentBoard(ctx, geometry) {
+  const p = projectPoint(geometry, OFFICE_ZONES.reconDesk.x, OFFICE_ZONES.reconDesk.y)
+  panel(ctx, p.x - 27 * p.scale, p.y - 29 * p.scale, 54 * p.scale, 45 * p.scale,
+    '#695c4c', rgba(C.incident, 0.6), 4)
+  panel(ctx, p.x - 20 * p.scale, p.y - 23 * p.scale, 40 * p.scale, 33 * p.scale,
+    '#e3d8c1', null, 2)
+  ctx.font = `700 ${14 * p.scale}px Georgia, serif`
+  ctx.fillStyle = '#7c5641'
+  ctx.fillText('?', p.x - 5 * p.scale, p.y + 2 * p.scale)
+}
+
+function drawArchive(ctx, geometry) {
+  const p = projectPoint(geometry, OFFICE_ZONES.forgeDesk.x, OFFICE_ZONES.forgeDesk.y)
+  panel(ctx, p.x - 31 * p.scale, p.y - 26 * p.scale, 62 * p.scale, 42 * p.scale,
+    '#4b5c55', rgba('#b6d3bf', 0.55), 5)
+  for (let index = 0; index < 3; index += 1) {
+    panel(ctx, p.x - 23 * p.scale + index * 15 * p.scale, p.y - 17 * p.scale,
+      12 * p.scale, 22 * p.scale, ['#b9cfc0', '#d6d7bc', '#98b6a8'][index], null, 2)
+  }
+}
+
+function drawRoomObjects(ctx, geometry, width, height) {
+  drawDesk(ctx, geometry, 'commandDesk', width, height, C.teal)
+  drawDesk(ctx, geometry, 'supervisorDesk', width, height, C.brass)
+  drawDispatchDock(ctx, geometry, width)
+  drawValidationTable(ctx, geometry, width)
+  drawIncidentBoard(ctx, geometry)
+  drawArchive(ctx, geometry)
+  return ['commandDesk', 'supervisorDesk', 'dispatchZone', 'boardroom', 'reconDesk', 'forgeDesk']
+    .map((zone) => zoneLabel(ctx, geometry, zone, width, height))
+}
+
+function drawTravel(ctx, geometry, travel) {
+  if (!isRecord(travel) || !isRecord(travel.from) || !isRecord(travel.target)) return null
+  const start = projectPoint(geometry, travel.from.x, travel.from.y)
+  const end = projectPoint(geometry, travel.target.x, travel.target.y)
+  ctx.beginPath()
+  ctx.moveTo(start.x, start.y)
+  ctx.lineTo(end.x, end.y)
+  ctx.strokeStyle = rgba(C.ivory, 0.6)
+  ctx.lineWidth = 2
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.arc(end.x, end.y, 8, 0, Math.PI * 2)
+  ctx.strokeStyle = C.brass
+  ctx.stroke()
+  return { from: start, target: end, progress: travel.progress,
+    fromZone: travel.fromZone, toZone: travel.toZone }
+}
+
+function drawAvatars(ctx, geometry, avatars, workers, width) {
+  if (!isRecord(avatars)) return { ids: [], labels: [] }
+  const ids = []
+  const labels = []
+  for (const worker of workers) {
+    const position = avatars[worker.id]
+    if (!isRecord(position) || !Number.isFinite(position.x) || !Number.isFinite(position.y)) continue
+    const p = projectPoint(geometry, position.x, position.y)
+    const size = 11 * p.scale
+    ctx.beginPath()
+    ctx.arc(p.x, p.y - size * 0.45, size * 0.53, 0, Math.PI * 2)
+    ctx.fillStyle = C.ivory
+    ctx.fill()
+    panel(ctx, p.x - size * 0.8, p.y + size * 0.08, size * 1.6, size * 1.15,
+      '#688b88', rgba(C.teal, 0.7), 5)
+    const name = worker.id
+    ctx.font = `700 ${width < 650 ? 10 : 12}px "Bahnschrift", "Trebuchet MS", sans-serif`
+    const labelWidth = Math.min(150, ctx.measureText(name).width + 18)
+    const x = clamp(p.x + size * 1.25, 7, width - labelWidth - 7)
+    const y = p.y - 12
+    panel(ctx, x, y, labelWidth, 25, '#172631', rgba(C.teal, 0.65), 5)
+    ctx.fillStyle = C.ivory
+    ctx.fillText(name, x + 9, y + 16)
+    ids.push(worker.id)
+    labels.push({ id: worker.id, text: name, bounds: { x, y, width: labelWidth, height: 25 } })
+  }
+  return { ids, labels }
 }
 
 function hudBounds(width, height) {
-  return {
-    x: width * 0.025,
-    y: height * 0.03,
-    width: Math.min(width * 0.95, Math.max(280, width * 0.36)),
-    height: Math.max(120, height * 0.2),
-  }
+  return { x: width < 650 ? 13 : 22, y: height < 400 ? 10 : 16,
+    width: Math.min(width - 26, width < 650 ? width * 0.94 : 422),
+    height: height < 400 ? 94 : 105 }
 }
 
 function overlaps(a, b) {
@@ -337,300 +301,180 @@ function overlaps(a, b) {
     a.y < b.y + b.height && a.y + a.height > b.y
 }
 
-export function layoutWorkflowMarker(ctx, width, height, projection) {
-  if (!projection?.live || !projection.taskId) return null
-  const zone = OFFICE_ZONES[projection.zone]
-  if (!zone) return null
-  const geometry = roomGeometry(width, height)
-  const point = projectPoint(geometry, zone.x, zone.y)
+export function layoutWorkflowMarker(ctx, width, height, projection, position = null) {
+  if (!projection?.live || !projection.taskId || !projection.workItem) return null
+  const geometry = geometryFor(width, height)
+  const item = position ?? projection.workItem
+  const point = projectPoint(geometry, item.x, item.y)
   const label = projection.state
-  ctx.font = '700 11px "Space Grotesk", "Segoe UI", sans-serif'
-  const labelWidth = Math.min(width - 16, Math.max(95, Math.ceil(ctx.measureText(label).width + 22)))
-  const labelHeight = 22
+  ctx.font = `700 ${width < 650 ? 10 : 12}px "Bahnschrift", "Trebuchet MS", sans-serif`
+  const textWidth = ctx.measureText(label).width
+  const labelWidth = Math.min(width - 16, Math.max(92, Math.ceil(textWidth + 24)))
+  const labelHeight = 26
   let labelBounds = {
     x: clamp(point.x - labelWidth / 2, 8, width - labelWidth - 8),
-    y: point.y - 42 * point.scale - 16,
-    width: labelWidth,
-    height: labelHeight,
+    y: point.y - 57 * point.scale,
+    width: labelWidth, height: labelHeight,
   }
-  if (overlaps(labelBounds, hudBounds(width, height))) {
-    labelBounds = { ...labelBounds, y: point.y + 24 * point.scale }
+  if (overlaps(labelBounds, hudBounds(width, height)) || labelBounds.y < 8) {
+    labelBounds = { ...labelBounds, y: point.y + 25 * point.scale }
   }
   return {
-    zone: projection.zone,
-    state: projection.state,
-    label,
-    labelBounds,
-    textWidth: ctx.measureText(label).width,
-    markerBounds: {
-      x: point.x - 19 * point.scale,
-      y: point.y - 19 * point.scale,
-      width: 38 * point.scale,
-      height: 38 * point.scale,
-    },
+    zone: projection.zone, state: projection.state, label,
+    labelBounds, textWidth,
+    markerBounds: { x: point.x - 17 * point.scale, y: point.y - 17 * point.scale,
+      width: 34 * point.scale, height: 34 * point.scale },
   }
 }
 
-function drawWorkflowMarker(ctx, width, height, projection) {
-  const layout = layoutWorkflowMarker(ctx, width, height, projection)
+function drawWorkflowMarker(ctx, width, height, projection, position) {
+  const layout = layoutWorkflowMarker(ctx, width, height, projection, position)
   if (!layout) return null
-  const palette = {
-    'ACTIVE / EXECUTING': '#75c5ff',
-    'VALIDATION IN PROGRESS': '#eacb77',
-    VALIDATION_FAILED: '#ff7384',
-    NEEDS_RECONCILIATION: '#ffad69',
-    COMPLETE: '#73d5a2',
-    WAITING_FOR_CAPABILITY: '#eacb77',
-  }
-  const color = palette[projection.state] ?? '#b2bfd4'
   const marker = layout.markerBounds
-  const label = layout.labelBounds
-  ctx.beginPath()
-  ctx.arc(marker.x + marker.width / 2, marker.y + marker.height / 2, marker.width / 2, 0, Math.PI * 2)
-  ctx.strokeStyle = rgbaFromHex(color, 0.85)
-  ctx.lineWidth = 2
-  ctx.stroke()
-  drawRoundedRect(ctx, label.x, label.y, label.width, label.height, 5)
-  ctx.fillStyle = rgbaFromHex('#101a26', 0.93)
-  ctx.fill()
-  ctx.strokeStyle = rgbaFromHex(color, 0.78)
-  ctx.lineWidth = 1
-  ctx.stroke()
-  ctx.font = '700 11px "Space Grotesk", "Segoe UI", sans-serif'
-  ctx.fillStyle = rgbaFromHex(color, 1)
+  const color = STATE_COLOR[projection.state] ?? C.muted
+  const x = marker.x
+  const y = marker.y
+  panel(ctx, x + 3, y + 4, marker.width, marker.height, rgba('#08131a', 0.35), null, 5)
+  panel(ctx, x, y, marker.width, marker.height, '#eee5d2', rgba(color, 0.9), 5)
+  // The glyph supplies a second, non-color cue for each stage.
+  const glyph = projection.state === 'COMPLETE' ? '✓'
+    : projection.state === 'WAITING_FOR_CAPABILITY' ? 'Ⅱ'
+      : ['NEEDS_RECONCILIATION', 'VALIDATION_FAILED', 'VALIDATION_ERROR',
+        'EXECUTION_FAILED', 'HANDOFF_FAILED'].includes(projection.state) ? '!'
+        : ['HANDOFF_DISPATCHED', 'EXTERNAL_PICKUP_ACKNOWLEDGED', 'EXTERNAL_RUNNING'].includes(projection.state) ? '↗'
+          : ['VALIDATION_PENDING', 'VALIDATION IN PROGRESS', 'RESULT_RETURNED'].includes(projection.state) ? '≡' : '•'
+  ctx.font = `700 ${Math.max(15, marker.height * 0.64)}px Georgia, serif`
+  ctx.fillStyle = '#263942'
   ctx.textAlign = 'center'
-  ctx.fillText(layout.label, label.x + label.width / 2, label.y + 15)
+  ctx.fillText(glyph, x + marker.width / 2, y + marker.height * 0.73)
   ctx.textAlign = 'start'
-  return layout
+
+  const label = layout.labelBounds
+  panel(ctx, label.x, label.y, label.width, label.height, '#15232e', rgba(color, 0.9), 6)
+  ctx.font = `700 ${width < 650 ? 10 : 12}px "Bahnschrift", "Trebuchet MS", sans-serif`
+  ctx.fillStyle = C.ivory
+  ctx.textAlign = 'center'
+  ctx.fillText(layout.label, label.x + label.width / 2, label.y + 18)
+  ctx.textAlign = 'start'
+  return { ...layout, glyph }
 }
 
-function drawHud(ctx, width, height, data) {
-  const { x, y, width: panelWidth, height: panelHeight } = hudBounds(width, height)
-
-  drawRoundedRect(ctx, x, y, panelWidth, panelHeight, 8)
-  ctx.fillStyle = rgbaFromHex('#0d151f', 0.72)
-  ctx.fill()
-  ctx.strokeStyle = rgbaFromHex('#5d7898', 0.45)
-  ctx.lineWidth = 1.2
-  ctx.stroke()
-
-  ctx.font = '12px "Space Grotesk", "Segoe UI", sans-serif'
-  ctx.fillStyle = rgbaFromHex('#cfe2ff', 0.88)
-  ctx.fillText('CAM-04 / OFFICE FLOOR', x + 10, y + 18)
-
-  ctx.fillStyle = rgbaFromHex('#9fb5d6', 0.88)
-  ctx.fillText(`timestamp: ${data.timestamp}`, x + 10, y + 36)
-  ctx.fillText(`telemetry queue: ${data.queueSize} | event: ${data.eventType}`, x + 10, y + 53)
-  ctx.fillText(`telemetry stream: ${data.connectionState}`, x + 10, y + 70)
-  ctx.fillText(`ATS office: ${data.officeStatus}`, x + 10, y + 87)
-  if (data.workerId || data.taskId) {
-    ctx.fillText(`worker: ${data.workerId ?? 'none'} | task: ${data.taskId ?? 'n/a'}`, x + 10, y + 104)
+function drawHud(ctx, width, height, projection) {
+  const bounds = hudBounds(width, height)
+  panel(ctx, bounds.x, bounds.y, bounds.width, bounds.height, rgba(C.ink, 0.95), rgba(C.edge, 0.85), 9)
+  ctx.fillStyle = C.brass
+  ctx.fillRect(bounds.x, bounds.y, 5, bounds.height)
+  ctx.font = '700 10px "Bahnschrift", "Trebuchet MS", sans-serif'
+  ctx.fillStyle = C.muted
+  ctx.fillText('APPSHAK   /   ATS OFFICE', bounds.x + 18, bounds.y + 19)
+  ctx.font = '700 10px "Bahnschrift", "Trebuchet MS", sans-serif'
+  const mode = projection.live ? 'LIVE • READ ONLY' : 'NOT LIVE • READ ONLY'
+  const modeWidth = ctx.measureText(mode).width
+  if (modeWidth + 32 < bounds.width) {
+    ctx.fillStyle = projection.live ? C.teal : C.coral
+    ctx.fillText(mode, bounds.x + bounds.width - modeWidth - 12, bounds.y + 19)
   }
-  return {
-    bounds: { x, y, width: panelWidth, height: panelHeight },
-    statusLabel: data.officeStatus,
-    statusTextWidth: ctx.measureText(`ATS office: ${data.officeStatus}`).width,
-    workerId: data.workerId,
-    taskId: data.taskId,
-  }
+  const status = projection.state ?? 'UNKNOWN_STATE'
+  ctx.font = `700 ${width < 650 ? 12 : 15}px "Bahnschrift", "Trebuchet MS", sans-serif`
+  const statusWidth = ctx.measureText(status).width
+  ctx.fillStyle = C.ivory
+  ctx.fillText(status, bounds.x + 18, bounds.y + 48)
+  ctx.font = '11px "Bahnschrift", "Trebuchet MS", sans-serif'
+  ctx.fillStyle = C.muted
+  const taskText = projection.taskId ? `TASK  ${projection.taskId}` : 'NO CURRENT TASK'
+  const taskMax = bounds.width - 32
+  const visibleTask = ctx.measureText(taskText).width > taskMax
+    ? `${taskText.slice(0, Math.max(10, Math.floor(taskMax / 7) - 3))}…` : taskText
+  ctx.fillText(visibleTask, bounds.x + 18, bounds.y + 70)
+  const workerText = projection.worker ? `WORKER  ${projection.worker.id}`
+    : projection.handoffTarget ? `TARGET  ${projection.handoffTarget}` : 'WORKER  NONE CONFIRMED HERE'
+  const visibleWorker = ctx.measureText(workerText).width > taskMax
+    ? `${workerText.slice(0, Math.max(10, Math.floor(taskMax / 7) - 3))}…` : workerText
+  ctx.fillText(visibleWorker, bounds.x + 18, bounds.y + 88)
+  return { bounds, statusLabel: status, statusTextWidth: statusWidth,
+    workerId: projection.worker?.id ?? null, taskId: projection.taskId ?? null }
 }
 
-function drawScanlines(ctx, width, height) {
-  ctx.strokeStyle = 'rgba(156, 184, 218, 0.06)'
-  ctx.lineWidth = 1
-  for (let y = 0; y < height; y += 4) {
-    ctx.beginPath()
-    ctx.moveTo(0, y + 0.5)
-    ctx.lineTo(width, y + 0.5)
-    ctx.stroke()
-  }
-}
-
-function drawVignette(ctx, width, height) {
-  const gradient = ctx.createRadialGradient(
-    width * 0.5,
-    height * 0.5,
-    Math.min(width, height) * 0.2,
-    width * 0.5,
-    height * 0.5,
-    Math.max(width, height) * 0.75,
-  )
-  gradient.addColorStop(0, 'rgba(0, 0, 0, 0)')
-  gradient.addColorStop(1, 'rgba(0, 0, 0, 0.52)')
-  ctx.fillStyle = gradient
+function drawStatusOverlay(ctx, width, height, text) {
+  ctx.fillStyle = rgba('#0b151e', 0.88)
   ctx.fillRect(0, 0, width, height)
-}
-
-function drawStatusOverlay(ctx, width, height, text, tone) {
-  ctx.fillStyle = tone === 'alert' ? 'rgba(51, 6, 10, 0.72)' : 'rgba(6, 10, 18, 0.58)'
-  ctx.fillRect(0, 0, width, height)
-  let fontSize = Math.max(28, width * 0.05)
-  ctx.font = `700 ${fontSize}px "Space Grotesk", "Segoe UI", sans-serif`
-  while (ctx.measureText(text).width > width * 0.9 && fontSize > 14) {
+  let fontSize = Math.max(23, Math.min(42, width * 0.048))
+  ctx.font = `700 ${fontSize}px "Bahnschrift", "Trebuchet MS", sans-serif`
+  while (ctx.measureText(text).width > width * 0.9 && fontSize > 15) {
     fontSize -= 1
-    ctx.font = `700 ${fontSize}px "Space Grotesk", "Segoe UI", sans-serif`
+    ctx.font = `700 ${fontSize}px "Bahnschrift", "Trebuchet MS", sans-serif`
   }
-  ctx.fillStyle = tone === 'alert' ? rgbaFromHex('#ff7f8a', 0.95) : rgbaFromHex('#d8e6ff', 0.9)
   const textWidth = ctx.measureText(text).width
-  const baseline = height * 0.54
-  ctx.fillText(text, width * 0.5 - textWidth * 0.5, baseline)
-  return {
-    text,
-    textBounds: { x: width * 0.5 - textWidth * 0.5, y: baseline - fontSize, width: textWidth, height: fontSize },
-  }
-}
-
-function safeTimestamp(value) {
-  if (typeof value === 'string' && value.trim().length > 0) {
-    return value
-  }
-  return 'unknown'
+  const baseline = height * 0.53
+  ctx.fillStyle = C.ivory
+  ctx.fillText(text, (width - textWidth) / 2, baseline)
+  ctx.font = '700 12px "Bahnschrift", "Trebuchet MS", sans-serif'
+  const note = 'LAST KNOWN STATE • LIVE MOVEMENT PAUSED'
+  const noteWidth = ctx.measureText(note).width
+  ctx.fillStyle = C.coral
+  ctx.fillText(note, (width - noteWidth) / 2, baseline + 29)
+  return { text, textBounds: { x: (width - textWidth) / 2, y: baseline - fontSize,
+    width: textWidth, height: fontSize } }
 }
 
 export function drawOfficeScene(ctx, width, height, frame) {
-  const animationState = isRecord(frame?.animationState) ? frame.animationState : {}
-  const view = isRecord(frame?.view) ? frame.view : {}
+  const animation = isRecord(frame?.animationState) ? frame.animationState : {}
+  const projection = isRecord(animation.officeProjection) ? animation.officeProjection : {}
   const officeModel = isRecord(frame?.officeModel) ? frame.officeModel : {}
-  const officeProjection = isRecord(animationState.officeProjection) ? animationState.officeProjection : {}
-  const officeCurrent = officeModel.freshness === 'LIVE / CURRENT'
+  const current = officeModel.freshness === 'LIVE / CURRENT' && projection.live
+  const geometry = geometryFor(width, height)
 
-  const lightLevel = clamp(Number(animationState.lightLevel) || 0.4, 0.2, 0.92)
-  const stressLevel = clamp(Number(animationState.stressLevel) || 0, 0, 1)
-  const queueSize = Number.isFinite(Number(view.event_queue_size))
-    ? Number(view.event_queue_size)
-    : Number(animationState.queueSize) || 0
-  const eventType =
-    typeof view?.current_event?.type === 'string' && view.current_event.type.length > 0
-      ? view.current_event.type
-      : animationState.currentEventType ?? 'none'
+  drawRoom(ctx, width, height, geometry)
+  const zones = drawRoomObjects(ctx, geometry, width, height)
+  const travel = current ? drawTravel(ctx, geometry, animation.travel) : null
+  const avatars = current ? drawAvatars(ctx, geometry, animation.avatars, projection.workers ?? [], width)
+    : { ids: [], labels: [] }
+  const marker = current ? drawWorkflowMarker(ctx, width, height, projection, animation.workItemPosition) : null
+  const hud = drawHud(ctx, width, height, projection)
+  const overlay = current ? null
+    : drawStatusOverlay(ctx, width, height, officeModel.availability ?? 'UNKNOWN_STATE')
 
-  drawBackdrop(ctx, width, height, lightLevel, stressLevel)
-
-  const geometry = roomGeometry(width, height)
-  drawRoomShell(ctx, geometry, lightLevel)
-  drawFloorGrid(ctx, geometry, lightLevel)
-
-  drawBoardroomTable(ctx, geometry, width, height, lightLevel)
-  for (const desk of DESK_DEFINITIONS) {
-    drawDesk(ctx, geometry, width, height, desk.zone, desk.monitorColor, lightLevel)
-  }
-  drawWaterCooler(ctx, geometry, width, height)
-
-  const pulseList = officeCurrent && Array.isArray(animationState.pulses) ? animationState.pulses : []
-  drawZonePulses(ctx, geometry, pulseList)
-
-  let securityPulseIntensity = 0
-  let securityPulseColor = '#56cf88'
-  for (const pulse of pulseList) {
-    if (isRecord(pulse) && pulse.zone === 'securityCheckpoint') {
-      securityPulseIntensity = Math.max(securityPulseIntensity, clamp(Number(pulse.intensity), 0, 1))
-      if (typeof pulse.color === 'string') {
-        securityPulseColor = pulse.color
-      }
-    }
-  }
-  drawSecurityCheckpoint(ctx, geometry, width, height, securityPulseIntensity, securityPulseColor)
-  const drawnAvatars = drawAvatars(ctx, geometry, animationState.avatars)
-  const marker = drawWorkflowMarker(ctx, width, height, officeProjection)
-
-  const ambientPulse = clamp(Number(animationState.ambientPulse) || 0, 0, 1)
-  if (officeCurrent && ambientPulse > 0.01) {
-    const pulse = ctx.createRadialGradient(
-      width * 0.5,
-      height * 0.5,
-      0,
-      width * 0.5,
-      height * 0.5,
-      width * 0.45,
-    )
-    pulse.addColorStop(0, rgbaFromHex('#7ea9df', 0.08 * ambientPulse))
-    pulse.addColorStop(1, 'rgba(0, 0, 0, 0)')
-    ctx.fillStyle = pulse
-    ctx.fillRect(0, 0, width, height)
-  }
-
-  const timestamp = safeTimestamp(view.last_updated_at ?? view.timestamp ?? frame?.lastUpdated)
-  const hud = drawHud(ctx, width, height, {
-    timestamp,
-    queueSize,
-    eventType,
-    connectionState: frame?.connectionState ?? 'unknown',
-    officeStatus: officeProjection.state ?? officeModel.scene_status ?? 'UNKNOWN_STATE',
-    workerId: officeProjection.worker?.id ?? null,
-    taskId: officeProjection.taskId ?? null,
-  })
-
-  drawScanlines(ctx, width, height)
-  drawVignette(ctx, width, height)
-
-  const overlay = !officeCurrent
-    ? drawStatusOverlay(ctx, width, height, officeModel.availability ?? 'UNKNOWN_STATE', 'alert')
-    : null
   return {
     viewport: { width, height },
-    status: officeProjection.state ?? officeModel.scene_status ?? 'UNKNOWN_STATE',
-    marker,
-    hud,
-    overlay,
-    drawnAvatars,
+    status: projection.state ?? officeModel.scene_status ?? 'UNKNOWN_STATE',
+    marker, hud, overlay,
+    drawnAvatars: avatars.ids,
+    workerLabels: avatars.labels,
+    zones, travel,
+    workItem: current ? animation.workItemPosition ?? projection.workItem : null,
   }
 }
 
 export function createOfficeSceneRenderer(canvas) {
   const context = canvas.getContext('2d', { alpha: false })
-  if (!context) {
-    return {
-      render: () => {},
-      resize: () => {},
-      destroy: () => {},
-    }
-  }
-
-  const viewport = {
-    width: 0,
-    height: 0,
-    dpr: 1,
-  }
+  if (!context) return { render: () => {}, resize: () => {}, destroy: () => {} }
+  const viewport = { width: 0, height: 0, dpr: 1 }
   let disposed = false
 
   const ensureCanvasSize = () => {
-    if (disposed) {
-      return
-    }
+    if (disposed) return
     const rect = canvas.getBoundingClientRect()
     const width = Math.max(1, Math.floor(rect.width))
     const height = Math.max(1, Math.floor(rect.height))
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
-
     const desiredWidth = Math.max(1, Math.floor(width * dpr))
     const desiredHeight = Math.max(1, Math.floor(height * dpr))
     if (canvas.width !== desiredWidth || canvas.height !== desiredHeight) {
       canvas.width = desiredWidth
       canvas.height = desiredHeight
     }
-
     viewport.width = width
     viewport.height = height
     viewport.dpr = dpr
   }
 
-  const render = (frame) => {
-    ensureCanvasSize()
-    context.setTransform(viewport.dpr, 0, 0, viewport.dpr, 0, 0)
-    return drawOfficeScene(context, viewport.width, viewport.height, frame)
-  }
-
-  const resize = () => {
-    ensureCanvasSize()
-  }
-
-  const destroy = () => {
-    disposed = true
-  }
-
   return {
-    render,
-    resize,
-    destroy,
+    render(frame) {
+      ensureCanvasSize()
+      context.setTransform(viewport.dpr, 0, 0, viewport.dpr, 0, 0)
+      return drawOfficeScene(context, viewport.width, viewport.height, frame)
+    },
+    resize: ensureCanvasSize,
+    destroy() { disposed = true },
   }
 }

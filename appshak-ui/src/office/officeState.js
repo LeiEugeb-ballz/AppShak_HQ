@@ -111,6 +111,7 @@ function mapBaton(row) {
   if (!row) return null
   return {
     baton_id: stringOrNull(row.baton_id),
+    task_id: stringOrNull(row.task_id),
     source_baton_id: stringOrNull(row.source_baton_id),
     status: stringOrNull(row.status),
     verification_status: stringOrNull(row.verification_status),
@@ -131,6 +132,17 @@ function mapBaton(row) {
     dispatch_created_at: stringOrNull(row.dispatch_created_at),
     dispatch_updated_at: stringOrNull(row.dispatch_updated_at),
     target_id: stringOrNull(row.target_id),
+    handoff_task_id: stringOrNull(row.handoff_task_id),
+    handoff_attempt_id: stringOrNull(row.handoff_attempt_id),
+    payload_reference: stringOrNull(row.payload_reference),
+    result_reference: stringOrNull(row.result_reference),
+    pickup_owner_id: stringOrNull(row.pickup_owner_id),
+    pickup_generation: numberOrNull(row.pickup_generation),
+    dispatched_at: stringOrNull(row.dispatched_at),
+    acknowledged_at: stringOrNull(row.acknowledged_at),
+    result_at: stringOrNull(row.result_at),
+    result_sha256: stringOrNull(row.result_sha256),
+    result_size_bytes: numberOrNull(row.result_size_bytes),
   }
 }
 
@@ -163,7 +175,8 @@ function mapTask(row, batons) {
   const validation = lastRow(validations)
   const artifact = artifacts.find((item) => item.artifact_id === validation?.artifact_id)
     ?? lastRow(artifacts)
-  const baton = mapBaton(batons.find((item) => item.task_id === taskId) ?? null)
+  const baton = mapBaton(batons.find((item) => item.task_id === taskId || item.handoff_task_id === taskId) ?? null)
+  const handoffRole = baton?.handoff_task_id === taskId ? 'DESTINATION' : baton?.task_id === taskId ? 'SOURCE' : null
   const validationState = validation?.status ?? null
   const artifactId = artifact?.artifact_id ?? null
   const artifactSha256 = artifact?.sha256 ?? null
@@ -229,6 +242,7 @@ function mapTask(row, batons) {
     validation_reason: validation?.evidence_reason ?? null,
     validated_sha256: validatedSha256,
     baton,
+    handoff_role: handoffRole,
     baton_id: baton?.baton_id ?? null,
     baton_status: baton?.status ?? null,
     baton_verification_state: baton?.verification_status ?? null,
