@@ -285,8 +285,9 @@ function drawZonePulses(ctx, geometry, pulseList) {
 
 function drawAvatars(ctx, geometry, avatars) {
   if (!isRecord(avatars)) {
-    return
+    return []
   }
+  const drawn = []
   for (const [avatarId, position] of Object.entries(avatars)) {
     if (!isRecord(position)) {
       continue
@@ -317,13 +318,62 @@ function drawAvatars(ctx, geometry, avatars) {
     ctx.font = `${Math.max(10, radius * 1.25)}px "Space Grotesk", "Segoe UI", sans-serif`
     ctx.fillStyle = rgbaFromHex('#d8e8ff', 0.8)
     ctx.fillText(label, point.x + radius + 3, point.y + radius * 0.32)
+    drawn.push(avatarId)
+  }
+  return drawn
+}
+
+function hudBounds(width, height) {
+  return {
+    x: width * 0.025,
+    y: height * 0.03,
+    width: Math.min(width * 0.95, Math.max(280, width * 0.36)),
+    height: Math.max(120, height * 0.2),
   }
 }
 
-function drawWorkflowMarker(ctx, geometry, projection) {
-  if (!projection.live || !projection.taskId) return
+function overlaps(a, b) {
+  return a.x < b.x + b.width && a.x + a.width > b.x &&
+    a.y < b.y + b.height && a.y + a.height > b.y
+}
+
+export function layoutWorkflowMarker(ctx, width, height, projection) {
+  if (!projection?.live || !projection.taskId) return null
   const zone = OFFICE_ZONES[projection.zone]
-  if (!zone) return
+  if (!zone) return null
+  const geometry = roomGeometry(width, height)
+  const point = projectPoint(geometry, zone.x, zone.y)
+  const label = projection.state
+  ctx.font = '700 11px "Space Grotesk", "Segoe UI", sans-serif'
+  const labelWidth = Math.min(width - 16, Math.max(95, Math.ceil(ctx.measureText(label).width + 22)))
+  const labelHeight = 22
+  let labelBounds = {
+    x: clamp(point.x - labelWidth / 2, 8, width - labelWidth - 8),
+    y: point.y - 42 * point.scale - 16,
+    width: labelWidth,
+    height: labelHeight,
+  }
+  if (overlaps(labelBounds, hudBounds(width, height))) {
+    labelBounds = { ...labelBounds, y: point.y + 24 * point.scale }
+  }
+  return {
+    zone: projection.zone,
+    state: projection.state,
+    label,
+    labelBounds,
+    textWidth: ctx.measureText(label).width,
+    markerBounds: {
+      x: point.x - 19 * point.scale,
+      y: point.y - 19 * point.scale,
+      width: 38 * point.scale,
+      height: 38 * point.scale,
+    },
+  }
+}
+
+function drawWorkflowMarker(ctx, width, height, projection) {
+  const layout = layoutWorkflowMarker(ctx, width, height, projection)
+  if (!layout) return null
   const palette = {
     'ACTIVE / EXECUTING': '#75c5ff',
     'VALIDATION IN PROGRESS': '#eacb77',
@@ -333,16 +383,14 @@ function drawWorkflowMarker(ctx, geometry, projection) {
     WAITING_FOR_CAPABILITY: '#eacb77',
   }
   const color = palette[projection.state] ?? '#b2bfd4'
-  const label = projection.state
-  const point = projectPoint(geometry, zone.x, zone.y)
-  const labelWidth = Math.min(210, Math.max(95, label.length * 7.2 + 22))
-  const labelY = point.y - 42 * point.scale
+  const marker = layout.markerBounds
+  const label = layout.labelBounds
   ctx.beginPath()
-  ctx.arc(point.x, point.y, 19 * point.scale, 0, Math.PI * 2)
+  ctx.arc(marker.x + marker.width / 2, marker.y + marker.height / 2, marker.width / 2, 0, Math.PI * 2)
   ctx.strokeStyle = rgbaFromHex(color, 0.85)
   ctx.lineWidth = 2
   ctx.stroke()
-  drawRoundedRect(ctx, point.x - labelWidth / 2, labelY - 16, labelWidth, 22, 5)
+  drawRoundedRect(ctx, label.x, label.y, label.width, label.height, 5)
   ctx.fillStyle = rgbaFromHex('#101a26', 0.93)
   ctx.fill()
   ctx.strokeStyle = rgbaFromHex(color, 0.78)
@@ -351,15 +399,13 @@ function drawWorkflowMarker(ctx, geometry, projection) {
   ctx.font = '700 11px "Space Grotesk", "Segoe UI", sans-serif'
   ctx.fillStyle = rgbaFromHex(color, 1)
   ctx.textAlign = 'center'
-  ctx.fillText(label, point.x, labelY - 1)
+  ctx.fillText(layout.label, label.x + label.width / 2, label.y + 15)
   ctx.textAlign = 'start'
+  return layout
 }
 
 function drawHud(ctx, width, height, data) {
-  const x = width * 0.025
-  const y = height * 0.03
-  const panelWidth = Math.max(280, width * 0.36)
-  const panelHeight = Math.max(100, height * 0.16)
+  const { x, y, width: panelWidth, height: panelHeight } = hudBounds(width, height)
 
   drawRoundedRect(ctx, x, y, panelWidth, panelHeight, 8)
   ctx.fillStyle = rgbaFromHex('#0d151f', 0.72)
@@ -379,6 +425,13 @@ function drawHud(ctx, width, height, data) {
   ctx.fillText(`ATS office: ${data.officeStatus}`, x + 10, y + 87)
   if (data.workerId || data.taskId) {
     ctx.fillText(`worker: ${data.workerId ?? 'none'} | task: ${data.taskId ?? 'n/a'}`, x + 10, y + 104)
+  }
+  return {
+    bounds: { x, y, width: panelWidth, height: panelHeight },
+    statusLabel: data.officeStatus,
+    statusTextWidth: ctx.measureText(`ATS office: ${data.officeStatus}`).width,
+    workerId: data.workerId,
+    taskId: data.taskId,
   }
 }
 
@@ -411,10 +464,20 @@ function drawVignette(ctx, width, height) {
 function drawStatusOverlay(ctx, width, height, text, tone) {
   ctx.fillStyle = tone === 'alert' ? 'rgba(51, 6, 10, 0.72)' : 'rgba(6, 10, 18, 0.58)'
   ctx.fillRect(0, 0, width, height)
-  ctx.font = `700 ${Math.max(28, width * 0.05)}px "Space Grotesk", "Segoe UI", sans-serif`
+  let fontSize = Math.max(28, width * 0.05)
+  ctx.font = `700 ${fontSize}px "Space Grotesk", "Segoe UI", sans-serif`
+  while (ctx.measureText(text).width > width * 0.9 && fontSize > 14) {
+    fontSize -= 1
+    ctx.font = `700 ${fontSize}px "Space Grotesk", "Segoe UI", sans-serif`
+  }
   ctx.fillStyle = tone === 'alert' ? rgbaFromHex('#ff7f8a', 0.95) : rgbaFromHex('#d8e6ff', 0.9)
   const textWidth = ctx.measureText(text).width
-  ctx.fillText(text, width * 0.5 - textWidth * 0.5, height * 0.54)
+  const baseline = height * 0.54
+  ctx.fillText(text, width * 0.5 - textWidth * 0.5, baseline)
+  return {
+    text,
+    textBounds: { x: width * 0.5 - textWidth * 0.5, y: baseline - fontSize, width: textWidth, height: fontSize },
+  }
 }
 
 function safeTimestamp(value) {
@@ -467,8 +530,8 @@ export function drawOfficeScene(ctx, width, height, frame) {
     }
   }
   drawSecurityCheckpoint(ctx, geometry, width, height, securityPulseIntensity, securityPulseColor)
-  drawAvatars(ctx, geometry, animationState.avatars)
-  drawWorkflowMarker(ctx, geometry, officeProjection)
+  const drawnAvatars = drawAvatars(ctx, geometry, animationState.avatars)
+  const marker = drawWorkflowMarker(ctx, width, height, officeProjection)
 
   const ambientPulse = clamp(Number(animationState.ambientPulse) || 0, 0, 1)
   if (officeCurrent && ambientPulse > 0.01) {
@@ -487,7 +550,7 @@ export function drawOfficeScene(ctx, width, height, frame) {
   }
 
   const timestamp = safeTimestamp(view.last_updated_at ?? view.timestamp ?? frame?.lastUpdated)
-  drawHud(ctx, width, height, {
+  const hud = drawHud(ctx, width, height, {
     timestamp,
     queueSize,
     eventType,
@@ -500,8 +563,16 @@ export function drawOfficeScene(ctx, width, height, frame) {
   drawScanlines(ctx, width, height)
   drawVignette(ctx, width, height)
 
-  if (!officeCurrent) {
-    drawStatusOverlay(ctx, width, height, officeModel.availability ?? 'UNKNOWN_STATE', 'alert')
+  const overlay = !officeCurrent
+    ? drawStatusOverlay(ctx, width, height, officeModel.availability ?? 'UNKNOWN_STATE', 'alert')
+    : null
+  return {
+    viewport: { width, height },
+    status: officeProjection.state ?? officeModel.scene_status ?? 'UNKNOWN_STATE',
+    marker,
+    hud,
+    overlay,
+    drawnAvatars,
   }
 }
 
@@ -546,7 +617,7 @@ export function createOfficeSceneRenderer(canvas) {
   const render = (frame) => {
     ensureCanvasSize()
     context.setTransform(viewport.dpr, 0, 0, viewport.dpr, 0, 0)
-    drawOfficeScene(context, viewport.width, viewport.height, frame)
+    return drawOfficeScene(context, viewport.width, viewport.height, frame)
   }
 
   const resize = () => {

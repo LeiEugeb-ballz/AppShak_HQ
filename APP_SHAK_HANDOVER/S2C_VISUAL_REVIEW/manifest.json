@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "authority": "Synthetic ATS fixtures through the production read-only mapping and scene",
+  "baseline_commit": "b7f56df5cb2c9ed2572a3cceed4a3248c1d2c10b",
+  "human_accepted": false,
+  "states": [
+    {
+      "fixture": "active",
+      "ats": {"task_state": "EXECUTING", "attempt_state": "RUNNING", "validation_state": null, "dispatch_state": null, "worker_id": "command"},
+      "expected_visual_state": "ACTIVE / EXECUTING",
+      "baseline_image": "../S2B_VISUAL_BASELINES/active.png",
+      "baseline_sha256": "e3ab3e565a145915e2d3271bfbb50b6fd521723ccd7369121630c15c7225f73c",
+      "review_image": "images/active.png",
+      "expected_zone": "commandDesk",
+      "expected_status_label": "ACTIVE / EXECUTING",
+      "allowed_worker_ids": ["command"],
+      "expected_freshness": "LIVE / CURRENT",
+      "semantic_assertions": {"marker_required": true, "overlay_required": false, "forbid_complete": false, "forbid_external_pickup": true, "worker_visible": true}
+    },
+    {
+      "fixture": "validation_failed",
+      "ats": {"task_state": "VALIDATION_FAILED", "attempt_state": "SUCCEEDED", "validation_state": "FAILED", "dispatch_state": null, "worker_id": "command"},
+      "expected_visual_state": "VALIDATION_FAILED",
+      "baseline_image": "../S2B_VISUAL_BASELINES/validation_failed.png",
+      "baseline_sha256": "ba5960950f0e117924105f88c08afc01a26e80c680fb599373710e49c76e71e8",
+      "review_image": "images/validation_failed.png",
+      "expected_zone": "reconDesk",
+      "expected_status_label": "VALIDATION_FAILED",
+      "allowed_worker_ids": [],
+      "expected_freshness": "LIVE / CURRENT",
+      "semantic_assertions": {"marker_required": true, "overlay_required": false, "forbid_complete": true, "forbid_external_pickup": true, "worker_visible": false}
+    },
+    {
+      "fixture": "needs_reconciliation",
+      "ats": {"task_state": "NEEDS_RECONCILIATION", "attempt_state": "NEEDS_RECONCILIATION", "validation_state": null, "dispatch_state": null, "worker_id": "command"},
+      "expected_visual_state": "NEEDS_RECONCILIATION",
+      "baseline_image": "../S2B_VISUAL_BASELINES/needs_reconciliation.png",
+      "baseline_sha256": "84051db4d18f1d7956684f98d1e607b232d1fd4c350453b1b3ab5e1fd9464a64",
+      "review_image": "images/needs_reconciliation.png",
+      "expected_zone": "reconDesk",
+      "expected_status_label": "NEEDS_RECONCILIATION",
+      "allowed_worker_ids": [],
+      "expected_freshness": "LIVE / CURRENT",
+      "semantic_assertions": {"marker_required": true, "overlay_required": false, "forbid_complete": true, "forbid_external_pickup": true, "worker_visible": false}
+    },
+    {
+      "fixture": "complete",
+      "ats": {"task_state": "COMPLETE", "attempt_state": "SUCCEEDED", "validation_state": "PASSED", "dispatch_state": null, "worker_id": "command"},
+      "expected_visual_state": "COMPLETE",
+      "baseline_image": "../S2B_VISUAL_BASELINES/complete.png",
+      "baseline_sha256": "61ee842ef1108d9c9e35ffaffe28c85affc82cc751608672d8393dd5eb6ef1b1",
+      "review_image": "images/complete.png",
+      "expected_zone": "forgeDesk",
+      "expected_status_label": "COMPLETE",
+      "allowed_worker_ids": [],
+      "expected_freshness": "LIVE / CURRENT",
+      "semantic_assertions": {"marker_required": true, "overlay_required": false, "forbid_complete": false, "forbid_external_pickup": true, "worker_visible": false}
+    },
+    {
+      "fixture": "waiting_for_capability",
+      "ats": {"task_state": "COMPLETE", "attempt_state": "SUCCEEDED", "validation_state": "PASSED", "dispatch_state": "WAITING_FOR_CAPABILITY", "worker_id": "command"},
+      "expected_visual_state": "WAITING_FOR_CAPABILITY",
+      "baseline_image": "../S2B_VISUAL_BASELINES/waiting_for_capability.png",
+      "baseline_sha256": "6ed22c2d08ac193f50c557a65f8f88b36f3b0b0cc184b37295f8d66f1774fa77",
+      "review_image": "images/waiting_for_capability.png",
+      "expected_zone": "dispatchZone",
+      "expected_status_label": "WAITING_FOR_CAPABILITY",
+      "allowed_worker_ids": [],
+      "expected_freshness": "LIVE / CURRENT",
+      "semantic_assertions": {"marker_required": true, "overlay_required": false, "forbid_complete": false, "forbid_external_pickup": true, "worker_visible": false}
+    },
+    {
+      "fixture": "stale_unavailable",
+      "ats": {"task_state": "COMPLETE", "attempt_state": "SUCCEEDED", "validation_state": "PASSED", "dispatch_state": "WAITING_FOR_CAPABILITY", "worker_id": "command"},
+      "expected_visual_state": "BACKEND_UNAVAILABLE",
+      "baseline_image": "../S2B_VISUAL_BASELINES/stale_unavailable.png",
+      "baseline_sha256": "96f7a343c1a9cddd6dd30e84698a665ccf19395dddfefeae3de0b8181b0fce6b",
+      "review_image": "images/stale_unavailable.png",
+      "expected_zone": "securityCheckpoint",
+      "expected_status_label": "BACKEND_UNAVAILABLE",
+      "allowed_worker_ids": [],
+      "expected_freshness": "STALE",
+      "semantic_assertions": {"marker_required": false, "overlay_required": true, "forbid_complete": true, "forbid_external_pickup": true, "worker_visible": false}
+    }
+  ]
+}

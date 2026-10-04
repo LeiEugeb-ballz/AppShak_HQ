@@ -3,6 +3,7 @@ import { after, before, test } from 'node:test'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { createHash } from 'node:crypto'
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createServer } from 'vite'
@@ -14,6 +15,9 @@ import {
 } from '../src/office/officeState.js'
 import { OfficeAnimator } from '../src/office/animator.js'
 import { projectOfficeModel } from '../src/office/projection.js'
+import { drawOfficeScene } from '../src/office/scene.js'
+import { createVisualScenario, VISUAL_SCENARIOS } from './s2cVisualFixtures.js'
+import { validateFindings, validateManifest, verifyVisualEvidence } from './s2cVerification.mjs'
 
 const uiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 let vite
@@ -389,4 +393,105 @@ test('projection errors and duplicated historical assignments never create extra
   animator.ingestOfficeModel(projectionError)
   assert.equal(animator.tick(2000).officeProjection.state, 'PROJECTION_ERROR')
   assert.deepEqual(animator.tick(2001).avatars, {})
+})
+
+function verificationContext() {
+  const gradient = { addColorStop() {} }
+  return {
+    createLinearGradient: () => gradient,
+    createRadialGradient: () => gradient,
+    beginPath() {}, moveTo() {}, lineTo() {}, quadraticCurveTo() {},
+    closePath() {}, fill() {}, stroke() {}, fillRect() {}, arc() {},
+    ellipse() {}, fillText() {},
+    measureText(value) {
+      const size = Number.parseFloat(String(this.font).match(/(\d+(?:\.\d+)?)px/)?.[1] ?? '12')
+      return { width: String(value).length * size * 0.55 }
+    },
+  }
+}
+
+const s2cRoot = path.resolve(uiRoot, '../APP_SHAK_HANDOVER/S2C_VISUAL_REVIEW')
+
+test('S2C manifest binds all six synthetic ATS fixtures to stable S2B images', async () => {
+  const manifest = JSON.parse(await readFile(path.join(s2cRoot, 'manifest.json'), 'utf8'))
+  assert.equal(validateManifest(manifest), true)
+  assert.deepEqual(manifest.states.map((entry) => entry.fixture), VISUAL_SCENARIOS)
+  for (const entry of manifest.states) {
+    const bytes = await readFile(path.resolve(s2cRoot, entry.baseline_image))
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.baseline_sha256)
+  }
+})
+
+test('S2C findings stay within the bounded review schema', async () => {
+  const findings = JSON.parse(await readFile(path.join(s2cRoot, 'findings.json'), 'utf8'))
+  assert.equal(validateFindings(findings), true)
+  assert.throws(() => validateFindings([...findings, {
+    ...findings[0], finding_id: 'MUTATION', runtime_mutation: 'dispatch work',
+  }]))
+})
+
+test('S2C review package retains six screenshots and explicit human gate', async () => {
+  const review = JSON.parse(await readFile(path.join(s2cRoot, 'review.json'), 'utf8'))
+  assert.equal(review.semantic_certified, true)
+  assert.equal(review.structural_certified, true)
+  assert.equal(review.perceptual_reviewed, true)
+  assert.equal(review.human_accepted, false)
+  assert.deepEqual(review.states.map((entry) => entry.fixture), VISUAL_SCENARIOS)
+  for (const entry of review.states) {
+    assert.equal(entry.semantic_pass, true)
+    assert.equal(entry.structural_pass, true)
+    assert.equal(entry.human_review_status, 'PENDING_OWNER_ACCEPTANCE')
+    assert.ok((await readFile(path.join(s2cRoot, entry.screenshot))).length > 0)
+    assert.ok(entry.semantic_assertions.every((check) => check.passed))
+    assert.ok(Object.values(entry.structural_checks).every((checks) => checks.every((check) => check.passed)))
+  }
+})
+
+test('all six S2C states pass deterministic semantic and structural contracts', async () => {
+  const manifest = JSON.parse(await readFile(path.join(s2cRoot, 'manifest.json'), 'utf8'))
+  for (const entry of manifest.states) {
+    const scenario = createVisualScenario(entry.fixture)
+    for (const [width, height] of [[1240, 532], [390, 360]]) {
+      const animator = new OfficeAnimator()
+      animator.ingestOfficeModel(scenario.model)
+      const frame = animator.tick(1000)
+      const rendered = drawOfficeScene(verificationContext(), width, height, {
+        animationState: frame, officeModel: scenario.model, connectionState: 'fixture',
+      })
+      const observation = {
+        ats: {
+          task_state: scenario.raw.tasks[0].state,
+          attempt_state: scenario.raw.tasks[0].attempts[0].state,
+          validation_state: scenario.raw.tasks[0].validations[0]?.status ?? null,
+          dispatch_state: scenario.raw.batons[0]?.dispatch_status ?? null,
+          worker_id: scenario.raw.tasks[0].assigned_agent,
+        },
+        projection: frame.officeProjection,
+        render: rendered,
+        browser: {
+          canvas: { left: 0, right: width, width, height },
+          viewport_width: width,
+          document_width: width,
+        },
+      }
+      const before = structuredClone(observation)
+      const first = verifyVisualEvidence(entry, observation)
+      const second = verifyVisualEvidence(entry, observation)
+      assert.deepEqual(first, second)
+      assert.deepEqual(observation, before)
+      assert.equal(first.semantic_pass, true, `${entry.fixture}: semantic ${JSON.stringify(first.semantic)}`)
+      assert.equal(first.structural_pass, true, `${entry.fixture}: structural ${JSON.stringify(first.structural)}`)
+    }
+  }
+})
+
+test('S2C browser audit and fixture add no operational network method', async () => {
+  const files = [
+    'tests/s2cBrowserAudit.mjs', 'tests/s2cVerification.mjs',
+    'tests/s2cVisualFixtures.js', 'tests/s2bVisualBaseline.jsx',
+    'src/office/scene.js',
+  ]
+  const combined = (await Promise.all(files.map((file) => readFile(path.join(uiRoot, file), 'utf8')))).join('\n')
+  assert.doesNotMatch(combined, /method:\s*['"](?:POST|PUT|PATCH|DELETE)['"]/i)
+  assert.doesNotMatch(combined, /\/api\/(?:task|validation|dispatch|baton)/i)
 })

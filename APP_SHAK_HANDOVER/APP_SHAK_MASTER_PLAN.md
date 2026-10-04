@@ -696,7 +696,7 @@ Close the gap between code-correct visuals and what a human actually sees.
 
 
 
-\[ ] S2C — Visual / perceptual verification
+\[x] S2C — Visual / perceptual verification
 
 
 
@@ -1060,9 +1060,9 @@ S2A  Operator interaction / inspection     COMPLETE
 
 S2B  Live office-state projection          COMPLETE
 
-S2C  Visual/perceptual verification        NEXT
+S2C  Visual/perceptual verification        COMPLETE
 
-S2D  External capability handoff           PENDING
+S2D  External capability handoff           NEXT
 
 S2E  Office metaphor / polished animation  PENDING
 

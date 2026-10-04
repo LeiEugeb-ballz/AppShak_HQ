@@ -1,0 +1,62 @@
+[
+  {
+    "finding_id": "S2C-P-001",
+    "fixture": "all",
+    "category": "PERCEPTUAL",
+    "severity": "MAJOR",
+    "description": "The office reads as a diagnostic wireframe rather than a believable workspace.",
+    "evidence": "Owner visual review of the six S2B baselines; S2C images preserve the same schematic room shell.",
+    "recommended_bounded_correction": "S2E may refine room depth, objects, and spatial hierarchy while keeping ATS state mapping unchanged.",
+    "status": "ACCEPTED_FOR_S2E"
+  },
+  {
+    "finding_id": "S2C-P-002",
+    "fixture": "active",
+    "category": "PERCEPTUAL",
+    "severity": "MAJOR",
+    "description": "The active worker is labelled mainly by a short role code; human-readable identity is weak.",
+    "evidence": "The active S2B baseline shows COM beside the avatar while the full task and worker IDs are in the console/HUD.",
+    "recommended_bounded_correction": "S2E may add a legible identity treatment that stays bound to the ATS assigned-agent ID.",
+    "status": "OPEN"
+  },
+  {
+    "finding_id": "S2C-P-003",
+    "fixture": "active",
+    "category": "PERCEPTUAL",
+    "severity": "MAJOR",
+    "description": "Movement and destination are not perceptually represented in the static office.",
+    "evidence": "The current scene shows an assigned worker at a desk but no visible travel path or destination narrative.",
+    "recommended_bounded_correction": "S2E may animate only ATS-supported location changes with a visible destination cue.",
+    "status": "ACCEPTED_FOR_S2E"
+  },
+  {
+    "finding_id": "S2C-P-004",
+    "fixture": "validation_failed,needs_reconciliation,complete",
+    "category": "PERCEPTUAL",
+    "severity": "MINOR",
+    "description": "Failure, reconciliation, and completion remain heavily dependent on text labels and color.",
+    "evidence": "Each baseline has a distinct written state and color, but little additional object or workflow metaphor.",
+    "recommended_bounded_correction": "S2E may introduce distinct, ATS-bound work-item shapes or room treatments without hiding the text label.",
+    "status": "ACCEPTED_FOR_S2E"
+  },
+  {
+    "finding_id": "S2C-P-005",
+    "fixture": "active",
+    "category": "PERCEPTUAL",
+    "severity": "MINOR",
+    "description": "The active marker and nearby avatar label feel cramped at desktop size.",
+    "evidence": "The active S2B and S2C screenshots place the state marker close to the COM avatar label.",
+    "recommended_bounded_correction": "S2E may refine local spacing after preserving the S2C bounds and overlap checks.",
+    "status": "OPEN"
+  },
+  {
+    "finding_id": "S2C-P-006",
+    "fixture": "waiting_for_capability",
+    "category": "PERCEPTUAL",
+    "severity": "MINOR",
+    "description": "The holding state is truthful but its office metaphor is minimal.",
+    "evidence": "The waiting baseline shows the dispatch zone and WAITING_FOR_CAPABILITY label with no pickup avatar.",
+    "recommended_bounded_correction": "S2E may add a clear holding object or queue metaphor while preserving the no-pickup boundary.",
+    "status": "ACCEPTED_FOR_S2E"
+  }
+]

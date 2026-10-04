@@ -1,0 +1,1580 @@
+{
+  "schema_version": 1,
+  "manifest": "manifest.json",
+  "baseline_commit": "b7f56df5cb2c9ed2572a3cceed4a3248c1d2c10b",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 760
+    },
+    {
+      "name": "compact",
+      "width": 500,
+      "height": 844
+    }
+  ],
+  "semantic_certified": true,
+  "structural_certified": true,
+  "perceptual_reviewed": true,
+  "human_accepted": false,
+  "states": [
+    {
+      "fixture": "active",
+      "ats_fixture": {
+        "task_state": "EXECUTING",
+        "attempt_state": "RUNNING",
+        "validation_state": null,
+        "dispatch_state": null,
+        "worker_id": "command"
+      },
+      "baseline": {
+        "image": "../S2B_VISUAL_BASELINES/active.png",
+        "sha256": "e3ab3e565a145915e2d3271bfbb50b6fd521723ccd7369121630c15c7225f73c"
+      },
+      "screenshot": "images/active.png",
+      "semantic_assertions": [
+        {
+          "name": "ATS fixture binding",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "ATS-derived visual state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "freshness",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "expected zone",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "status label",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "marker visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "stale overlay visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "allowed worker identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "forbidden completion",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "no external pickup",
+          "passed": true,
+          "detail": null
+        }
+      ],
+      "structural_checks": {
+        "desktop": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ],
+        "compact": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ]
+      },
+      "measurements": {
+        "desktop": {
+          "office_viewport": {
+            "width": 1223,
+            "height": 465
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 1223.625,
+            "height": 465.5,
+            "top": 98.203125,
+            "right": 1243.8125,
+            "bottom": 563.703125,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 1264,
+          "document_width": 1264,
+          "hud_bounds": {
+            "x": 30.575000000000003,
+            "y": 13.95,
+            "width": 440.28,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 274.32146399999993,
+            "y": 223.0629,
+            "width": 34.4052,
+            "height": 34.4052
+          },
+          "status_label_bounds": {
+            "x": 226.02406399999995,
+            "y": 186.2387,
+            "width": 131,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        },
+        "compact": {
+          "office_viewport": {
+            "width": 459,
+            "height": 434
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 459.625,
+            "height": 434.40625,
+            "top": 98.203125,
+            "right": 479.8125,
+            "bottom": 532.609375,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 500,
+          "document_width": 500,
+          "hud_bounds": {
+            "x": 11.475000000000001,
+            "y": 13.02,
+            "width": 280,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 92.20831199999999,
+            "y": 207.0452,
+            "width": 34.4052,
+            "height": 34.4052
+          },
+          "status_label_bounds": {
+            "x": 43.910911999999996,
+            "y": 170.22099999999998,
+            "width": 131,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        }
+      },
+      "semantic_pass": true,
+      "structural_pass": true,
+      "known_limitations": [
+        "S2C-P-001",
+        "S2C-P-002",
+        "S2C-P-003",
+        "S2C-P-005"
+      ],
+      "human_review_status": "PENDING_OWNER_ACCEPTANCE"
+    },
+    {
+      "fixture": "validation_failed",
+      "ats_fixture": {
+        "task_state": "VALIDATION_FAILED",
+        "attempt_state": "SUCCEEDED",
+        "validation_state": "FAILED",
+        "dispatch_state": null,
+        "worker_id": "command"
+      },
+      "baseline": {
+        "image": "../S2B_VISUAL_BASELINES/validation_failed.png",
+        "sha256": "ba5960950f0e117924105f88c08afc01a26e80c680fb599373710e49c76e71e8"
+      },
+      "screenshot": "images/validation_failed.png",
+      "semantic_assertions": [
+        {
+          "name": "ATS fixture binding",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "ATS-derived visual state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "freshness",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "expected zone",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "status label",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "marker visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "stale overlay visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "allowed worker identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "forbidden completion",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "no external pickup",
+          "passed": true,
+          "detail": null
+        }
+      ],
+      "structural_checks": {
+        "desktop": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ],
+        "compact": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ]
+      },
+      "measurements": {
+        "desktop": {
+          "office_viewport": {
+            "width": 1223,
+            "height": 465
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 1223.625,
+            "height": 465.5,
+            "top": 98.203125,
+            "right": 1243.8125,
+            "bottom": 563.703125,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 1264,
+          "document_width": 1264,
+          "hud_bounds": {
+            "x": 30.575000000000003,
+            "y": 13.95,
+            "width": 440.28,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 264.3132,
+            "y": 339.998,
+            "width": 39.824,
+            "height": 39.824
+          },
+          "status_label_bounds": {
+            "x": 220.22519999999997,
+            "y": 299.89399999999995,
+            "width": 128,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        },
+        "compact": {
+          "office_viewport": {
+            "width": 459,
+            "height": 434
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 459.625,
+            "height": 434.40625,
+            "top": 98.203125,
+            "right": 479.8125,
+            "bottom": 532.609375,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 500,
+          "document_width": 500,
+          "hud_bounds": {
+            "x": 11.475000000000001,
+            "y": 13.02,
+            "width": 280,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 86.75959999999998,
+            "y": 316.004,
+            "width": 39.824,
+            "height": 39.824
+          },
+          "status_label_bounds": {
+            "x": 42.671599999999984,
+            "y": 275.9,
+            "width": 128,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        }
+      },
+      "semantic_pass": true,
+      "structural_pass": true,
+      "known_limitations": [
+        "S2C-P-001",
+        "S2C-P-004"
+      ],
+      "human_review_status": "PENDING_OWNER_ACCEPTANCE"
+    },
+    {
+      "fixture": "needs_reconciliation",
+      "ats_fixture": {
+        "task_state": "NEEDS_RECONCILIATION",
+        "attempt_state": "NEEDS_RECONCILIATION",
+        "validation_state": null,
+        "dispatch_state": null,
+        "worker_id": "command"
+      },
+      "baseline": {
+        "image": "../S2B_VISUAL_BASELINES/needs_reconciliation.png",
+        "sha256": "84051db4d18f1d7956684f98d1e607b232d1fd4c350453b1b3ab5e1fd9464a64"
+      },
+      "screenshot": "images/needs_reconciliation.png",
+      "semantic_assertions": [
+        {
+          "name": "ATS fixture binding",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "ATS-derived visual state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "freshness",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "expected zone",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "status label",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "marker visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "stale overlay visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "allowed worker identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "forbidden completion",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "no external pickup",
+          "passed": true,
+          "detail": null
+        }
+      ],
+      "structural_checks": {
+        "desktop": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ],
+        "compact": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ]
+      },
+      "measurements": {
+        "desktop": {
+          "office_viewport": {
+            "width": 1223,
+            "height": 465
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 1223.625,
+            "height": 465.5,
+            "top": 98.203125,
+            "right": 1243.8125,
+            "bottom": 563.703125,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 1264,
+          "document_width": 1264,
+          "hud_bounds": {
+            "x": 30.575000000000003,
+            "y": 13.95,
+            "width": 440.28,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 264.3132,
+            "y": 339.998,
+            "width": 39.824,
+            "height": 39.824
+          },
+          "status_label_bounds": {
+            "x": 208.22519999999997,
+            "y": 299.89399999999995,
+            "width": 152,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        },
+        "compact": {
+          "office_viewport": {
+            "width": 459,
+            "height": 434
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 459.625,
+            "height": 434.40625,
+            "top": 98.203125,
+            "right": 479.8125,
+            "bottom": 532.609375,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 500,
+          "document_width": 500,
+          "hud_bounds": {
+            "x": 11.475000000000001,
+            "y": 13.02,
+            "width": 280,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 86.75959999999998,
+            "y": 316.004,
+            "width": 39.824,
+            "height": 39.824
+          },
+          "status_label_bounds": {
+            "x": 30.671599999999984,
+            "y": 275.9,
+            "width": 152,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        }
+      },
+      "semantic_pass": true,
+      "structural_pass": true,
+      "known_limitations": [
+        "S2C-P-001",
+        "S2C-P-004"
+      ],
+      "human_review_status": "PENDING_OWNER_ACCEPTANCE"
+    },
+    {
+      "fixture": "complete",
+      "ats_fixture": {
+        "task_state": "COMPLETE",
+        "attempt_state": "SUCCEEDED",
+        "validation_state": "PASSED",
+        "dispatch_state": null,
+        "worker_id": "command"
+      },
+      "baseline": {
+        "image": "../S2B_VISUAL_BASELINES/complete.png",
+        "sha256": "61ee842ef1108d9c9e35ffaffe28c85affc82cc751608672d8393dd5eb6ef1b1"
+      },
+      "screenshot": "images/complete.png",
+      "semantic_assertions": [
+        {
+          "name": "ATS fixture binding",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "ATS-derived visual state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "freshness",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "expected zone",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "status label",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "marker visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "stale overlay visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "allowed worker identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "forbidden completion",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "no external pickup",
+          "passed": true,
+          "detail": null
+        }
+      ],
+      "structural_checks": {
+        "desktop": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ],
+        "compact": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ]
+      },
+      "measurements": {
+        "desktop": {
+          "office_viewport": {
+            "width": 1223,
+            "height": 465
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 1223.625,
+            "height": 465.5,
+            "top": 98.203125,
+            "right": 1243.8125,
+            "bottom": 563.703125,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 1264,
+          "document_width": 1264,
+          "hud_bounds": {
+            "x": 30.575000000000003,
+            "y": 13.95,
+            "width": 440.28,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 897.04448,
+            "y": 339.998,
+            "width": 39.824,
+            "height": 39.824
+          },
+          "status_label_bounds": {
+            "x": 869.45648,
+            "y": 299.89399999999995,
+            "width": 95,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        },
+        "compact": {
+          "office_viewport": {
+            "width": 459,
+            "height": 434
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 459.625,
+            "height": 434.40625,
+            "top": 98.203125,
+            "right": 479.8125,
+            "bottom": 532.609375,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 500,
+          "document_width": 500,
+          "hud_bounds": {
+            "x": 11.475000000000001,
+            "y": 13.02,
+            "width": 280,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 324.22784,
+            "y": 316.004,
+            "width": 39.824,
+            "height": 39.824
+          },
+          "status_label_bounds": {
+            "x": 296.63984,
+            "y": 275.9,
+            "width": 95,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        }
+      },
+      "semantic_pass": true,
+      "structural_pass": true,
+      "known_limitations": [
+        "S2C-P-001",
+        "S2C-P-004"
+      ],
+      "human_review_status": "PENDING_OWNER_ACCEPTANCE"
+    },
+    {
+      "fixture": "waiting_for_capability",
+      "ats_fixture": {
+        "task_state": "COMPLETE",
+        "attempt_state": "SUCCEEDED",
+        "validation_state": "PASSED",
+        "dispatch_state": "WAITING_FOR_CAPABILITY",
+        "worker_id": "command"
+      },
+      "baseline": {
+        "image": "../S2B_VISUAL_BASELINES/waiting_for_capability.png",
+        "sha256": "6ed22c2d08ac193f50c557a65f8f88b36f3b0b0cc184b37295f8d66f1774fa77"
+      },
+      "screenshot": "images/waiting_for_capability.png",
+      "semantic_assertions": [
+        {
+          "name": "ATS fixture binding",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "ATS-derived visual state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "freshness",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "expected zone",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "status label",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "marker visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "stale overlay visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "allowed worker identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "forbidden completion",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "no external pickup",
+          "passed": true,
+          "detail": null
+        }
+      ],
+      "structural_checks": {
+        "desktop": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ],
+        "compact": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "marker inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "status label text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary labels do not overlap",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "state has a text cue beyond color",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ]
+      },
+      "measurements": {
+        "desktop": {
+          "office_viewport": {
+            "width": 1223,
+            "height": 465
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 1223.625,
+            "height": 465.5,
+            "top": 98.203125,
+            "right": 1243.8125,
+            "bottom": 563.703125,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 1264,
+          "document_width": 1264,
+          "hud_bounds": {
+            "x": 30.575000000000003,
+            "y": 13.95,
+            "width": 440.28,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 438.2086560000001,
+            "y": 196.6582,
+            "width": 33.181599999999996,
+            "height": 33.181599999999996
+          },
+          "status_label_bounds": {
+            "x": 373.2994560000001,
+            "y": 160.5746,
+            "width": 163,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        },
+        "compact": {
+          "office_viewport": {
+            "width": 459,
+            "height": 434
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 459.625,
+            "height": 434.40625,
+            "top": 98.203125,
+            "right": 479.8125,
+            "bottom": 532.609375,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 500,
+          "document_width": 500,
+          "hud_bounds": {
+            "x": 11.475000000000001,
+            "y": 13.02,
+            "width": 280,
+            "height": 120
+          },
+          "marker_bounds": {
+            "x": 154.098448,
+            "y": 182.4416,
+            "width": 33.181599999999996,
+            "height": 33.181599999999996
+          },
+          "status_label_bounds": {
+            "x": 89.18924799999999,
+            "y": 146.358,
+            "width": 163,
+            "height": 22
+          },
+          "stale_overlay_text_bounds": null
+        }
+      },
+      "semantic_pass": true,
+      "structural_pass": true,
+      "known_limitations": [
+        "S2C-P-001",
+        "S2C-P-006"
+      ],
+      "human_review_status": "PENDING_OWNER_ACCEPTANCE"
+    },
+    {
+      "fixture": "stale_unavailable",
+      "ats_fixture": {
+        "task_state": "COMPLETE",
+        "attempt_state": "SUCCEEDED",
+        "validation_state": "PASSED",
+        "dispatch_state": "WAITING_FOR_CAPABILITY",
+        "worker_id": "command"
+      },
+      "baseline": {
+        "image": "../S2B_VISUAL_BASELINES/stale_unavailable.png",
+        "sha256": "96f7a343c1a9cddd6dd30e84698a665ccf19395dddfefeae3de0b8181b0fce6b"
+      },
+      "screenshot": "images/stale_unavailable.png",
+      "semantic_assertions": [
+        {
+          "name": "ATS fixture binding",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "ATS-derived visual state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "freshness",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "expected zone",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "status label",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "marker visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "stale overlay visibility",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "allowed worker identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "forbidden completion",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "no external pickup",
+          "passed": true,
+          "detail": null
+        }
+      ],
+      "structural_checks": {
+        "desktop": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "error overlay text inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "error overlay has visible text",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ],
+        "compact": [
+          {
+            "name": "nonempty canvas viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "HUD inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "primary HUD status text fits",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "error overlay text inside office viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "error overlay has visible text",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "canvas in browser viewport",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no horizontal document overflow",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "no undefined primary labels",
+            "passed": true,
+            "detail": null
+          }
+        ]
+      },
+      "measurements": {
+        "desktop": {
+          "office_viewport": {
+            "width": 1223,
+            "height": 465
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 1223.625,
+            "height": 465.5,
+            "top": 98.203125,
+            "right": 1243.8125,
+            "bottom": 563.703125,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 1264,
+          "document_width": 1264,
+          "hud_bounds": {
+            "x": 30.575000000000003,
+            "y": 13.95,
+            "width": 440.28,
+            "height": 120
+          },
+          "marker_bounds": null,
+          "status_label_bounds": null,
+          "stale_overlay_text_bounds": {
+            "x": 250.900146484375,
+            "y": 189.95000000000002,
+            "width": 721.19970703125,
+            "height": 61.150000000000006
+          }
+        },
+        "compact": {
+          "office_viewport": {
+            "width": 459,
+            "height": 434
+          },
+          "browser_canvas": {
+            "x": 20.1875,
+            "y": 98.203125,
+            "width": 459.625,
+            "height": 434.40625,
+            "top": 98.203125,
+            "right": 479.8125,
+            "bottom": 532.609375,
+            "left": 20.1875
+          },
+          "browser_viewport_width": 500,
+          "document_width": 500,
+          "hud_bounds": {
+            "x": 11.475000000000001,
+            "y": 13.02,
+            "width": 280,
+            "height": 120
+          },
+          "marker_bounds": null,
+          "status_label_bounds": null,
+          "stale_overlay_text_bounds": {
+            "x": 64.384765625,
+            "y": 206.36,
+            "width": 330.23046875,
+            "height": 28
+          }
+        }
+      },
+      "semantic_pass": true,
+      "structural_pass": true,
+      "known_limitations": [
+        "S2C-P-001"
+      ],
+      "human_review_status": "PENDING_OWNER_ACCEPTANCE"
+    }
+  ]
+}

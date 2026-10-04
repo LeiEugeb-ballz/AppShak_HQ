@@ -1,0 +1,42 @@
+{
+  "baton_id": "BATON-0012",
+  "source_baton": "E:\\AppShak_HQ\\.appshak\\batons\\BATON-0011-s2b-live-office.json",
+  "phase": "s2c_visual_perceptual_verification",
+  "work_package": "S2C — Visual / perceptual verification",
+  "starting_commit": "b7f56df5cb2c9ed2572a3cceed4a3248c1d2c10b",
+  "completion_status": "PASS_WITH_NONBLOCKING_FINDINGS",
+  "certification_status": "S2C_VISUAL_VERIFICATION_PROCESS_CERTIFIED",
+  "record_kind": "repository_handover_projection",
+  "runtime_dispatchable": false,
+  "ats_authority": "Synthetic ATS fixtures through production read-only view-model and office scene",
+  "semantic_visual_verification": "PASS",
+  "structural_visual_verification": "PASS",
+  "perceptual_reviewed": true,
+  "human_accepted": false,
+  "baseline_manifest": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2C_VISUAL_REVIEW\\manifest.json",
+  "visual_review_package": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2C_VISUAL_REVIEW\\README.md",
+  "perceptual_findings": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2C_VISUAL_REVIEW\\findings.json",
+  "tests_run": [
+    "node tests/s2cBrowserAudit.mjs",
+    "npm run lint",
+    "npm run test:office",
+    "npm run build",
+    "python -m unittest discover -s tests -p \"test_*.py\" -v"
+  ],
+  "tests_passed": [
+    "Six browser fixtures: semantic and structural PASS at desktop and compact sizes",
+    "Repository-wide ESLint: 0 errors",
+    "Focused UI tests: 32",
+    "UI build: PASS",
+    "Full Python regression: 111"
+  ],
+  "tests_failed": [],
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    "Six bounded perceptual findings remain OPEN or ACCEPTED_FOR_S2E.",
+    "Visual baselines are synthetic engineering fixtures, not live-backend or final artwork approval.",
+    "The owner-controlled master plan CURRENT POSITION table was not changed."
+  ],
+  "report": "E:\\AppShak_HQ\\APP_SHAK_HANDOVER\\S2C_VISUAL_PERCEPTUAL_VERIFICATION.md",
+  "recommended_next_stage": "S2D — External capability handoff"
+}
